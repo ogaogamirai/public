@@ -187,7 +187,7 @@
       <h1>システムダイナミクス×TOC 学習教材</h1>
       <p class="tagline">見る（SD: 構造の全体像）→ 直す（TOC: 制約への集中）→ 抽象化（自分たちの言葉で）</p>
       <p>中学2年生〜一般社会人。Markdown 正本から自動生成した統合版です。</p>
-      <p>生成日時: 2026-08-10 12:08 +0900</p>
+      <p>生成日時: 2026-08-10 17:39 +0900</p>
     </header>
 
     <nav class="toc" id="toc" aria-label="章一覧">
@@ -785,8 +785,7 @@ math-bridge/README.md 参照。</p>
 <pre><code>水位の変化 = 入り − 出
 </code></pre>
 <p>これは、数学の言葉ではこう書きます。</p>
-$$ \frac{d(\text{水位})}{dt} = \text{入り} - \text{出} $$
-
+<p>$$ \frac{d(\text{水位})}{dt} = \text{入り} - \text{出} $$</p>
 <ul>
 <li>$d(\text{水位})$ … 水位の<strong>ほんの少しの変化</strong></li>
 <li>$dt$ … <strong>ほんの少しの時間</strong>の変化</li>
@@ -1544,15 +1543,13 @@ math-bridge/README.md 参照。</p>
 <h2>9. Deepen — 正のループは「倍々」になる</h2>
 <p>正のループ（増えるともっと増える）を数式で見てみましょう。</p>
 <p>ストックの増える速さが「今ある量に比例する」とき：</p>
-$$ \frac{d(\text{ストック})}{dt} = r \times \text{ストック} $$
-
+<p>$$ \frac{d(\text{ストック})}{dt} = r \times \text{ストック} $$</p>
 <ul>
 <li>$r$ … 増えやすさ（正の数）</li>
 <li>右辺に「ストック」自身が入っているのがポイント</li>
 </ul>
 <p>これは「今の量に比例して増える」= <strong>倍々ゲーム</strong>です。B9 で導出すると、解は次の形になります：</p>
-$$ \text{ストック}(t) = \text{ストック}(0) \times e^{r t} $$
-
+<p>$$ \text{ストック}(t) = \text{ストック}(0) \times e^{r t} $$</p>
 <ul>
 <li>$e$ … 約2.718…の特別な数（自然対数の底）</li>
 <li>$e^{r t}$ … 時間とともに爆発的に大きくなる</li>
@@ -2010,16 +2007,14 @@ L 73.75 67.43
 
 <h2>10. Deepen — 負のループは「収束」する</h2>
 <p>負のループ（増えると抑える）では、量が目標値に近づくほど、増える速さが弱まります。</p>
-$$ \frac{d(\text{ストック})}{dt} = k \times (\text{目標} - \text{ストック}) $$
-
+<p>$$ \frac{d(\text{ストック})}{dt} = k \times (\text{目標} - \text{ストック}) $$</p>
 <ul>
 <li>ストックが目標より小さい → 右辺が正（増える）</li>
 <li>ストックが目標に近づく → 右辺が小さくなる（増え方が鈍る）</li>
 <li>ストック = 目標 → 右辺 = 0（変化なし）</li>
 </ul>
 <p><strong>解の形（B10 で導出）:</strong></p>
-$$ \text{ストック}(t) = \text{目標} + (\text{ストック}(0) - \text{目標})\, e^{-k t} $$
-
+<p>$$ \text{ストック}(t) = \text{目標} + (\text{ストック}(0) - \text{目標})\, e^{-k t} $$</p>
 <p>時間とともに <strong>目標</strong> になめらかに近づきます。</p>
 <p><strong>意味:</strong> 負のループは、量を目標に<strong>なめらかに近づけて、そこに落ち着かせる</strong>。これが「ちょうどいい」に落ち着く理由の数理です。</p>
 <h2>11. Extend — 正と負の組み合わせ（転移・L4）</h2>
@@ -2896,8 +2891,7 @@ Step6 検証する（下のチェック表。Unit 7 §4.5 と同型）
 <h2>9. Deepen — 遅れを数式で表す</h2>
 <p>時間の遅れをモデルに組み込むと、システムの動きが変わります。</p>
 <p>遅れのない負のループ（室温調整）では、すぐに目標に近づきます（<strong>B10</strong> と同型）。</p>
-$$ \frac{d(\text{温度})}{dt} = k \times (\text{設定温度} - \text{温度}) $$
-
+<p>$$ \frac{d(\text{温度})}{dt} = k \times (\text{設定温度} - \text{温度}) $$</p>
 <p>解は $\text{温度}(t) = \text{設定温度} + (\text{温度}_0 - \text{設定温度})\, e^{-kt}$ — 設定温度へなめらかに収束します。</p>
 <p>ここに「<strong>実際に効く温度変化は、操作から遅れてやってくる</strong>」という遅れを入れると、式は複雑になり、動きは「行き過ぎ→戻す→行き過ぎ」の<strong>振動</strong>になります。</p>
 <p><strong>直感的な説明:</strong> エアコンを上げても、室温が上がるまで時間がかかる。その間に「まだ寒い」とさらに上げてしまう。遅れて一気に暖かくなって、今度は暑すぎる。これが繰り返されて、温度は設定値の周りを揺れます。</p>
@@ -3949,8 +3943,7 @@ L 393.88 67.17
                                 ↑ここにたまる
 </code></pre>
 <p>ボトルネックの処理能力（出）より入ってくる量（入り）が多ければ、在庫が増えます。</p>
-$$ \frac{d(\text{在庫})}{dt} = \text{入ってくる個数} - \text{処理できる個数} $$
-
+<p>$$ \frac{d(\text{在庫})}{dt} = \text{入ってくる個数} - \text{処理できる個数} $$</p>
 <ul>
 <li>入り &gt; 処理 → 在庫が増える（行列が伸びる）</li>
 <li>入り = 処理 → 在庫は一定（行列は変わらない）</li>
@@ -5321,8 +5314,7 @@ L 66.68 355.04
 <li>ステップ2（活用）: 到着率 $\lambda$ とサービス率 $\mu$ の差を、無駄なく詰める</li>
 <li>ステップ4（強化）: $\mu$ そのものを上げる（$\mu > \lambda$ にする）</li>
 </ul>
-$$\mu < \lambda \text{ の間は、待ち行列は伸び続ける（発散）}$$
-
+<p>$$\mu < \lambda \text{ の間は、待ち行列は伸び続ける（発散）}$$</p>
 <p>つまり「$\mu$（処理能力）が $\lambda$（到着）より小さければ、何をしても全体は詰まる」— これが制約の数理的な正体です。</p>
 <h2>10. Deepen — TOC の思考プロセスへ（橋渡し）</h2>
 <p>TOC には、5ステップより深い思考プロセス（Thinking Processes）があります。</p>
@@ -9217,8 +9209,7 @@ Unit 11   対比と抽象化: 「システム思考」として統合
 <p><strong>式の読み方:</strong> math-bridge の <strong>B11</strong>（連立 ODE・$\beta$・$\gamma$・オイラー3ストック）を B8 のあとに読むと、下の3式とシミュが同じ型になる。</p>
 </blockquote>
 <p>SIR モデルは次の式で書けます（$N$ は総人口）：</p>
-$$ \frac{dS}{dt} = -\beta \frac{SI}{N},\quad \frac{dI}{dt} = \beta \frac{SI}{N} - \gamma I,\quad \frac{dR}{dt} = \gamma I $$
-
+<p>$$ \frac{dS}{dt} = -\beta \frac{SI}{N},\quad \frac{dI}{dt} = \beta \frac{SI}{N} - \gamma I,\quad \frac{dR}{dt} = \gamma I $$</p>
 <p>コンピュータでは、また <strong>オイラー法</strong>（少しずつ時間を進めて更新）で曲線を描きます。</p>
 <h3>静的な結果（ビルド時に Python で計算）</h3>
 <figure class="figure"><div class="figure-svg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="100%" height="100%">
@@ -9414,8 +9405,7 @@ $$ \frac{dS}{dt} = -\beta \frac{SI}{N},\quad \frac{dI}{dt} = \beta \frac{SI}{N} 
 <p>システムダイナミクスでは「どれだけ速く変わるか」がすべての中心です。まずは、その基本の道具「変化の割合」を確認します。</p>
 <h2>2. 変化の割合とは</h2>
 <p>「物事がどれだけの速さで変わるか」を表す数です。</p>
-$$ \text{変化の割合} = \frac{\text{変化した量}}{\text{かかった時間}} $$
-
+<p>$$ \text{変化の割合} = \frac{\text{変化した量}}{\text{かかった時間}} $$</p>
 <blockquote>
 <p>例: 5分で気温が3℃上がった → 変化の割合 = 3 ÷ 5 = 0.6℃/分</p>
 </blockquote>
@@ -9473,8 +9463,7 @@ $$ \text{変化の割合} = \frac{\text{変化した量}}{\text{かかった時�
 <p>変化の様子は、式より<strong>グラフ</strong>で見ると一目で分かります。「時間の経過とともに、量がどう変わるか」をグラフにすると、システムの動きが直感的に見えます。</p>
 <h2>2. 関数とは</h2>
 <p>一方（時間など）を決めると、もう一方（量）が1つに決まる関係。</p>
-$$ y = \text{変化の割合} \times t $$
-
+<p>$$ y = \text{変化の割合} \times t $$</p>
 <ul>
 <li>$t$ … 時間（横軸）</li>
 <li>$y$ … 量（縦軸）</li>
@@ -9562,12 +9551,10 @@ $$ y = \text{変化の割合} \times t $$
 <li>区切りを細かくすればするほど、その瞬間の速さに近づく</li>
 <li>時間の区切りを「ほんの少し（瞬間）」まで細かくしたときの速さ = <strong>瞬間の変化率</strong></li>
 </ul>
-$$ \text{瞬間の変化率} \approx \frac{\text{ほんの少しの変化量}}{\text{ほんの少しの時間}} $$
-
+<p>$$ \text{瞬間の変化率} \approx \frac{\text{ほんの少しの変化量}}{\text{ほんの少しの時間}} $$</p>
 <h2>4. 記号で表す</h2>
 <p>この「ほんの少しの時間」を $dt$、「ほんの少しの量の変化」を $d(\text{量})$ と書きます。</p>
-$$ \frac{d(\text{量})}{dt} = \text{瞬間の変化率}（＝\text{増える速さ}） $$
-
+<p>$$ \frac{d(\text{量})}{dt} = \text{瞬間の変化率}（＝\text{増える速さ}） $$</p>
 <p>これは B5 で出てくる <code>d(水位)/dt</code> の形です。<strong>もう、すでに微分方程式の左辺が読める</strong>わけです。</p>
 <h2>5. Check — 確かめてみよう</h2>
 <ol>
@@ -9600,8 +9587,7 @@ $$ \frac{d(\text{量})}{dt} = \text{瞬間の変化率}（＝\text{増える速�
 <p><strong>微分 = 「瞬間の変化率」を求める道具</strong></p>
 </blockquote>
 <p>ある量 $y$ の変化を時間 $t$ で測るとき、瞬間ごとの変化の速さ（=傾き）を求めるのが微分です。</p>
-$$ \text{微分} = \frac{d(\text{量})}{dt} = \text{瞬間の変化率} = \text{グラフの傾き} $$
-
+<p>$$ \text{微分} = \frac{d(\text{量})}{dt} = \text{瞬間の変化率} = \text{グラフの傾き} $$</p>
 <table>
 <thead>
 <tr>
@@ -9634,8 +9620,7 @@ $$ \text{微分} = \frac{d(\text{量})}{dt} = \text{瞬間の変化率} = \text{
 <p><strong>「微分」＝「グラフの傾きを各瞬間ごとに教えてくれる関数」</strong> と覚えておけば十分です。</p>
 <h2>4. 微分方程式への橋渡し</h2>
 <p>B3 で学んだ形に、微分を使うと：</p>
-$$ \frac{d(\text{ストック})}{dt} = \text{入り} - \text{出} $$
-
+<p>$$ \frac{d(\text{ストック})}{dt} = \text{入り} - \text{出} $$</p>
 <p>これが「ストックの瞬間の変化率 = 入り − 出」という意味です。B5 で詳しく読みます。</p>
 <h2>5. Check — 確かめてみよう</h2>
 <ol>
@@ -9663,8 +9648,7 @@ $$ \frac{d(\text{ストック})}{dt} = \text{入り} - \text{出} $$
 <hr>
 <h2>1. なぜこの式が出てくるのか</h2>
 <p>Unit 2 発展編で、お風呂の水位の変化は次の式で書けると説明しました。</p>
-$$ \frac{d(\text{水位})}{dt} = \text{入り} - \text{出} $$
-
+<p>$$ \frac{d(\text{水位})}{dt} = \text{入り} - \text{出} $$</p>
 <p>いきなり記号が出てくると怖いかもしれませんが、<strong>中身は Unit 2 基本編でやった「水位の変化 = 入り − 出」と同じ</strong>です。このUnitの目的は、この式を「読める」ようになること。計算はしません。</p>
 <h2>2. 記号を1つずつ読む</h2>
 <h3><code>d</code> とは何か</h3>
@@ -9677,8 +9661,7 @@ $$ \frac{d(\text{水位})}{dt} = \text{入り} - \text{出} $$
 <p><code>d(水位)/dt</code> = 水位が増える速さ（＝単位時間あたりの水位の変化）</p>
 </blockquote>
 <h2>3. 式全体を言葉に直す</h2>
-$$ \frac{d(\text{水位})}{dt} = \text{入り} - \text{出} $$
-
+<p>$$ \frac{d(\text{水位})}{dt} = \text{入り} - \text{出} $$</p>
 <p>左辺（速さ）と右辺（入り引く出）を言葉にすると：</p>
 <blockquote>
 <p><strong>水位が増える速さ = 入ってくる水 − 出ていく水</strong></p>
@@ -9802,25 +9785,21 @@ $$ \frac{d(\text{水位})}{dt} = \text{入り} - \text{出} $$
 </code></pre>
 <h2>3. 比例して増える＝今の量が大きいほど速く増える</h2>
 <p>「増える速さ」が「今の量」に比例するとき、これを数式で書くと：</p>
-$$ \frac{d(\text{量})}{dt} = r \times \text{量} $$
-
+<p>$$ \frac{d(\text{量})}{dt} = r \times \text{量} $$</p>
 <ul>
 <li>$r$ … 増えやすさ（例: 年利・感染率）</li>
 <li>量が大きいほど、右辺が大きい = 速く増える</li>
 </ul>
 <h2>4. $e$ とは何か</h2>
 <p>この式を解くと、量は次の形になります：</p>
-$$ \text{量}(t) = \text{量}(0) \times e^{r t} $$
-
-$e$
-<p>は約 <strong>2.718…</strong> の特別な数です。円周率 （3.14…）と同様に、数学で何度も登場する「自然な数」なので、<strong>自然対数の底</strong>（しぜんたいすうのてい）と呼ばれます。</p>
+<p>$$ \text{量}(t) = \text{量}(0) \times e^{r t} $$</p>
+<p>$e$ は約 <strong>2.718…</strong> の特別な数です。円周率 $\pi$（3.14…）と同様に、数学で何度も登場する「自然な数」なので、<strong>自然対数の底</strong>（しぜんたいすうのてい）と呼ばれます。</p>
 <p>覚えるのは次の1点で十分です：</p>
 <blockquote>
 <p><strong>$e^{r t}$ は「指数成長」の形。$r$ が正なら爆発的に増え、$r$ が負なら減っていく。</strong></p>
 </blockquote>
 <h2>5. $\ln$ とは何か</h2>
-$\ln$
-<p>（ログ・エルエヌ）は「<strong>何年で何倍になるか</strong>」を答える逆の道具です。</p>
+<p>$\ln$（ログ・エルエヌ）は「<strong>何年で何倍になるか</strong>」を答える逆の道具です。</p>
 <ul>
 <li>指数: $e^{r t}$ が「時間から量」を出す</li>
 <li>$\ln$: 「量から時間」を出す（逆方向）</li>
@@ -9830,11 +9809,9 @@ $\ln$
 </blockquote>
 <p>直感的には「<strong>倍になるまでの時間</strong>」を計算するための道具、と覚えておけば十分です。</p>
 <h2>6. 減衰（$r < 0$）</h2>
-$r$
-<p>が負のとき、量は減っていきます（指数減衰）。</p>
-$$ \text{量}(t) = \text{量}(0) \times e^{r t} \quad (r < 0) $$
-
-$\pi$<figure class="figure"><div class="figure-svg"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+<p>$r$ が負のとき、量は減っていきます（指数減衰）。</p>
+<p>$$ \text{量}(t) = \text{量}(0) \times e^{r t} \quad (r < 0) $$</p>
+<figure class="figure"><div class="figure-svg"><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns:xlink="http://www.w3.org/1999/xlink" width="568.02pt" height="314.89pt" viewBox="0 0 568.02 314.89" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
@@ -10309,8 +10286,7 @@ L 408.29 49.82
 <p><strong>ストックの変化 = 入り − 出</strong></p>
 </blockquote>
 <p>Unit 2 発展編では、同じことを式で書きます。</p>
-$$ \frac{d(\text{ストック})}{dt} = \text{入り} - \text{出} $$
-
+<p>$$ \frac{d(\text{ストック})}{dt} = \text{入り} - \text{出} $$</p>
 <p>B5 では「読める」ことまでやりました。この Unit では <strong>なぜ同じルールが、離散の $\Delta$ と連続の $d$ の両方で出てくるか</strong> を、導きます。ここが通ると、式は暗記ではなく <strong>Unit 2 の言葉の延長</strong> になります。</p>
 <hr>
 <h2>2. Step1 — 離散モデル（1ステップずつ足す）</h2>
@@ -10338,21 +10314,16 @@ $$ \frac{d(\text{ストック})}{dt} = \text{入り} - \text{出} $$
 </tbody>
 </table>
 <p><strong>1分後の水位:</strong></p>
-$$ S_{\text{次}} = S_{\text{今}} + IN - OUT $$
-
+<p>$$ S_{\text{次}} = S_{\text{今}} + IN - OUT $$</p>
 <p>左右を並べると：</p>
-$$ S_{\text{次}} - S_{\text{今}} = IN - OUT $$
-
+<p>$$ S_{\text{次}} - S_{\text{今}} = IN - OUT $$</p>
 <p>左辺は「変化した量」です。B1 の言葉で <strong>$\Delta S$（デルタ・エス）</strong> と書きます。</p>
-$$ \Delta S = IN - OUT $$
-
+<p>$$ \Delta S = IN - OUT $$</p>
 <p>これは Unit 2 基本編の「変化 = 入り − 出」と <strong>完全に同じ</strong> です。</p>
 <hr>
 <h2>3. Step2 — 複数ステップ（手計算の型）</h2>
-$IN$
-<p>と  が毎分同じとき、 分後の水位は：</p>
-$$ S_{\text{後}} = S_{\text{今}} + n \times (IN - OUT) $$
-
+<p>$IN$ と $OUT$ が毎分同じとき、$n$ 分後の水位は：</p>
+<p>$$ S_{\text{後}} = S_{\text{今}} + n \times (IN - OUT) $$</p>
 <p><strong>例（お風呂）:</strong> 今の水位 $S_0 = 10$、$IN = 5$ L/分、$OUT = 3$ L/分。</p>
 <ul>
 <li>1分後: $10 + (5-3) = 12$</li>
@@ -10362,20 +10333,17 @@ $$ S_{\text{後}} = S_{\text{今}} + n \times (IN - OUT) $$
 <hr>
 <h2>4. Step3 — 時間の幅を $\Delta t$ に一般化</h2>
 <p>「1分」に限らず、<strong>$\Delta t$（デルタ・ティー）</strong> という「かかった時間」にすると：</p>
-$$ \Delta S = (IN - OUT) \times \Delta t $$
-
+<p>$$ \Delta S = (IN - OUT) \times \Delta t $$</p>
 <ul>
 <li>$IN, OUT$ は <strong>1単位時間あたり</strong> の量（L/分、円/月など）</li>
 <li>$\Delta t$ が 2分なら、変化は $(IN-OUT)$ の2倍</li>
 </ul>
 <p><strong>例:</strong> 上と同じ $IN=5$, $OUT=3$, $\Delta t = 2.5$ 分のとき</p>
-$$ \Delta S = (5-3) \times 2.5 = 5 \quad \Rightarrow \quad S_{\text{後}} = 10 + 5 = 15 $$
-
+<p>$$ \Delta S = (5-3) \times 2.5 = 5 \quad \Rightarrow \quad S_{\text{後}} = 10 + 5 = 15 $$</p>
 <hr>
 <h2>5. Step4 — 割り算して「1単位時間あたりの変化」</h2>
 <p>式 $\Delta S = (IN - OUT) \times \Delta t$ の両辺を $\Delta t$ で割ると：</p>
-$$ \frac{\Delta S}{\Delta t} = IN - OUT $$
-
+<p>$$ \frac{\Delta S}{\Delta t} = IN - OUT $$</p>
 <p>左辺は B1 の <strong>変化の割合</strong>（単位時間あたりどれだけ変わったか）です。</p>
 <table>
 <thead>
@@ -10413,8 +10381,7 @@ $$ \frac{\Delta S}{\Delta t} = IN - OUT $$
 <li>時間の区切りを限りなく細かくしたときの値 = <strong>瞬間の変化率</strong></li>
 </ul>
 <p>その瞬間の変化率を、B4・B5 と同じ記号で書くと：</p>
-$$ \frac{dS}{dt} = IN - OUT $$
-
+<p>$$ \frac{dS}{dt} = IN - OUT $$</p>
 <table>
 <thead>
 <tr>
@@ -10505,8 +10472,7 @@ $$ \frac{dS}{dt} = IN - OUT $$
 <li>Unit 2 発展編の式は <strong>導出できる</strong>（暗記不要）</li>
 <li>次は <strong>B8</strong> で、この離散ステップをコンピュータがやる <strong>オイラー法</strong> にする</li>
 </ul>
-<p><em>次: B8（オイラー法）→ Unit 2.5 発展編のシミュレーション</em></p>
-$OUT$$n$</div></section>
+<p><em>次: B8（オイラー法）→ Unit 2.5 発展編のシミュレーション</em></p></div></section>
 <section class="chapter" id="bridge-b8" data-source="B8_euler_method.md" data-group="bridge" data-label="math-bridge B8"><div class="chapter-meta"><span class="chapter-index">25</span><span class="chapter-label">math-bridge B8</span><span class="chapter-source">B8_euler_method.md</span></div><div class="chapter-body"><h1>B8 — オイラー法：微分方程式を「少しずつ足す」</h1>
 <blockquote>
 <p><strong>対象:</strong> Unit 2.5 発展編（シミュレーション）に進む中学2年生〜
@@ -10517,18 +10483,15 @@ $OUT$$n$</div></section>
 <hr>
 <h2>1. なぜこれを学ぶのか</h2>
 <p>B7 では、離散で</p>
-$$ \Delta S = (IN - OUT) \times \Delta t $$
-
+<p>$$ \Delta S = (IN - OUT) \times \Delta t $$</p>
 <p>と書きました。コンピュータのシミュレーションは、これを <strong>短い時間 $\Delta t$ ごとに繰り返す</strong> だけです。その繰り返しの型が <strong>オイラー法</strong> です。</p>
 <p>Unit 2.5 発展編の水位シミュ・Unit 12 の SIR も、中身は同じ考え方です。ブラックボックスではなく <strong>自分で1ステップ計算できる</strong> と、参照モードの曲線が「信頼できる道具」になります。</p>
 <hr>
 <h2>2. B7 からの接続 — 更新式</h2>
 <p>B7 の1ステップ：</p>
-$$ S_{\text{次}} = S_{\text{今}} + (IN - OUT) \times \Delta t $$
-
+<p>$$ S_{\text{次}} = S_{\text{今}} + (IN - OUT) \times \Delta t $$</p>
 <p>オイラー法では、$\Delta t$ を <strong>小さな刻み</strong>（例: 0.1）にして、同じ式を何度も繰り返します。</p>
-$$ S_{n+1} = S_n + \Delta t \times (IN - OUT) $$
-
+<p>$$ S_{n+1} = S_n + \Delta t \times (IN - OUT) $$</p>
 <table>
 <thead>
 <tr>
@@ -10558,8 +10521,7 @@ $$ S_{n+1} = S_n + \Delta t \times (IN - OUT) $$
 <p>連続の式 $\frac{dS}{dt} = IN - OUT$ と、<strong>中身は同じルール</strong> です。オイラー法は「連続の式を、離散で近似する」方法の1つです。</p>
 <hr>
 <h2>3. 一定の入り・出（B7 の復習）</h2>
-$IN$
-<p>と  が毎ステップ同じとき、B7 とまったく同じです。</p>
+<p>$IN$ と $OUT$ が毎ステップ同じとき、B7 とまったく同じです。</p>
 <p><strong>例:</strong> $S_0 = 10$、$IN = 5$、$OUT = 3$、$\Delta t = 1$</p>
 <table>
 <thead>
@@ -10595,22 +10557,18 @@ $IN$
 <hr>
 <h2>4. 出がストックに比例するとき（Unit 2.5 の型）</h2>
 <p>お風呂の排水は、水位が高いほど強くなることが多いです。</p>
-$$ OUT = k \times S $$
-
+<p>$$ OUT = k \times S $$</p>
 <ul>
 <li>$k$ … 排水の強さ（コンバータ。Unit 2.5 の SFD で ◇）</li>
 <li>水位 $S$ が大きい → 出が大きい → 増える速さが鈍る</li>
 </ul>
 <p>微分方程式では：</p>
-$$ \frac{dS}{dt} = IN - k \times S $$
-
+<p>$$ \frac{dS}{dt} = IN - k \times S $$</p>
 <p>オイラー法では、<strong>毎ステップ $OUT$ を今の $S_n$ で計算し直す</strong> ことがポイントです。</p>
-$$ S_{n+1} = S_n + \Delta t \times (IN - k \times S_n) $$
-
+<p>$$ S_{n+1} = S_n + \Delta t \times (IN - k \times S_n) $$</p>
 <hr>
 <h2>5. 手計算 — 比例 OUT で2ステップ（Unit 2.5 と同型）</h2>
-$IN = 6$
-<p>、、、（刻みを大きくして手計算しやすくする）</p>
+<p>$IN = 6$、$k = 0.05$、$S_0 = 0$、$\Delta t = 1$（刻みを大きくして手計算しやすくする）</p>
 <p><strong>ステップ 0 → 1</strong></p>
 <ul>
 <li>$OUT_0 = 0.05 \times 0 = 0$</li>
@@ -10626,16 +10584,12 @@ $IN = 6$
 <hr>
 <h2>6. 平衡（定常状態）— 入りと出が釣り合う点</h2>
 <p>ストックが <strong>もう変わらない</strong> とき：</p>
-$$ \frac{dS}{dt} = 0 \quad \Rightarrow \quad IN = OUT $$
-
+<p>$$ \frac{dS}{dt} = 0 \quad \Rightarrow \quad IN = OUT $$</p>
 <p>比例 OUT のとき $OUT = kS$ なので：</p>
-$$ IN = k \times S^* $$
-
-$$ S^* = \frac{IN}{k} $$
-
+<p>$$ IN = k \times S^* $$</p>
+<p>$$ S^* = \frac{IN}{k} $$</p>
 <p><strong>例:</strong> $IN = 6$、$k = 0.05$ のとき</p>
-$$ S^* = \frac{6}{0.05} = 120 $$
-
+<p>$$ S^* = \frac{6}{0.05} = 120 $$</p>
 <p>平衡水位は 120。このとき入りと出が等しく、水位は横ばいになります。</p>
 <table>
 <thead>
@@ -10698,14 +10652,12 @@ $$ S^* = \frac{6}{0.05} = 120 $$
 <hr>
 <h2>8. 手計算 — 自分でやる（2問）</h2>
 <h3>問1（一定 IN・OUT）</h3>
-$S_0 = 8$
-<p>、、、。1ステップ後の  は？</p>
+<p>$S_0 = 8$、$IN = 4$、$OUT = 1$、$\Delta t = 2$。1ステップ後の $S_1$ は？</p>
 <blockquote>
 <p><strong>答え:</strong> $S_1 = 8 + 2\times(4-1) = 8 + 6 = 14$</p>
 </blockquote>
 <h3>問2（平衡）</h3>
-$IN = 10$
-<p>、、。平衡の  は？</p>
+<p>$IN = 10$、$OUT = kS$、$k = 0.2$。平衡の $S^*$ は？</p>
 <blockquote>
 <p><strong>答え:</strong> $S^* = IN/k = 10/0.2 = 50$</p>
 </blockquote>
@@ -10731,8 +10683,7 @@ $IN = 10$
 <li>Unit 2.5 のシミュ・参照モードの曲線と <strong>同じ計算の中身</strong></li>
 <li>次は <strong>B9</strong> で、$dN/dt = rN$ の <strong>解 $e^{rt}$ を導出</strong>（Unit 3 発展編）</li>
 </ul>
-<p><em>次: B9（指数成長の解の導出）→ Unit 3 発展編</em></p>
-$OUT$$k = 0.05$$S_0 = 0$$\Delta t = 1$$IN = 4$$OUT = 1$$\Delta t = 2$$S_1$$OUT = kS$$k = 0.2$$S^*$</div></section>
+<p><em>次: B9（指数成長の解の導出）→ Unit 3 発展編</em></p></div></section>
 <section class="chapter" id="bridge-b9" data-source="B9_exponential_solution.md" data-group="bridge" data-label="math-bridge B9"><div class="chapter-meta"><span class="chapter-index">26</span><span class="chapter-label">math-bridge B9</span><span class="chapter-source">B9_exponential_solution.md</span></div><div class="chapter-body"><h1>B9 — 指数成長の解を導く：$dN/dt = rN$ から $e^{rt}$ へ</h1>
 <blockquote>
 <p><strong>対象:</strong> Unit 3 発展編で「解まで」進む中学2年生〜
@@ -10743,15 +10694,13 @@ $OUT$$k = 0.05$$S_0 = 0$$\Delta t = 1$$IN = 4$$OUT = 1$$\Delta t = 2$$S_1$$OUT =
 <hr>
 <h2>1. なぜこれを学ぶのか</h2>
 <p>B6 では、正のループの結果として</p>
-$$ N(t) = N_0 \times e^{r t} $$
-
+<p>$$ N(t) = N_0 \times e^{r t} $$</p>
 <p>が <strong>提示</strong> されました。Unit 3 発展編も同じ形を使います。</p>
 <p>この Unit では <strong>なぜこの形になるか</strong> を導きます。B8 のオイラー法（少しずつ足す）と、連続の解 $e^{rt}$ が <strong>同じ現象の別表現</strong> だと分かると、指数成長は暗記ではなく理解になります。</p>
 <hr>
 <h2>2. 問題の式（正のループ）</h2>
 <p>「今の量に比例して増える」とき：</p>
-$$ \frac{dN}{dt} = r \times N $$
-
+<p>$$ \frac{dN}{dt} = r \times N $$</p>
 <table>
 <thead>
 <tr>
@@ -10778,83 +10727,59 @@ $$ \frac{dN}{dt} = r \times N $$
 <hr>
 <h2>3. 導出ルートA — オイラー法から（B8 との接続）</h2>
 <p>B8 の更新式に、$IN$ の代わりに「増える分が $rN$」と置きます。</p>
-$$ N_{n+1} = N_n + \Delta t \times r \times N_n = N_n \times (1 + r\Delta t) $$
-
+<p>$$ N_{n+1} = N_n + \Delta t \times r \times N_n = N_n \times (1 + r\Delta t) $$</p>
 <p><strong>1ステップで $(1+r\Delta t)$ 倍</strong> します。これを $n$ 回繰り返すと：</p>
-$$ N_n = N_0 \times (1 + r\Delta t)^n $$
-
+<p>$$ N_n = N_0 \times (1 + r\Delta t)^n $$</p>
 <p>時間を $t = n \Delta t$ と書くと $n = t/\Delta t$ なので：</p>
-$$ N(t) \approx N_0 \times (1 + r\Delta t)^{t/\Delta t} $$
-
-$\Delta t$
-<p>を <strong>小さく</strong> すると、 は **** に近づきます（B6 の ）。だから：</p>
-$$ N(t) = N_0 \times e^{r t} $$
-
+<p>$$ N(t) \approx N_0 \times (1 + r\Delta t)^{t/\Delta t} $$</p>
+<p>$\Delta t$ を小さくすると、$(1 + r\Delta t)^{1/\Delta t}$ は $e^{r}$ に近づきます（B6 で学んだ $e$ の定義）。だから：</p>
+<p>$$ N(t) = N_0 \times e^{r t} $$</p>
 <blockquote>
 <p><strong>要点:</strong> オイラー法で「毎ステップ $(1+r\Delta t)$ 倍」→ 刻みを細かくすると <strong>連続の $e^{rt}$</strong> になる。</p>
 </blockquote>
 <hr>
 <h2>4. 導出ルートB — 式を「両側で分ける」（変数分離）</h2>
-$B$
-<p>ルートは <strong>検算・別の見方</strong> として使えます（積分の記号は「足し合わせ」の意味で読む）。</p>
+<p>$B$ ルートは <strong>検算・別の見方</strong> として使えます（積分の記号は「足し合わせ」の意味で読む）。</p>
 <h3>Step1 — $N$ と $t$ を分ける</h3>
-$$ \frac{dN}{dt} = rN $$
-
+<p>$$ \frac{dN}{dt} = rN $$</p>
 <p>両辺を $N$ で割る（$N>0$ のとき）：</p>
-$$ \frac{1}{N}\,\frac{dN}{dt} = r $$
-
+<p>$$ \frac{1}{N}\,\frac{dN}{dt} = r $$</p>
 <p>左辺は「$N$ に対する変化の割合」です。式を並べ替えると：</p>
-$$ \frac{dN}{N} = r\,dt $$
-
+<p>$$ \frac{dN}{N} = r\,dt $$</p>
 <h3>Step2 — 両辺を「たし合わせる」（積分）</h3>
 <p>左は $N$ の変化の総和、右は $t$ の変化の総和：</p>
-$$ \ln N = r t + C $$
-
-$C$
-<p>は定数。 は B6 で学んだ ** の逆**。「何倍になったか」を扱う道具です。</p>
+<p>$$ \ln N = r t + C $$</p>
+<p>$C$ は定数。$\ln$ は B6 で学んだ <strong>$e$ の逆</strong>。「何倍になったか」を扱う道具です。</p>
 <h3>Step3 — $e$ で戻す</h3>
-$$ N = e^{r t + C} = e^C \times e^{r t} $$
-
-$e^C$
-<p>をまとめて定数  と書くと 。</p>
+<p>$$ N = e^{r t + C} = e^C \times e^{r t} $$</p>
+<p>$e^C$ をまとめて定数 $A$ と書くと $N = A e^{rt}$。</p>
 <h3>Step4 — 初期条件</h3>
-$t=0$
-<p>のとき  なので：</p>
-$$ N_0 = A \times e^{0} = A \quad \Rightarrow \quad A = N_0 $$
-
+<p>$t=0$ のとき $N(0)=N_0$ なので：</p>
+<p>$$ N_0 = A \times e^{0} = A \quad \Rightarrow \quad A = N_0 $$</p>
 <p>よって：</p>
-$$ N(t) = N_0 \times e^{r t} $$
-
+<p>$$ N(t) = N_0 \times e^{r t} $$</p>
 <hr>
 <h2>5. 検証 — 解き方が正しいか確かめる</h2>
-$N(t) = N_0 e^{rt}$
-<p>を元の式に戻してみます。</p>
+<p>$N(t) = N_0 e^{rt}$ を元の式に戻してみます。</p>
 <p>左辺（$N$ の増える速さ）:</p>
-$$ \frac{dN}{dt} = \frac{d}{dt}(N_0 e^{rt}) = N_0 \times r \times e^{rt} $$
-
+<p>$$ \frac{dN}{dt} = \frac{d}{dt}(N_0 e^{rt}) = N_0 \times r \times e^{rt} $$</p>
 <p>右辺:</p>
-$$ r \times N = r \times (N_0 e^{rt}) = N_0 r e^{rt} $$
-
+<p>$$ r \times N = r \times (N_0 e^{rt}) = N_0 r e^{rt} $$</p>
 <p><strong>左辺 = 右辺</strong> なので、$N_0 e^{rt}$ は確かに解です。</p>
 <hr>
 <h2>6. 手計算 — 具体例</h2>
 <p><strong>問1:</strong> $N_0 = 100$、$r = 0.1$、$t = 1$ のとき $N(1)$ は？（$e^{0.1} \approx 1.105$）</p>
-$$ N(1) = 100 \times e^{0.1} \approx 100 \times 1.105 = 110.5 $$
-
+<p>$$ N(1) = 100 \times e^{0.1} \approx 100 \times 1.105 = 110.5 $$</p>
 <p>1単位時間で約 <strong>10.5% 増加</strong>。</p>
 <p><strong>問2:</strong> $N_0 = 50$、$r = -0.2$、$t = 2$ のとき（減衰。$e^{-0.4} \approx 0.67$）</p>
-$$ N(2) = 50 \times e^{-0.4} \approx 50 \times 0.67 = 33.5 $$
-
+<p>$$ N(2) = 50 \times e^{-0.4} \approx 50 \times 0.67 = 33.5 $$</p>
 <hr>
 <h2>7. 倍になるまでの時間（B6 の $\ln$ 活用）</h2>
 <p>「何倍になるか」の逆問題：<strong>2倍になる時間</strong> $t_2$ は？</p>
-$$ N_0 e^{r t_2} = 2 N_0 \quad \Rightarrow \quad e^{r t_2} = 2 $$
-
+<p>$$ N_0 e^{r t_2} = 2 N_0 \quad \Rightarrow \quad e^{r t_2} = 2 $$</p>
 <p>両辺に $\ln$ を適用：</p>
-$$ r t_2 = \ln 2 \quad \Rightarrow \quad t_2 = \frac{\ln 2}{r} $$
-
-$r$
-<p>が大きいほど、倍になる時間は <strong>短い</strong>（早く爆発する）。</p>
+<p>$$ r t_2 = \ln 2 \quad \Rightarrow \quad t_2 = \frac{\ln 2}{r} $$</p>
+<p>$r$ が大きいほど、倍になる時間は <strong>短い</strong>（早く爆発する）。</p>
 <hr>
 <h2>8. Unit 3・Unit 12 との接続</h2>
 <table>
@@ -10912,8 +10837,7 @@ $r$
 <li>倍になる時間: $t_2 = \ln 2 / r$</li>
 <li>次は <strong>B10</strong> で、負のループ $dS/dt=k(\text{目標}-S)$ の解と平衡</li>
 </ul>
-<p><em>次: B10（目標への収束）→ Unit 3 発展編・Unit 4</em></p>
-$(1 + r\Delta t)^{1/\Delta t}$$e^{r}$$e$$\ln$$e$$A$$N = A e^{rt}$$N(0)=N_0$</div></section>
+<p><em>次: B10（目標への収束）→ Unit 3 発展編・Unit 4</em></p></div></section>
 <section class="chapter" id="bridge-b10" data-source="B10_goal_convergence.md" data-group="bridge" data-label="math-bridge B10"><div class="chapter-meta"><span class="chapter-index">27</span><span class="chapter-label">math-bridge B10</span><span class="chapter-source">B10_goal_convergence.md</span></div><div class="chapter-body"><h1>B10 — 目標への収束：負のループの解</h1>
 <blockquote>
 <p><strong>対象:</strong> Unit 3・Unit 4 発展編で「負のループ」を式で扱う人
@@ -10924,8 +10848,7 @@ $(1 + r\Delta t)^{1/\Delta t}$$e^{r}$$e$$\ln$$e$$A$$N = A e^{rt}$$N(0)=N_0$</div
 <hr>
 <h2>1. なぜこれを学ぶのか</h2>
 <p>Unit 3 発展編では、負のループ（調整・バランス）を次の式で書きました。</p>
-$$ \frac{dS}{dt} = k \times (\text{目標} - S) $$
-
+<p>$$ \frac{dS}{dt} = k \times (\text{目標} - S) $$</p>
 <ul>
 <li><strong>目標</strong> … 落ち着きたい値（設定温度・ちょうどいい在庫など）</li>
 <li>$k$ … 調整の強さ（正の数）</li>
@@ -10967,41 +10890,29 @@ $$ \frac{dS}{dt} = k \times (\text{目標} - S) $$
 <hr>
 <h2>3. 導出 — B9 の減衰を使う（置き換え）</h2>
 <p>「目標からのずれ」に注目します。</p>
-$$ y = \text{目標} - S $$
-
-$S$
-<p>が目標に近づく =  が <strong>0 に近づく</strong>。</p>
-$y$
-<p>の変化率:</p>
-$$ \frac{dy}{dt} = -\frac{dS}{dt} = -k(\text{目標}-S) = -k\,y $$
-
+<p>$$ y = \text{目標} - S $$</p>
+<p>$S$ が目標に近づく = $y$ が <strong>0 に近づく</strong>。</p>
+<p>$y$ の変化率:</p>
+<p>$$ \frac{dy}{dt} = -\frac{dS}{dt} = -k(\text{目標}-S) = -k\,y $$</p>
 <p>これは B9 と同じ形 <strong>$\frac{dy}{dt} = -k y$</strong>。$r = -k$ の減衰です。</p>
 <p>B9 の解（$r$ を $-k$ に置き換え）:</p>
-$$ y(t) = y(0) \times e^{-k t} $$
-
-$y(0) = \text{目標} - S_0$
-<p>なので：</p>
-$$ \text{目標} - S(t) = (\text{目標} - S_0)\, e^{-k t} $$
-
+<p>$$ y(t) = y(0) \times e^{-k t} $$</p>
+<p>$y(0) = \text{目標} - S_0$ なので：</p>
+<p>$$ \text{目標} - S(t) = (\text{目標} - S_0)\, e^{-k t} $$</p>
 <p>整理すると：</p>
-$$ S(t) = \text{目標} + (S_0 - \text{目標})\, e^{-k t} $$
-
+<p>$$ S(t) = \text{目標} + (S_0 - \text{目標})\, e^{-k t} $$</p>
 <p>同じことを別の形で書くと：</p>
-$$ S(t) = S_0\, e^{-k t} + \text{目標}\,(1 - e^{-k t}) $$
-
+<p>$$ S(t) = S_0\, e^{-k t} + \text{目標}\,(1 - e^{-k t}) $$</p>
 <blockquote>
 <p><strong>読み方:</strong> 最初は $S_0$ の影響が強い。時間が経つと $e^{-kt}\to 0$ になり、$S \to \text{目標}$。</p>
 </blockquote>
 <hr>
 <h2>4. 検証</h2>
-$S(t) = \text{目標} + (S_0 - \text{目標}) e^{-kt}$
-<p>を代入。</p>
+<p>$S(t) = \text{目標} + (S_0 - \text{目標}) e^{-kt}$ を代入。</p>
 <p>左辺:</p>
-$$ \frac{dS}{dt} = (S_0 - \text{目標})\,(-k)\, e^{-kt} = -k(S_0 - \text{目標}) e^{-kt} $$
-
+<p>$$ \frac{dS}{dt} = (S_0 - \text{目標})\,(-k)\, e^{-kt} = -k(S_0 - \text{目標}) e^{-kt} $$</p>
 <p>右辺:</p>
-$$ k(\text{目標} - S) = k\bigl(\text{目標} - [\text{目標} + (S_0-\text{目標})e^{-kt}]\bigr) = -k(S_0-\text{目標})e^{-kt} $$
-
+<p>$$ k(\text{目標} - S) = k\bigl(\text{目標} - [\text{目標} + (S_0-\text{目標})e^{-kt}]\bigr) = -k(S_0-\text{目標})e^{-kt} $$</p>
 <p>左辺 = 右辺。<strong>解として正しい。</strong></p>
 <p>初期条件 $t=0$: $S(0)=S_0$ ✓<br>
 長時間後 $t\to\infty$: $S\to\text{目標}$ ✓</p>
@@ -11024,43 +10935,35 @@ $$ k(\text{目標} - S) = k\bigl(\text{目標} - [\text{目標} + (S_0-\text{目
 <hr>
 <h2>6. オイラー法（B8 との接続）</h2>
 <p>更新式は：</p>
-$$ S_{n+1} = S_n + \Delta t \times k \times (\text{目標} - S_n) $$
-
+<p>$$ S_{n+1} = S_n + \Delta t \times k \times (\text{目標} - S_n) $$</p>
 <p>「目標との差」に比例して、毎ステップ $S$ を目標側へ寄せます。$\Delta t$ を細かく繰り返すと、上の $S(t)$ の曲線に近づきます。</p>
 <p><strong>例:</strong> 目標 $=20$, $S_0=10$, $k=0.5$, $\Delta t=1$</p>
-$$ S_1 = 10 + 1 \times 0.5 \times (20-10) = 15 $$
-
+<p>$$ S_1 = 10 + 1 \times 0.5 \times (20-10) = 15 $$</p>
 <p>連続解 $t=1$: $S(1)=20+(10-20)e^{-0.5} \approx 20-6.06=13.94$（1ステップのオイラーはやや手前）</p>
 <hr>
 <h2>7. 時定数 — 「どれくらいで近づくか」</h2>
 <p>ずれ $y=\text{目標}-S$ が <strong>元の $\frac{1}{e}\approx 37\%$</strong> になるまでの目安時間：</p>
-$$ \tau = \frac{1}{k} $$
-
-$k$
-<p>が大きいほど調整は <strong>速い</strong>（エアコンが強い、フィードバックが強い）。</p>
+<p>$$ \tau = \frac{1}{k} $$</p>
+<p>$k$ が大きいほど調整は <strong>速い</strong>（エアコンが強い、フィードバックが強い）。</p>
 <p><strong>半分の差まで近づく時間</strong>（ずれが半分）:</p>
-$$ t_{1/2} = \frac{\ln 2}{k} $$
-
+<p>$$ t_{1/2} = \frac{\ln 2}{k} $$</p>
 <p>B9 の「倍になる時間」と同じ型で、<strong>$\ln$ は逆の問い</strong>に使います。</p>
 <hr>
 <h2>8. Unit 4 との接続（遅れがあるとき）</h2>
 <p>Unit 4 発展編の式（遅れなし）:</p>
-$$ \frac{d(\text{温度})}{dt} = k \times (\text{設定温度} - \text{温度}) $$
-
+<p>$$ \frac{d(\text{温度})}{dt} = k \times (\text{設定温度} - \text{温度}) $$</p>
 <p>これは B10 と <strong>同じ型</strong>。解は設定温度へなめらかに収束します。</p>
 <p><strong>遅れを入れると</strong> 式は複雑になり、行き過ぎ・振動が出ます（Unit 4 の図）。土台は B10 の「目標へ引く力」です。</p>
 <hr>
 <h2>9. 手計算 — 自分でやる（2問）</h2>
 <h3>問1（平衡）</h3>
-$\frac{dS}{dt} = 2(\text{目標}-S)$
-<p>、目標 。平衡の  は？</p>
+<p>$\frac{dS}{dt} = 2(\text{目標}-S)$、目標 $=100$。平衡の $S^*$ は？</p>
 <blockquote>
 <p><strong>答え:</strong> $S^*=100$（目標と等しいとき $\frac{dS}{dt}=0$）</p>
 </blockquote>
 <h3>問2（収束）</h3>
 <p>目標 $=20$, $S_0=8$, $k=0.5$, $t=2$。$S(2)$ は？（$e^{-1}\approx 0.368$）</p>
-$$ S(2) = 20 + (8-20)\times e^{-1} = 20 - 12\times 0.368 \approx 20 - 4.42 = 15.58 $$
-
+<p>$$ S(2) = 20 + (8-20)\times e^{-1} = 20 - 12\times 0.368 \approx 20 - 4.42 = 15.58 $$</p>
 <p>目標 20 に向かって、8 から上昇。</p>
 <hr>
 <h2>10. Check — 確かめてみよう</h2>
@@ -11090,8 +10993,7 @@ $$ S(2) = 20 + (8-20)\times e^{-1} = 20 - 12\times 0.368 \approx 20 - 4.42 = 15.
 <li>Unit 3 負のループ・Unit 4 室温（遅れなし）の数理</li>
 <li>次は <strong>B11</strong>（連立 ODE・SIR の読み方）→ Unit 12</li>
 </ul>
-<p><em>次: B11（SIR の式の読み方）→ Unit 12 SDX2</em></p>
-$y$$=100$$S^*$</div></section>
+<p><em>次: B11（SIR の式の読み方）→ Unit 12 SDX2</em></p></div></section>
 <section class="chapter" id="bridge-b11" data-source="B11_sir_coupled_ode.md" data-group="bridge" data-label="math-bridge B11"><div class="chapter-meta"><span class="chapter-index">28</span><span class="chapter-label">math-bridge B11</span><span class="chapter-source">B11_sir_coupled_ode.md</span></div><div class="chapter-body"><h1>B11 — 連立微分方程式：SIR モデルの読み方</h1>
 <blockquote>
 <p><strong>対象:</strong> Unit 12 SDX2（感染症）で式とシミュを扱う人
@@ -11143,12 +11045,9 @@ $y$$=100$$S^*$</div></section>
 <hr>
 <h2>3. 連立 ODE — 3行を並べて読む</h2>
 <p>総人口 $N$ を一定とします。</p>
-$$ \frac{dS}{dt} = -\beta \frac{SI}{N} $$
-
-$$ \frac{dI}{dt} = \beta \frac{SI}{N} - \gamma I $$
-
-$$ \frac{dR}{dt} = \gamma I $$
-
+<p>$$ \frac{dS}{dt} = -\beta \frac{SI}{N} $$</p>
+<p>$$ \frac{dI}{dt} = \beta \frac{SI}{N} - \gamma I $$</p>
+<p>$$ \frac{dR}{dt} = \gamma I $$</p>
 <table>
 <thead>
 <tr>
@@ -11193,16 +11092,14 @@ $$ \frac{dR}{dt} = \gamma I $$
 <li>$I$ が大きい → うつす人が多い → 新規感染が増える</li>
 <li>$S$ が大きい → うつる相手が多い → 新規感染が増える</li>
 </ul>
-$N$
-<p>で割るのは、「総人口に対する割合」でスケールをそろえるため（教材のシミュと同じ形）。</p>
+<p>$N$ で割るのは、「総人口に対する割合」でスケールをそろえるため（教材のシミュと同じ形）。</p>
 <p>これは Unit 3 の <strong>正のループ</strong> です。</p>
 <pre><code>I が増える → 感染フローが増える → I がさらに増える
 </code></pre>
 <p>B9 の $dN/dt = rN$ は「1つのストックが自分自身に比例」。SIR は <strong>2つのストックが結びつく</strong> ので、曲線はより複雑になりますが、<strong>初期は指数的に増える</strong> 部分が残ります（§6）。</p>
 <hr>
 <h2>5. 回復 $\gamma I$ — 負のループの力</h2>
-$\gamma I$
-<p>は I を <strong>減らす</strong> 力です。</p>
+<p>$\gamma I$ は I を <strong>減らす</strong> 力です。</p>
 <ul>
 <li>$I$ が大きいほど、回復フローも大きい</li>
 <li>同時に R が増え、長期的には S も減る（うつる相手が減る）</li>
@@ -11211,40 +11108,29 @@ $\gamma I$
 <hr>
 <h2>6. 初期段階 — B9 への接続</h2>
 <p>感染者がまだ少なく、ほとんどが未感染のとき $S \approx N$ です。</p>
-$$ \frac{dI}{dt} = \beta \frac{SI}{N} - \gamma I \approx \beta I - \gamma I = (\beta - \gamma)\, I $$
-
-$\beta > \gamma$
-<p>なら、B9 と同型 <strong><em>*。初期は </em>*指数的に増える</strong>。</p>
+<p>$$ \frac{dI}{dt} = \beta \frac{SI}{N} - \gamma I \approx \beta I - \gamma I = (\beta - \gamma)\, I $$</p>
+<p>$\beta > \gamma$ なら、B9 と同型 <strong>$\frac{dI}{dt} \approx (\beta-\gamma) I$</strong>。初期は <strong>指数的に増える</strong>。</p>
 <p>だから「最初は数人で大丈夫に見える → 遅れて爆発する」（Unit 4 の遅れ・Unit 12 の読み取り）と整合します。</p>
 <p>後から $S$ が減ると $\beta SI/N$ が弱まり、ピークを越えて I は下がります。完全な解 $I(t)$ の公式は高校範囲外なので、<strong>オイラー法で曲線を描く</strong>（B8・Unit 12 シミュ）。</p>
 <hr>
 <h2>7. オイラー法 — B8 の3ストック版</h2>
 <p>B8 は1つのストックでした。SIR は <strong>同じ考え方を3つ並べる</strong> だけです。</p>
 <p>各ステップで:</p>
-$$ \text{感染} = \beta \frac{S_n I_n}{N} $$
-
-$$ \text{回復} = \gamma I_n $$
-
-$$ S_{n+1} = S_n - \Delta t \times \text{感染} $$
-
-$$ I_{n+1} = I_n + \Delta t \times (\text{感染} - \text{回復}) $$
-
-$$ R_{n+1} = R_n + \Delta t \times \text{回復} $$
-
+<p>$$ \text{感染} = \beta \frac{S_n I_n}{N} $$</p>
+<p>$$ \text{回復} = \gamma I_n $$</p>
+<p>$$ S_{n+1} = S_n - \Delta t \times \text{感染} $$</p>
+<p>$$ I_{n+1} = I_n + \Delta t \times (\text{感染} - \text{回復}) $$</p>
+<p>$$ R_{n+1} = R_n + \Delta t \times \text{回復} $$</p>
 <p><code>tools/sim_models.py</code> の <code>euler_sir</code> はこの式です。</p>
 <hr>
 <h2>8. 手計算 — 1ステップだけ（問）</h2>
-$N=1000$
-<p>, , , , , , </p>
+<p>$N=1000$, $S_0=990$, $I_0=10$, $R_0=0$, $\beta=0.3$, $\gamma=0.1$, $\Delta t=0.1$</p>
 <p><strong>ステップ1</strong></p>
 <p>感染 $= 0.3 \times 990 \times 10 / 1000 = 2.97$</p>
 <p>回復 $= 0.1 \times 10 = 1$</p>
-$$ S_1 = 990 - 0.1 \times 2.97 = 989.703 $$
-
-$$ I_1 = 10 + 0.1 \times (2.97 - 1) = 10.197 $$
-
-$$ R_1 = 0 + 0.1 \times 1 = 0.1 $$
-
+<p>$$ S_1 = 990 - 0.1 \times 2.97 = 989.703 $$</p>
+<p>$$ I_1 = 10 + 0.1 \times (2.97 - 1) = 10.197 $$</p>
+<p>$$ R_1 = 0 + 0.1 \times 1 = 0.1 $$</p>
 <p>確認: $S_1 + I_1 + R_1 \approx 1000$ ✓</p>
 <p><strong>問:</strong> $\beta$ を 0.5 に上げたとき、同じ初期値で感染フローは？</p>
 <blockquote>
@@ -11310,8 +11196,7 @@ $$ R_1 = 0 + 0.1 \times 1 = 0.1 $$
 <li>オイラー法は B8 の3ストック版 → Unit 12 シミュと同型</li>
 <li>Unit 12 SDX2 の式・シミュ・介入の読み方の数理土台</li>
 </ul>
-<p><em>次: Unit 12 SDX2（感染症）— 図・シミュ・政策の読み取り</em></p>
-$\frac{dI}{dt} \approx (\beta-\gamma) I$$S_0=990$$I_0=10$$R_0=0$$\beta=0.3$$\gamma=0.1$$\Delta t=0.1$</div></section>
+<p><em>次: Unit 12 SDX2（感染症）— 図・シミュ・政策の読み取り</em></p></div></section>
 <section class="chapter" id="exercise-ex1" data-source="ex1_getting_up.md" data-group="exercise" data-label="演習 EX1"><div class="chapter-meta"><span class="chapter-index">29</span><span class="chapter-label">演習 EX1</span><span class="chapter-source">ex1_getting_up.md</span></div><div class="chapter-body"><h1>EX1 — 朝起きられない悪循環（例題・解答つき）</h1>
 <blockquote>
 <p>対象: 中2　使う要素: 負のループ・時間の遅れ
