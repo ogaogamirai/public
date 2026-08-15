@@ -15,8 +15,10 @@
 | `system-dynamics.html` | **システムダイナミクス×TOC 学習教材**（全章統合・1ファイル） | 約 680 KB | [開く](https://ogaogamirai.github.io/public/generated/system-dynamics.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/system-dynamics.html) |
 | `health_check_reexam_snapshot.html` | **健康診断・再検査定義**（TOC CRT スナップショット） | 約 76 KB | [開く](https://ogaogamirai.github.io/public/generated/health_check_reexam_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/health_check_reexam_snapshot.html) |
 | `colonial_policy_snapshot.html` | **日本の植民地政策再評価**（H1–H3 検証スナップショット） | 約 106 KB | [開く](https://ogaogamirai.github.io/public/generated/colonial_policy_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/colonial_policy_snapshot.html) |
+| `china_growth_sustainability_snapshot.html` | **中国の成長と持続可能性**（構造的課題・米国の対応スナップショット） | 約 97 KB | [開く](https://ogaogamirai.github.io/public/generated/china_growth_sustainability_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/china_growth_sustainability_snapshot.html) |
 | `aether_健康診断再検査定義_snapshot.html` | 上と **同一内容**（日本語ファイル名の別名） | 約 76 KB | [開く（エンコード URL）](https://ogaogamirai.github.io/public/generated/aether_%E5%81%A5%E5%BA%B7%E8%A8%BA%E6%96%AD%E5%86%8D%E6%A4%9C%E6%9F%BB%E5%AE%9A%E7%BE%A9_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/aether_%E5%81%A5%E5%BA%B7%E8%A8%BA%E6%96%AD%E5%86%8D%E6%A4%9C%E6%9F%BB%E5%AE%9A%E7%BE%A9_snapshot.html) |
 | `aether_日本の植民地政策再評価_snapshot.html` | 上と **同一内容**（日本語ファイル名の別名） | 約 106 KB | [開く（エンコード URL）](https://ogaogamirai.github.io/public/generated/aether_%E6%97%A5%E6%9C%AC%E3%81%AE%E6%A4%8D%E6%B0%91%E5%9C%B0%E6%94%BF%E7%AD%96%E5%86%8D%E8%A9%95%E4%BE%A1_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/aether_%E6%97%A5%E6%9C%AC%E3%81%AE%E6%A4%8D%E6%B0%91%E5%9C%B0%E6%94%BF%E7%AD%96%E5%86%8D%E8%A9%95%E4%BE%A1_snapshot.html) |
+| `aether_中国の成長と持続可能性_snapshot.html` | 上と **同一内容**（日本語ファイル名の別名） | 約 97 KB | [開く（エンコード URL）](https://ogaogamirai.github.io/public/generated/aether_%E4%B8%AD%E5%9B%BD%E3%81%AE%E6%88%90%E9%95%B7%E3%81%A8%E6%8C%81%E7%B6%9A%E5%8F%AF%E8%83%BD%E6%80%A7_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/aether_%E4%B8%AD%E5%9B%BD%E3%81%AE%E6%88%90%E9%95%B7%E3%81%A8%E6%8C%81%E7%B6%9A%E5%8F%AF%E8%83%BD%E6%80%A7_snapshot.html) |
 | `README.md` | この一覧 | — | [blob（Markdown 表示）](https://github.com/ogaogamirai/public/blob/main/generated/README.md) | — |
 | `.gitkeep` | 空ディレクトリ維持用 | 0 B | — | [blob](https://github.com/ogaogamirai/public/blob/main/generated/.gitkeep) |
 
@@ -63,12 +65,13 @@ python tools/publish_to_public.py
 
 ---
 
-## Aether スナップショット（健康診断・植民地政策）
+## Aether スナップショット（健康診断・植民地政策・中国経済）
 
 | ファイル | 内容 |
 |----------|------|
 | `health_check_reexam_snapshot.html` | 健康診断の「再検査」定義を TOC の現状問題ツリー（CRT）で整理したスナップショット |
 | `colonial_policy_snapshot.html` | 日本の植民地政策に関する調査ノートの再評価（H1–H3 検証）スナップショット |
+| `china_growth_sustainability_snapshot.html` | 中国の高度成長と、その後の構造的課題（不動産・地方債務・過剰生産等）・米国の対応の構図スナップショット |
 
 英語ファイル名版と `aether_…` 日本語ファイル名版は **中身が同じ**（配布・リンク用の別名）。
 
@@ -80,4 +83,4 @@ python tools/publish_to_public.py
 - 数式は `system-dynamics.html` では jsDelivr 経由の KaTeX CDN を使用（単一ファイル配布のため）。
 - この README 自体: https://github.com/ogaogamirai/public/blob/main/generated/README.md
 
-*最終更新: 2026-08-11 — system-dynamics（math-bridge B1–B11 統合）を一覧に追加。*
+*最終更新: 2026-08-16 — 中国の成長と持続可能性（Aether スナップショット）を一覧に追加。*
