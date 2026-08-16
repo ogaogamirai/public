@@ -346,6 +346,24 @@
           </div>
         </div>
       </div>
+      <!-- 4. Cone Sections -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数C・空間図形</div>
+          <h2 class="card-title">円錐の切り口</h2>
+          <p class="card-desc">
+            円錐を切る角度を変えると、円・楕円・放物線・双曲線が現れます。切断面と交線を3Dで観察します。
+          </p>
+          <div class="card-formula" id="formula-cone"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=cone-sections" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('cone-sections')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('cone-sections')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- How to Use Section -->
@@ -367,6 +385,7 @@
         katex.render("e^{it} = \\cos(t) + i\\sin(t)", document.getElementById("formula-euler"), { displayMode: false });
         katex.render("\\begin{cases} \\dot{x} = \\sigma(y-x) \\\\ \\dot{y} = x(\\rho-z)-y \\\\ \\dot{z} = xy-\\beta z \\end{cases}", document.getElementById("formula-lorenz"), { displayMode: false });
         katex.render("\\delta = 23.44^\\circ \\times \\sin\\left(\\frac{360^\\circ}{365} (N - 80)\\right)", document.getElementById("formula-earth"), { displayMode: false });
+        katex.render("x^2+z^2=y^2,\\quad y=h+x\\tan\\theta", document.getElementById("formula-cone"), { displayMode: false });
 
         // Render inline $...$ in descriptions
         document.querySelectorAll('.card-desc').forEach(el => {
