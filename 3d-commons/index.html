@@ -458,7 +458,26 @@
         </div>
       </div>
 
-      <!-- 10. Saddle Surface -->
+      <!-- 10. Cross Product -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数C・空間ベクトル</div>
+          <h2 class="card-title">ベクトルの外積と面積・向き</h2>
+          <p class="card-desc">
+            $\boldsymbol a,\boldsymbol b$ が張る平行四辺形の面積は $|\boldsymbol a\times\boldsymbol b|$。外積ベクトルは面に垂直で、右手の法則で向きが決まります。Three.js y-up 座標で成分と面積を確認できます。
+          </p>
+          <div class="card-formula" id="formula-cross"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=cross-product" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('cross-product')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('cross-product')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 11. Saddle Surface -->
       <div class="card">
         <div>
           <div class="card-category cat-math">📐 数C・空間図形</div>
@@ -477,7 +496,7 @@
         </div>
       </div>
 
-      <!-- 11. Parallelepiped -->
+      <!-- 12. Parallelepiped -->
       <div class="card">
         <div>
           <div class="card-category cat-math">📐 数C・空間ベクトル</div>
@@ -496,7 +515,7 @@
         </div>
       </div>
 
-      <!-- 12. Lemniscate -->
+      <!-- 13. Lemniscate -->
       <div class="card">
         <div>
           <div class="card-category cat-math">📐 数学・極座標</div>
@@ -541,6 +560,7 @@
         katex.render("\\boldsymbol{n}\\cdot(\\boldsymbol{r}-\\boldsymbol{r_0})=0", document.getElementById("formula-normal"), { displayMode: false });
         katex.render("L_1:(t,0,0),\\quad L_2:(s\\cos\\phi,1,s\\sin\\phi+2)", document.getElementById("formula-skew"), { displayMode: false });
         katex.render("\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a=\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}\\boldsymbol b", document.getElementById("formula-projection"), { displayMode: false });
+        katex.render("|\\boldsymbol{a}\\times\\boldsymbol{b}|=|\\boldsymbol{a}||\\boldsymbol{b}|\\sin\\theta", document.getElementById("formula-cross"), { displayMode: false });
         katex.render("z=x^2-y^2", document.getElementById("formula-saddle"), { displayMode: false });
         katex.render("V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|", document.getElementById("formula-parallelepiped"), { displayMode: false });
         katex.render("r^2=a^2\\cos 2\\theta,\\quad (x^2+y^2)^2=a^2(x^2-y^2)", document.getElementById("formula-lemniscate"), { displayMode: false });
