@@ -36,7 +36,13 @@ export default {
       new THREE.BufferGeometry(),
       new THREE.LineDashedMaterial({ color: 0xd97706, dashSize: 0.25, gapSize: 0.18 })
     );
-    state.group.add(state.line1, state.line2, state.connector);
+    state.arrow1 = new THREE.ArrowHelper(
+      new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 3, 0x0284c7, 0.45, 0.25
+    );
+    state.arrow2 = new THREE.ArrowHelper(
+      new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 2), 3, 0xe11d48, 0.45, 0.25
+    );
+    state.group.add(state.line1, state.line2, state.connector, state.arrow1, state.arrow2);
     this.updateLines(THREE, state);
   },
 
@@ -54,6 +60,18 @@ export default {
     const closestOnL1 = new THREE.Vector3(x, 0, 0);
     state.connector.geometry.setFromPoints([closestOnL1, closestOnL2]);
     state.connector.computeLineDistances();
+    state.arrow1.position.set(0, 0, 0);
+    state.arrow1.setDirection(new THREE.Vector3(1, 0, 0));
+    state.arrow2.position.set(0, 1, 2);
+    state.arrow2.setDirection(d);
+    const readout = document.getElementById("model-formula");
+    if (readout && window.katex) {
+      katex.render(
+        `\\phi=${state.params.angle}^\\circ\\quad\\text{直線間の最短距離}=1`,
+        readout,
+        { displayMode: false, throwOnError: false }
+      );
+    }
   },
 
   onParamChange(THREE, state) {

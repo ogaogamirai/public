@@ -33,6 +33,12 @@ export default {
         side: THREE.DoubleSide, roughness: 0.3
       })
     );
+    state.base = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({
+        color: 0xd97706, transparent: true, opacity: 0.28, side: THREE.DoubleSide
+      })
+    );
     state.edges = new THREE.LineSegments(
       new THREE.BufferGeometry(),
       new THREE.LineBasicMaterial({ color: 0x94a3b8, linewidth: 2 })
@@ -40,7 +46,7 @@ export default {
     state.arrowA = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 5, 0x0284c7, 0.5, 0.28);
     state.arrowB = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 4, 0xe11d48, 0.5, 0.28);
     state.arrowC = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(), 3, 0xd97706, 0.5, 0.28);
-    state.group.add(state.surface, state.edges, state.arrowA, state.arrowB, state.arrowC);
+    state.group.add(state.surface, state.base, state.edges, state.arrowA, state.arrowB, state.arrowC);
     this.updateShape(THREE, state);
   },
 
@@ -72,6 +78,14 @@ export default {
     geometry.computeVertexNormals();
     state.surface.geometry.dispose();
     state.surface.geometry = geometry;
+    const baseGeometry = new THREE.BufferGeometry();
+    baseGeometry.setAttribute("position", new THREE.Float32BufferAttribute([
+      o.x, o.y, o.z, a.x, a.y, a.z, ab.x, ab.y, ab.z,
+      o.x, o.y, o.z, ab.x, ab.y, ab.z, b.x, b.y, b.z
+    ], 3));
+    baseGeometry.computeVertexNormals();
+    state.base.geometry.dispose();
+    state.base.geometry = baseGeometry;
 
     const edgePairs = [
       [o, a], [o, b], [o, c], [a, ab], [a, ac],
@@ -90,6 +104,15 @@ export default {
     state.arrowB.setLength(b.length(), 0.5, 0.28);
     state.arrowC.setDirection(c.clone().normalize());
     state.arrowC.setLength(c.length(), 0.5, 0.28);
+    const volume = Math.abs(a.dot(new THREE.Vector3().crossVectors(b, c)));
+    const readout = document.getElementById("model-formula");
+    if (readout && window.katex) {
+      katex.render(
+        `V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|=${volume.toFixed(1)}`,
+        readout,
+        { displayMode: false, throwOnError: false }
+      );
+    }
   },
 
   onParamChange(THREE, state) {

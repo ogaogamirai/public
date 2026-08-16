@@ -35,7 +35,11 @@ export default {
       new THREE.BufferGeometry(),
       new THREE.LineDashedMaterial({ color: 0xd97706, dashSize: 0.22, gapSize: 0.16 })
     );
-    state.group.add(state.dropLine);
+    state.arc = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0x64748b, linewidth: 2 })
+    );
+    state.group.add(state.dropLine, state.arc);
     this.updateProjection(THREE, state);
   },
 
@@ -52,6 +56,21 @@ export default {
     state.arrowProjection.setLength(Math.abs(projectionLength), 0.45, 0.25);
     state.dropLine.geometry.setFromPoints([a, projection]);
     state.dropLine.computeLineDistances();
+    const arcPoints = [];
+    const arcRadius = 1.6;
+    for (let i = 0; i <= 24; i++) {
+      const t = theta * (i / 24);
+      arcPoints.push(new THREE.Vector3(arcRadius * Math.cos(t), arcRadius * Math.sin(t), 0));
+    }
+    state.arc.geometry.setFromPoints(arcPoints);
+    const readout = document.getElementById("model-formula");
+    if (readout && window.katex) {
+      katex.render(
+        `\\theta=${state.params.angle}^\\circ\\quad\\boldsymbol a\\cdot\\boldsymbol b=${(state.bLength * projectionLength).toFixed(2)}\\quad\\text{正射影の長さ}=${Math.abs(projectionLength).toFixed(2)}`,
+        readout,
+        { displayMode: false, throwOnError: false }
+      );
+    }
   },
 
   onParamChange(THREE, state) {
