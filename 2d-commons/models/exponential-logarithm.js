@@ -42,8 +42,9 @@ export default {
 
   updateStatus(state) {
     const a = state.params.base;
+    const baseText = Math.abs(a - Math.E) < 0.005 ? "e" : a.toFixed(1);
     window.setModelStatus(
-      `底 $a=${a.toFixed(1)}$　／　$y=a^x$ と $y=\\log_a x$ は $y=x$ に関して対称`
+      `底 $a=${baseText}$　／　$y=a^x$ と $y=\\log_a x$ は $y=x$ に関して対称`
     );
   },
 

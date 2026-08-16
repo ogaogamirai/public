@@ -520,7 +520,7 @@
           const btn = document.createElement("button");
           btn.type = "button";
           btn.className = `view-btn ${v.default || idx === 0 ? "active" : ""}`;
-          btn.textContent = v.name || key;
+          btn.innerHTML = renderMathText(v.name || key);
           btn.onclick = () => applyView(v, btn);
           viewsGroup.appendChild(btn);
         });
