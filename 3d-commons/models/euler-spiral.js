@@ -1,6 +1,6 @@
 // ==============================================================================
 // 3D Commons Model Definition: Euler Spiral (オイラーの螺旋と複素正弦波)
-// 明るく上品なライトテーマ最適化版
+// 明るく上品なライトテーマ最適化版 (完全修正版)
 // ==============================================================================
 
 export default {
@@ -44,7 +44,7 @@ export default {
     }
     state.HelixCurve = HelixCurve;
 
-    // Tube Mesh (Elegant Sapphire Blue)
+    // 1. Central Helix Tube
     const helixPath = new HelixCurve();
     state.helixPath = helixPath;
     const tubeGeo = new THREE.TubeGeometry(helixPath, 300, 0.14, 16, false);
@@ -57,17 +57,17 @@ export default {
     scene.add(state.helixMesh);
 
     // 2. Projections
-    // Cos Line (Rose Pink)
+    // Cos Line (Rose Pink on X-Y plane)
     state.cosGeo = new THREE.BufferGeometry();
     state.cosLine = new THREE.Line(state.cosGeo, new THREE.LineBasicMaterial({ color: 0xe11d48, linewidth: 3, transparent: true, opacity: 0.85 }));
     scene.add(state.cosLine);
 
-    // Sin Line (Cyan/Blue)
+    // Sin Line (Sapphire Blue on X-Z plane)
     state.sinGeo = new THREE.BufferGeometry();
     state.sinLine = new THREE.Line(state.sinGeo, new THREE.LineBasicMaterial({ color: 0x0284c7, linewidth: 3, transparent: true, opacity: 0.85 }));
     scene.add(state.sinLine);
 
-    // Complex Circle Line (Amber Gold)
+    // Complex Circle Line (Amber Gold on Y-Z plane)
     const circlePoints = [];
     for (let i = 0; i <= 100; i++) {
       const a = (i / 100) * Math.PI * 2;
@@ -78,10 +78,11 @@ export default {
     scene.add(circleLine);
 
     // Time Axis
-    const axisGeo = new THREE.BufferGeometry().setFromPoints([
+    const axisPoints = [
       new THREE.Vector3(-LENGTH / 2 - 1, 0, 0),
       new THREE.Vector3(LENGTH / 2 + 1, 0, 0)
-    ]);
+    ];
+    const axisGeo = new THREE.BufferGeometry().setFromPoints(axisPoints);
     const axisMat = new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.5, gapSize: 0.25 });
     const timeAxis = new THREE.Line(axisGeo, axisMat);
     timeAxis.computeLineDistances();
@@ -97,28 +98,31 @@ export default {
     gridXZ.position.set(0, -RADIUS * 1.6, 0);
     scene.add(gridXZ);
 
-    // Traveling Dot & Leaders
+    // Traveling Photon / Phasor Dot
     state.dot = new THREE.Mesh(new THREE.SphereGeometry(0.35, 32, 32), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.1, metalness: 0.8 }));
     scene.add(state.dot);
 
+    // Phasor line from axis to point
     state.phasorGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
     state.phasorLine = new THREE.Line(state.phasorGeo, new THREE.LineBasicMaterial({ color: 0xd97706, linewidth: 3 }));
     scene.add(state.phasorLine);
 
+    // Projection Connecting Leader Lines
     state.leaderYGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
     state.leaderZGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
     const leaderMat = new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.3, gapSize: 0.2, transparent: true, opacity: 0.7 });
-    state.leaderY = new THREE.Line(leaderYGeo, leaderMat);
-    state.leaderZ = new THREE.Line(leaderZGeo, leaderMat);
+    state.leaderY = new THREE.Line(state.leaderYGeo, leaderMat);
+    state.leaderZ = new THREE.Line(state.leaderZGeo, leaderMat);
     scene.add(state.leaderY);
     scene.add(state.leaderZ);
 
+    // Shadow dots on projections
     state.shadowCosDot = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), new THREE.MeshBasicMaterial({ color: 0xe11d48 }));
     state.shadowSinDot = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), new THREE.MeshBasicMaterial({ color: 0x0284c7 }));
     state.circleDot = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), new THREE.MeshBasicMaterial({ color: 0xd97706 }));
     scene.add(state.shadowCosDot);
     scene.add(state.shadowSinDot);
-    scene.add(circleDot);
+    scene.add(state.circleDot);
 
     this.updateCurve(THREE, state);
   },
