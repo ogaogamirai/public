@@ -215,6 +215,21 @@
           </div>
         </div>
       </div>
+      <div class="card">
+        <div>
+          <div class="card-category">数II・指数関数と対数関数</div>
+          <h2 class="card-title">指数関数と対数関数は逆関数</h2>
+          <p class="card-desc">$y=a^x$ と $y=\log_a x$ が、直線 $y=x$ に関して対称になることを、底のスライダーで確かめます。</p>
+          <div class="card-formula" id="f4"></div>
+        </div>
+        <div>
+          <a class="btn-launch" href="viewer.html?model=exponential-logarithm">グラフを開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" type="button" onclick="copyIframe('exponential-logarithm')">iframe をコピー</button>
+            <button class="btn-secondary" type="button" onclick="copyLink('exponential-logarithm')">リンクをコピー</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="guide-box">
       <h3 style="font-family:Outfit,sans-serif;margin-bottom:12px;">埋め込み</h3>
@@ -229,6 +244,7 @@
       katex.render("y = ax^2 + bx + c", document.getElementById("f1"), { displayMode: false });
       katex.render("D = b^2 - 4ac", document.getElementById("f2"), { displayMode: false });
       katex.render("y \\ge ax^2 + bx + c", document.getElementById("f3"), { displayMode: false });
+      katex.render("y=a^x \\Longleftrightarrow y=\\log_a x", document.getElementById("f4"), { displayMode: false });
       document.querySelectorAll(".card-desc").forEach((el) => {
         el.innerHTML = el.innerHTML.replace(/\$([^\$]+)\$/g, (_m, math) => {
           try { return katex.renderToString(math, { displayMode: false, throwOnError: false }); }
