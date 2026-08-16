@@ -364,6 +364,62 @@
           </div>
         </div>
       </div>
+      <!-- 5. Solid of Revolution -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数III・積分と回転体</div>
+          <h2 class="card-title">回転体</h2>
+          <p class="card-desc">
+            曲線を軸のまわりに回すと立体が生まれます。母線・断面・体積のつながりを観察します。
+          </p>
+          <div class="card-formula" id="formula-solid"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=solid-of-revolution" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('solid-of-revolution')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('solid-of-revolution')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Cube Plane Cut -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数C・空間図形</div>
+          <h2 class="card-title">立方体の平面切断</h2>
+          <p class="card-desc">
+            立方体と斜めの切断面を重ね、平面の高さと傾きによる位置関係を確認します。
+          </p>
+          <div class="card-formula" id="formula-cube"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=cube-plane-cut" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('cube-plane-cut')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('cube-plane-cut')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Plane Normal Vector -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数C・空間ベクトル</div>
+          <h2 class="card-title">平面と法線ベクトル</h2>
+          <p class="card-desc">
+            平面の傾きを変えても、法線ベクトルは常に平面に垂直です。点・平面・方向の関係を3Dで確認します。
+          </p>
+          <div class="card-formula" id="formula-normal"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=plane-normal-vector" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('plane-normal-vector')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('plane-normal-vector')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- How to Use Section -->
@@ -386,6 +442,9 @@
         katex.render("\\begin{cases} \\dot{x} = \\sigma(y-x) \\\\ \\dot{y} = x(\\rho-z)-y \\\\ \\dot{z} = xy-\\beta z \\end{cases}", document.getElementById("formula-lorenz"), { displayMode: false });
         katex.render("\\delta = 23.44^\\circ \\times \\sin\\left(\\frac{360^\\circ}{365} (N - 80)\\right)", document.getElementById("formula-earth"), { displayMode: false });
         katex.render("x^2+z^2=y^2,\\quad y=h+x\\tan\\theta", document.getElementById("formula-cone"), { displayMode: false });
+        katex.render("V=2\\pi\\int_0^R x\\cdot x^2\\,dx", document.getElementById("formula-solid"), { displayMode: false });
+        katex.render("z=h+x\\tan\\theta", document.getElementById("formula-cube"), { displayMode: false });
+        katex.render("\\boldsymbol{n}\\cdot(\\boldsymbol{r}-\\boldsymbol{r_0})=0", document.getElementById("formula-normal"), { displayMode: false });
 
         // Render inline $...$ in descriptions
         document.querySelectorAll('.card-desc').forEach(el => {
