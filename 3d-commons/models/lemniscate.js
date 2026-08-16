@@ -66,6 +66,7 @@ export default {
   },
 
   init(THREE, scene, state) {
+    state.readoutDirty = true;
     state.group = new THREE.Group();
     scene.add(state.group);
 
@@ -214,7 +215,7 @@ export default {
     state.areaS = a * a;
 
     const readout = document.getElementById("model-formula");
-    if (readout && window.katex) {
+    if (readout && window.katex && state.readoutDirty) {
       const rText = state.onCurve ? state.currentR.toFixed(3) : "\\text{—}";
       const prod = state.onCurve ? state.currentProduct.toFixed(3) : "\\text{—}";
       const offCurveNote = state.onCurve
@@ -228,10 +229,12 @@ export default {
         readout,
         { displayMode: false, throwOnError: false }
       );
+      state.readoutDirty = false;
     }
   },
 
   onParamChange(THREE, state, key) {
+    state.readoutDirty = true;
     if (key === "a") {
       this.rebuildGeometry(THREE, state);
     } else {
