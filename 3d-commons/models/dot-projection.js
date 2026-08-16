@@ -35,12 +35,12 @@ export default {
   category: "math",
   categoryLabel: "📐 数B・ベクトル",
   title: "内積と正射影",
-  description: "ベクトル a を斜辺とする直角三角形を作ると、正射影の長さは |a|cosθ です。さらに |b| を掛けると、内積 |a||b|cosθ になります。",
+  description: "ベクトル $\\boldsymbol a$ を $\\boldsymbol b$ 上へ正射影すると $\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a=\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}\\boldsymbol b$ です。直角三角形ではその大きさが $\\frac{|\\boldsymbol a\\cdot\\boldsymbol b|}{|\\boldsymbol b|}=|\\boldsymbol a|\\cos\\theta$ となり、内積は $\\boldsymbol a\\cdot\\boldsymbol b=|\\boldsymbol b|$ 倍の値になります。",
   formula: "\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a=\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}\\boldsymbol b",
   legend: [
     { color: "#0284c7", label: "ベクトル $\\boldsymbol a$" },
     { color: "#e11d48", label: "ベクトル $\\boldsymbol b$" },
-    { color: "#d97706", label: "$\\boldsymbol a$ の正射影（$|\\boldsymbol a|\\cos\\theta$）" },
+    { color: "#d97706", label: "$\\boldsymbol a$ の正射影（$\\frac{|\\boldsymbol a\\cdot\\boldsymbol b|}{|\\boldsymbol b|}$）" },
     { color: "#94a3b8", label: "$x$ 軸（横）・$y$ 軸（縦）" }
   ],
   views: {
@@ -89,7 +89,7 @@ export default {
       new THREE.LineBasicMaterial({ color: 0x7c3aed, linewidth: 3 })
     );
     state.labelA = makeLabel(THREE, "|a|（斜辺）", "#0284c7");
-    state.labelProjection = makeLabel(THREE, "|a|cosθ（正射影）", "#d97706");
+    state.labelProjection = makeLabel(THREE, "|a·b|/|b|（正射影）", "#d97706");
     state.labelTheta = makeLabel(THREE, "θ", "#475569");
     state.labelRight = makeLabel(THREE, "90°", "#7c3aed");
     state.group.add(
@@ -104,19 +104,26 @@ export default {
     const a = new THREE.Vector3(state.aLength, 0, 0);
     const bDirection = new THREE.Vector3(Math.cos(theta), Math.sin(theta), 0).normalize();
     const b = bDirection.clone().multiplyScalar(state.bLength);
-    const projectionLength = a.dot(bDirection);
-    const projection = bDirection.clone().multiplyScalar(projectionLength);
+    const dotAB = a.dot(b);
+    const bLenSq = state.bLength * state.bLength;
+    const projection = b.clone().multiplyScalar(dotAB / bLenSq);
+    const projectionMagnitude = projection.length();
     state.arrowA.setDirection(a.clone().normalize());
     state.arrowB.setDirection(bDirection);
-    state.arrowProjection.setDirection(projectionLength >= 0 ? bDirection : bDirection.clone().multiplyScalar(-1));
-    state.arrowProjection.setLength(Math.abs(projectionLength), 0.45, 0.25);
+    if (projectionMagnitude > 1e-8) {
+      state.arrowProjection.setDirection(projection.clone().normalize());
+      state.arrowProjection.setLength(projectionMagnitude, 0.45, 0.25);
+    } else {
+      state.arrowProjection.setDirection(bDirection);
+      state.arrowProjection.setLength(0.001, 0.45, 0.25);
+    }
     state.dropLine.geometry.setFromPoints([a, projection]);
     state.dropLine.computeLineDistances();
-    const projectionDirection = projectionLength >= 0
-      ? bDirection
-      : bDirection.clone().multiplyScalar(-1);
+    const projectionDirection = projectionMagnitude > 1e-8
+      ? projection.clone().normalize()
+      : bDirection;
     const perpendicular = a.clone().sub(projection);
-    if (perpendicular.lengthSq() > 1e-8 && Math.abs(projectionLength) > 1e-8) {
+    if (perpendicular.lengthSq() > 1e-8 && projectionMagnitude > 1e-8) {
       perpendicular.normalize();
       const markerSize = 0.45;
       const p0 = projection;
@@ -151,8 +158,9 @@ export default {
     state.arc.geometry.setFromPoints(arcPoints);
     const readout = document.getElementById("model-formula");
     if (readout && window.katex) {
+      const coeff = dotAB / bLenSq;
       katex.render(
-        `|\\boldsymbol a|\\cos\\theta=${projectionLength.toFixed(2)}\\quad\\boldsymbol a\\cdot\\boldsymbol b=|\\boldsymbol a||\\boldsymbol b|\\cos\\theta=${(state.bLength * projectionLength).toFixed(2)}`,
+        `\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}=\\frac{${dotAB.toFixed(2)}}{${bLenSq.toFixed(0)}}=${coeff.toFixed(3)}\\quad|\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a|=\\frac{|\\boldsymbol a\\cdot\\boldsymbol b|}{|\\boldsymbol b|}=${projectionMagnitude.toFixed(2)}`,
         readout,
         { displayMode: false, throwOnError: false }
       );
