@@ -277,7 +277,12 @@
         gap: 6px;
         font-size: 0.7rem;
       }
-      .slider-label { flex: 0 0 auto; max-width: 72px; }
+      .slider-label {
+        flex: 0 0 116px;
+        max-width: none;
+        white-space: nowrap;
+        overflow: visible;
+      }
       .slider-val { min-width: 28px; font-size: 0.7rem; }
       .slider-input { height: 22px; }
       .axis-legend { display: none !important; }
@@ -460,7 +465,11 @@
         input.value = modelState.params[key];
         const span = input.parentElement.querySelector(".slider-val");
         const p = currentModel.parameters[key];
-        if (span) span.textContent = fmt(modelState.params[key], p.step);
+        if (span) {
+          span.textContent = p.formatValue
+            ? p.formatValue(modelState.params[key])
+            : fmt(modelState.params[key], p.step);
+        }
       });
     }
 
@@ -533,10 +542,10 @@
           input.dataset.key = key;
           const valSpan = document.createElement("span");
           valSpan.className = "slider-val";
-          valSpan.textContent = fmt(p.value, p.step);
+          valSpan.textContent = p.formatValue ? p.formatValue(p.value) : fmt(p.value, p.step);
           input.oninput = (e) => {
             const val = parseFloat(e.target.value);
-            valSpan.textContent = fmt(val, p.step);
+            valSpan.textContent = p.formatValue ? p.formatValue(val) : fmt(val, p.step);
             modelState.params[key] = val;
             if (currentModel.onParamChange) currentModel.onParamChange(plot, modelState, key, val);
           };

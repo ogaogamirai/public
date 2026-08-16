@@ -20,7 +20,16 @@ export default {
     ten: { name: "常用対数 $10$", params: { base: 10 } }
   },
   parameters: {
-    base: { label: "底 $a$（$a>1$）", min: 1.2, max: 10, step: 0.1, value: Math.E }
+    base: {
+      label: "底 $a$（$a>1$）",
+      min: 1.2,
+      max: 10,
+      step: 0.1,
+      value: Math.E,
+      formatValue(value) {
+        return Math.abs(value - Math.E) < 0.005 ? "e≈2.718" : value.toFixed(1);
+      }
+    }
   },
 
   onParamChange(_plot, state) {
