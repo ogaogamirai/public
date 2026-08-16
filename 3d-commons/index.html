@@ -458,7 +458,26 @@
         </div>
       </div>
 
-      <!-- 10. Parallelepiped -->
+      <!-- 10. Saddle Surface -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数C・空間図形</div>
+          <h2 class="card-title">双曲放物面（鞍型曲面）</h2>
+          <p class="card-desc">
+            曲面 $z=x^2-y^2$ は鞍型の形をします。$y$ を固定した $x$ 方向の断面は上に開く放物線、$x$ を固定した $y$ 方向の断面は下に開く放物線です。
+          </p>
+          <div class="card-formula" id="formula-saddle"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=saddle-surface" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('saddle-surface')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('saddle-surface')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 11. Parallelepiped -->
       <div class="card">
         <div>
           <div class="card-category cat-math">📐 数C・空間ベクトル</div>
@@ -503,6 +522,7 @@
         katex.render("\\boldsymbol{n}\\cdot(\\boldsymbol{r}-\\boldsymbol{r_0})=0", document.getElementById("formula-normal"), { displayMode: false });
         katex.render("L_1:(t,0,0),\\quad L_2:(s\\cos\\phi,1,s\\sin\\phi+2)", document.getElementById("formula-skew"), { displayMode: false });
         katex.render("\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a=\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}\\boldsymbol b", document.getElementById("formula-projection"), { displayMode: false });
+        katex.render("z=x^2-y^2", document.getElementById("formula-saddle"), { displayMode: false });
         katex.render("V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|", document.getElementById("formula-parallelepiped"), { displayMode: false });
 
         // Render inline $...$ in descriptions
