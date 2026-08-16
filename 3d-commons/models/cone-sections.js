@@ -197,8 +197,9 @@ export default {
     });
     state.curve.visible = false;
 
-    state.plane.rotation.z = -theta;
-    state.planeEdge.rotation.z = -theta;
+    // Match the analytic plane y = h + x tan(theta) used by the curve.
+    state.plane.rotation.set(Math.PI / 2, 0, theta);
+    state.planeEdge.rotation.copy(state.plane.rotation);
     state.cutDot.position.copy(nearest);
     state.currentType = classify(angle);
     const readout = document.getElementById("model-formula");
