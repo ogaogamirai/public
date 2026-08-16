@@ -10,7 +10,8 @@ export default {
   legend: [
     { color: "#0284c7", label: "回転してできた立体" },
     { color: "#e11d48", label: "母線 $y=x^2$" },
-    { color: "#d97706", label: "回転軸 $y$" }
+    { color: "#d97706", label: "回転軸 $y$" },
+    { color: "#16a34a", label: "断面（半径 $x$ の円）" }
   ],
   views: {
     solid: { name: "🔄 立体", pos: [13, 11, 16], target: [0, 4, 0], default: true },
@@ -38,6 +39,24 @@ export default {
     state.group.add(state.surface);
     state.profile = new THREE.Line(new THREE.BufferGeometry(), state.profileMaterial);
     state.group.add(state.profile);
+    state.crossSection = new THREE.Mesh(
+      new THREE.CircleGeometry(1, 64),
+      new THREE.MeshBasicMaterial({
+        color: 0x16a34a, transparent: true, opacity: 0.32, side: THREE.DoubleSide
+      })
+    );
+    state.crossSection.rotation.x = Math.PI / 2;
+    state.group.add(state.crossSection);
+    state.crossSectionEdge = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0x16a34a })
+    );
+    state.group.add(state.crossSectionEdge);
+    state.crossRadius = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineDashedMaterial({ color: 0x16a34a, dashSize: 0.25, gapSize: 0.18 })
+    );
+    state.group.add(state.crossRadius);
     const axisGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 18, 0)
     ]);
@@ -84,11 +103,29 @@ export default {
       profilePoints.push(new THREE.Vector3(x, x * x, 0));
     }
     state.profile.geometry.setFromPoints(profilePoints);
+
+    const sliceX = R * 0.65;
+    const sliceY = sliceX * sliceX;
+    state.crossSection.scale.set(sliceX, sliceX, 1);
+    state.crossSection.position.set(0, sliceY, 0);
+    const circlePoints = [];
+    for (let i = 0; i <= radial; i++) {
+      const angle = (i / radial) * Math.PI * 2;
+      circlePoints.push(new THREE.Vector3(sliceX * Math.cos(angle), sliceY, sliceX * Math.sin(angle)));
+    }
+    state.crossSectionEdge.geometry.setFromPoints(circlePoints);
+    state.crossRadius.geometry.setFromPoints([
+      new THREE.Vector3(0, sliceY, 0),
+      new THREE.Vector3(sliceX, sliceY, 0)
+    ]);
+    state.crossRadius.computeLineDistances();
+
     const volume = Math.PI * Math.pow(R, 4) / 2;
+    const shellAtSlice = 2 * Math.PI * sliceX * sliceX * sliceX;
     const readout = document.getElementById("model-formula");
     if (readout && window.katex) {
       katex.render(
-        `V=2\\pi\\int_0^R x^3\\,dx=${volume.toFixed(2)}\\quad(R=${R.toFixed(1)})`,
+        `V=2\\pi\\int_0^R x^3\\,dx=${volume.toFixed(2)}\\quad(R=${R.toFixed(1)},\\;x=${sliceX.toFixed(1)}\\Rightarrow 2\\pi x^3=${shellAtSlice.toFixed(1)})`,
         readout,
         { displayMode: false, throwOnError: false }
       );
