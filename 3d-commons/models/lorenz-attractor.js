@@ -25,7 +25,7 @@ export default {
   parameters: {
     rho: { label: "レイリー数 (ρ)", min: 10, max: 40, step: 1, value: 28 },
     sigma: { label: "プラントル数 (σ)", min: 5, max: 20, step: 0.5, value: 10 },
-    beta: { label: "幾何パラメータ (β)", min: 1, max: 4, step: 0.1, value: 2.66 }
+    beta: { label: "幾何パラメータ (β)", min: 1, max: 4, step: 0.01, value: 8 / 3 }
   },
 
   init(THREE, scene, state) {
@@ -93,7 +93,7 @@ export default {
   update(THREE, state, dt, time) {
     const sigma = state.params.sigma || 10;
     const rho = state.params.rho || 28;
-    const beta = state.params.beta || 2.6667;
+    const beta = state.params.beta || (8 / 3);
     const h = 0.01;
 
     for (let step = 0; step < 4; step++) {
