@@ -1,5 +1,6 @@
 // ==============================================================================
 // 3D Commons Model Definition: Lorenz Attractor (ローレンツ・カオス軌道)
+// 物理・数値解析的に厳密な RK4（4次ルンゲ＝クッタ法）実装
 // ==============================================================================
 
 export default {
@@ -7,12 +8,12 @@ export default {
   category: "physics",
   categoryLabel: "⚛️ 物理・カオス",
   title: "ローレンツ・アトラクター（決定論的カオス）",
-  description: "大気対流の簡約モデルから発見された「カオスの蝶」。初期値のわずかな違いが未来の予測不能性を生み出します（バタフライ効果）。",
+  description: "大気対流の微分方程式から現れる「カオスの蝶」。初期値のわずかな差（0.0001）が時間とともに全く異なる軌道を描くバタフライ効果の真実。",
   formula: "\\begin{cases} \\dot{x} = \\sigma (y - x) \\\\ \\dot{y} = x (\\rho - z) - y \\\\ \\dot{z} = xy - \\beta z \\end{cases}",
   
   legend: [
     { color: "#38bdf8", label: "<strong>軌道 1</strong>: 初期値 $(0.1, 0, 0)$" },
-    { color: "#f43f5e", label: "<strong>軌道 2</strong>: 初期値 $(0.1001, 0, 0)$（わずかな差）" }
+    { color: "#f43f5e", label: "<strong>軌道 2</strong>: 初期値 $(0.1001, 0, 0)$（わずか $10^{-4}$ の差）" }
   ],
 
   views: {
@@ -28,9 +29,9 @@ export default {
   },
 
   init(THREE, scene, state) {
-    state.MAX_POINTS = 3000;
+    state.MAX_POINTS = 3500;
     
-    // Trajectory 1
+    // Trajectory 1 (Blue)
     state.points1 = [];
     state.geo1 = new THREE.BufferGeometry();
     const pos1 = new Float32Array(state.MAX_POINTS * 3);
@@ -38,7 +39,7 @@ export default {
     state.line1 = new THREE.Line(state.geo1, new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 2, transparent: true, opacity: 0.85 }));
     scene.add(state.line1);
 
-    // Trajectory 2 (Slightly perturbed)
+    // Trajectory 2 (Pink - perturbed)
     state.points2 = [];
     state.geo2 = new THREE.BufferGeometry();
     const pos2 = new Float32Array(state.MAX_POINTS * 3);
@@ -46,13 +47,12 @@ export default {
     state.line2 = new THREE.Line(state.geo2, new THREE.LineBasicMaterial({ color: 0xf43f5e, linewidth: 2, transparent: true, opacity: 0.85 }));
     scene.add(state.line2);
 
-    // Leader heads (Spheres)
+    // Leader Heads
     state.head1 = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
     state.head2 = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
     scene.add(state.head1);
     scene.add(state.head2);
 
-    // Reset simulation state
     this.resetSimulation(state);
   },
 
@@ -67,29 +67,33 @@ export default {
     this.resetSimulation(state);
   },
 
+  // 4th Order Runge-Kutta (RK4) Integrator
+  rk4Step(p, sigma, rho, beta, h) {
+    const f = (x, y, z) => ({
+      dx: sigma * (y - x),
+      dy: x * (rho - z) - y,
+      dz: x * y - beta * z
+    });
+
+    const k1 = f(p.x, p.y, p.z);
+    const k2 = f(p.x + 0.5 * h * k1.dx, p.y + 0.5 * h * k1.dy, p.z + 0.5 * h * k1.dz);
+    const k3 = f(p.x + 0.5 * h * k2.dx, p.y + 0.5 * h * k2.dy, p.z + 0.5 * h * k2.dz);
+    const k4 = f(p.x + h * k3.dx, p.y + h * k3.dy, p.z + h * k3.dz);
+
+    p.x += (h / 6) * (k1.dx + 2 * k2.dx + 2 * k3.dx + k4.dx);
+    p.y += (h / 6) * (k1.dy + 2 * k2.dy + 2 * k3.dy + k4.dy);
+    p.z += (h / 6) * (k1.dz + 2 * k2.dz + 2 * k3.dz + k4.dz);
+  },
+
   update(THREE, state, dt, time) {
     const sigma = state.params.sigma || 10;
     const rho = state.params.rho || 28;
-    const beta = state.params.beta || 8 / 3;
-    const h = 0.01; // Step size
+    const beta = state.params.beta || 2.6667;
+    const h = 0.01;
 
-    // Run multiple sub-steps for smooth trajectory
     for (let step = 0; step < 4; step++) {
-      // RK4 or Euler for p1
-      const dx1 = sigma * (state.p1.y - state.p1.x);
-      const dy1 = state.p1.x * (rho - state.p1.z) - state.p1.y;
-      const dz1 = state.p1.x * state.p1.y - beta * state.p1.z;
-      state.p1.x += dx1 * h;
-      state.p1.y += dy1 * h;
-      state.p1.z += dz1 * h;
-
-      // for p2
-      const dx2 = sigma * (state.p2.y - state.p2.x);
-      const dy2 = state.p2.x * (rho - state.p2.z) - state.p2.y;
-      const dz2 = state.p2.x * state.p2.y - beta * state.p2.z;
-      state.p2.x += dx2 * h;
-      state.p2.y += dy2 * h;
-      state.p2.z += dz2 * h;
+      this.rk4Step(state.p1, sigma, rho, beta, h);
+      this.rk4Step(state.p2, sigma, rho, beta, h);
 
       state.points1.push(state.p1.x, state.p1.y, state.p1.z);
       state.points2.push(state.p2.x, state.p2.y, state.p2.z);
@@ -100,7 +104,6 @@ export default {
       }
     }
 
-    // Update geometry buffers
     const arr1 = state.geo1.attributes.position.array;
     const arr2 = state.geo2.attributes.position.array;
     for (let i = 0; i < state.points1.length; i++) {

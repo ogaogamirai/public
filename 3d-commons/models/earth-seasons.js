@@ -1,5 +1,6 @@
 // ==============================================================================
 // 3D Commons Model Definition: Earth Seasons & Tilt (地軸の傾きと季節の公転)
+// 天文学・幾何学的に厳密な「慣性空間固定地軸」モデル
 // ==============================================================================
 
 export default {
@@ -7,26 +8,26 @@ export default {
   category: "geoscience",
   categoryLabel: "🌍 地学・天文学",
   title: "地球の地軸傾斜（23.4°）と四季のメカニズム",
-  description: "地球の自転軸が公転面に対して約23.4度傾いているため、公転に伴って太陽の南中高度と昼夜の長さが変化し、四季が生み出されます。",
-  formula: "\\delta = 23.44^\\circ \\times \\sin\\left(\\frac{360^\\circ}{365} (N + 284)\\right)",
+  description: "自転軸が公転面に対して約23.4度「宇宙空間（北極星方向）に対して一定の向き」に傾いたまま公転するため、季節によって太陽の南中高度と昼夜の長さが変化します。",
+  formula: "\\delta = 23.44^\\circ \\times \\sin\\left(\\frac{360^\\circ}{365} (N - 80)\\right)",
   
   legend: [
-    { color: "#fbbf24", label: "<strong>太陽光線</strong>: 平行光束（黄）" },
-    { color: "#38bdf8", label: "<strong>地軸（自転軸）</strong>: 23.4° 傾斜（北極・南極）" },
-    { color: "#34d399", label: "<strong>赤道面</strong>: 自転基準面" }
+    { color: "#f43f5e", label: "<strong>地軸（北極）</strong>: 宇宙空間に固定（ブレない自転軸）" },
+    { color: "#34d399", label: "<strong>赤道面</strong>: 自転基準面（23.4° 傾斜）" },
+    { color: "#fbbf24", label: "<strong>太陽光線</strong>: 季節ごとの入射角" }
   ],
 
   views: {
-    "3d": { name: "🔄 3D 宇宙視点", pos: [22, 14, 26], target: [0, 0, 0], default: true },
-    "solstice_summer": { name: "☀️ 夏至 (北半球)", pos: [0, 10, 32], target: [0, 0, 0] },
-    "equinox": { name: "⚖️ 春分・秋分", pos: [32, 0, 0], target: [0, 0, 0] },
-    "solstice_winter": { name: "❄️ 冬至 (北半球)", pos: [0, -10, -32], target: [0, 0, 0] }
+    "3d": { name: "🔄 3D 宇宙全体", pos: [22, 16, 26], target: [0, 0, 0], default: true },
+    "summer": { name: "☀️ 夏至 (北半球の夏: 6/21)", pos: [0, 6, -22], target: [0, 0, -14] },
+    "winter": { name: "❄️ 冬至 (北半球の冬: 12/22)", pos: [0, 6, 22], target: [0, 0, 14] },
+    "equinox": { name: "⚖️ 春分・秋分 (3/21・9/23)", pos: [22, 6, 0], target: [14, 0, 0] }
   },
 
   parameters: {
     dayOfYear: { label: "季節 / 年間日数 (1〜365日)", min: 1, max: 365, step: 1, value: 172 }, // 172 ~ 夏至 (6/21)
     axialTilt: { label: "地軸の傾き (度)", min: 0, max: 45, step: 0.5, value: 23.44 },
-    orbitSpeed: { label: "公転アニメーション速度", min: 0, max: 2, step: 0.1, value: 0.5 }
+    orbitSpeed: { label: "公転シミュレーション速度", min: 0, max: 2, step: 0.1, value: 0.4 }
   },
 
   init(THREE, scene, state) {
@@ -41,7 +42,6 @@ export default {
     state.sun = new THREE.Mesh(sunGeo, sunMat);
     scene.add(state.sun);
 
-    // Sun Glow
     const sunLight = new THREE.PointLight(0xffedd5, 2.5, 60);
     scene.add(sunLight);
 
@@ -52,66 +52,105 @@ export default {
       orbitPoints.push(new THREE.Vector3(Math.cos(a) * ORBIT_R, 0, Math.sin(a) * ORBIT_R));
     }
     const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
-    const orbitLine = new THREE.Line(orbitGeo, new THREE.LineDashedMaterial({ color: 0x475569, dashSize: 0.4, gapSize: 0.2 }));
+    const orbitLine = new THREE.Line(orbitGeo, new THREE.LineDashedMaterial({ color: 0x334155, dashSize: 0.4, gapSize: 0.2 }));
     orbitLine.computeLineDistances();
     scene.add(orbitLine);
 
-    // 3. Earth Group (Moves along orbit)
-    state.earthGroup = new THREE.Group();
-    scene.add(state.earthGroup);
+    // 3. Earth Hierarchical Structure:
+    // earthOrbitGroup (moves to (x, 0, z), NO ROTATION)
+    //  └── earthTiltGroup (fixed celestial tilt towards +Z, NO SPIN JITTER)
+    //       ├── axisLine & markers
+    //       ├── equatorRing & tropicLines
+    //       └── earthSpinGroup (pure spin around local tilted Y axis)
+    //            └── earthMesh (sphere + continents)
+    
+    state.earthOrbitGroup = new THREE.Group();
+    scene.add(state.earthOrbitGroup);
 
-    // Earth Sphere
-    const earthGeo = new THREE.SphereGeometry(EARTH_R, 32, 32);
-    const earthMat = new THREE.MeshStandardMaterial({
-      color: 0x1e3a8a,
-      roughness: 0.8,
-      metalness: 0.1
-    });
-    state.earthMesh = new THREE.Mesh(earthGeo, earthMat);
-    state.earthGroup.add(state.earthMesh);
+    state.earthTiltGroup = new THREE.Group();
+    state.earthOrbitGroup.add(state.earthTiltGroup);
 
-    // Continents wire/segments
-    const wireGeo = new THREE.WireframeGeometry(new THREE.SphereGeometry(EARTH_R * 1.01, 16, 12));
-    const wireMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25 });
-    state.earthMesh.add(new THREE.LineSegments(wireGeo, wireMat));
+    // Fixed Celestial Tilt: Rotate around X-axis by tilt angle so North Pole points towards +Z
+    this.updateTilt(THREE, state);
 
-    // Equator Ring
-    const eqPoints = [];
-    for (let i = 0; i <= 64; i++) {
-      const a = (i / 64) * Math.PI * 2;
-      eqPoints.push(new THREE.Vector3(Math.cos(a) * EARTH_R * 1.05, 0, Math.sin(a) * EARTH_R * 1.05));
-    }
-    const eqGeo = new THREE.BufferGeometry().setFromPoints(eqPoints);
-    const eqLine = new THREE.Line(eqGeo, new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 2 }));
-    state.earthMesh.add(eqLine);
-
-    // Axis of Rotation (North / South Pole line)
+    // 3A. Axis Line (North / South Pole)
     const axisPoints = [
       new THREE.Vector3(0, -EARTH_R * 1.6, 0),
       new THREE.Vector3(0, EARTH_R * 1.6, 0)
     ];
     const axisGeo = new THREE.BufferGeometry().setFromPoints(axisPoints);
     const axisLine = new THREE.Line(axisGeo, new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 3 }));
-    state.earthMesh.add(axisLine);
+    state.earthTiltGroup.add(axisLine);
 
-    // North pole marker
-    const npDot = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.6, 16), new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
+    // North pole cone (Red marker)
+    const npDot = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.7, 16), new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
     npDot.position.set(0, EARTH_R * 1.6, 0);
-    state.earthMesh.add(npDot);
+    state.earthTiltGroup.add(npDot);
 
-    // Sunlight ray beams from Sun to Earth
+    // South pole cone (Blue marker)
+    const spDot = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.7, 16), new THREE.MeshBasicMaterial({ color: 0x0284c7 }));
+    spDot.position.set(0, -EARTH_R * 1.6, 0);
+    spDot.rotation.x = Math.PI;
+    state.earthTiltGroup.add(spDot);
+
+    // 3B. Equator Ring (Green)
+    const eqPoints = [];
+    for (let i = 0; i <= 64; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      eqPoints.push(new THREE.Vector3(Math.cos(a) * EARTH_R * 1.04, 0, Math.sin(a) * EARTH_R * 1.04));
+    }
+    const eqGeo = new THREE.BufferGeometry().setFromPoints(eqPoints);
+    const eqLine = new THREE.Line(eqGeo, new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 2 }));
+    state.earthTiltGroup.add(eqLine);
+
+    // Tropic of Cancer (23.4° N) & Capricorn (23.4° S) Rings
+    const tropicN = [];
+    const tropicS = [];
+    const tropicR = Math.cos((23.44 * Math.PI) / 180) * EARTH_R * 1.02;
+    const tropicH = Math.sin((23.44 * Math.PI) / 180) * EARTH_R * 1.02;
+    for (let i = 0; i <= 64; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      tropicN.push(new THREE.Vector3(Math.cos(a) * tropicR, tropicH, Math.sin(a) * tropicR));
+      tropicS.push(new THREE.Vector3(Math.cos(a) * tropicR, -tropicH, Math.sin(a) * tropicR));
+    }
+    const tropMat = new THREE.LineDashedMaterial({ color: 0xfbbf24, dashSize: 0.2, gapSize: 0.15 });
+    const tropNLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(tropicN), tropMat);
+    const tropSLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(tropicS), tropMat);
+    tropNLine.computeLineDistances();
+    tropSLine.computeLineDistances();
+    state.earthTiltGroup.add(tropNLine);
+    state.earthTiltGroup.add(tropSLine);
+
+    // 3C. Pure Spin Group
+    state.earthSpinGroup = new THREE.Group();
+    state.earthTiltGroup.add(state.earthSpinGroup);
+
+    // Earth Sphere
+    const earthGeo = new THREE.SphereGeometry(EARTH_R, 32, 32);
+    const earthMat = new THREE.MeshStandardMaterial({
+      color: 0x1e3a8a,
+      roughness: 0.7,
+      metalness: 0.1
+    });
+    state.earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    state.earthSpinGroup.add(state.earthMesh);
+
+    // Lat/Long Grids on Earth
+    const wireGeo = new THREE.WireframeGeometry(new THREE.SphereGeometry(EARTH_R * 1.005, 18, 12));
+    const wireMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25 });
+    state.earthSpinGroup.add(new THREE.LineSegments(wireGeo, wireMat));
+
+    // 4. Sunlight Ray Beam (Connecting Sun to Earth)
     state.sunBeamsGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-    state.sunBeams = new THREE.Line(state.sunBeamsGeo, new THREE.LineDashedMaterial({ color: 0xfbbf24, dashSize: 0.3, gapSize: 0.15, transparent: true, opacity: 0.7 }));
+    state.sunBeams = new THREE.Line(state.sunBeamsGeo, new THREE.LineDashedMaterial({ color: 0xfbbf24, dashSize: 0.4, gapSize: 0.2, transparent: true, opacity: 0.85 }));
     scene.add(state.sunBeams);
-
-    this.updateTilt(THREE, state);
   },
 
   updateTilt(THREE, state) {
     const tiltDeg = state.params.axialTilt !== undefined ? state.params.axialTilt : 23.44;
     const tiltRad = (tiltDeg * Math.PI) / 180;
-    // Keep tilt pointing in fixed celestial direction (Z axis tilt)
-    state.earthMesh.rotation.z = tiltRad;
+    // Rotate around X axis so North Pole points towards +Z in celestial space
+    state.earthTiltGroup.rotation.set(tiltRad, 0, 0);
   },
 
   onParamChange(THREE, state, key, val) {
@@ -121,21 +160,26 @@ export default {
   },
 
   update(THREE, state, dt, time) {
-    const speed = state.params.orbitSpeed !== undefined ? state.params.orbitSpeed : 0.5;
+    const speed = state.params.orbitSpeed !== undefined ? state.params.orbitSpeed : 0.4;
     if (speed > 0) {
-      state.params.dayOfYear = ((state.params.dayOfYear + dt * 15 * speed) % 365) || 1;
+      state.params.dayOfYear = ((state.params.dayOfYear + dt * 18 * speed) % 365) || 1;
     }
 
     const day = state.params.dayOfYear;
-    // 0 rad is Vernal Equinox (March 21 ~ day 80)
-    const orbitAngle = ((day - 80) / 365) * Math.PI * 2;
-    const x = Math.cos(orbitAngle) * state.ORBIT_R;
-    const z = Math.sin(orbitAngle) * state.ORBIT_R;
+    
+    // Astronomical alignment:
+    // - Day 172 (June 21 - Summer Solstice): Earth is at (0, 0, -ORBIT_R), North pole (+Z tilt) points directly toward Sun (0,0,0)
+    // - Day 355 (Dec 22 - Winter Solstice): Earth is at (0, 0, +ORBIT_R), North pole points away from Sun
+    // - Day 80 (March 21 - Vernal Equinox): Earth is at (+ORBIT_R, 0, 0)
+    // - Day 266 (Sept 23 - Autumnal Equinox): Earth is at (-ORBIT_R, 0, 0)
+    const angle = ((day - 80) / 365) * Math.PI * 2;
+    const x = Math.cos(angle) * state.ORBIT_R;
+    const z = -Math.sin(angle) * state.ORBIT_R;
 
-    state.earthGroup.position.set(x, 0, z);
+    state.earthOrbitGroup.position.set(x, 0, z);
 
-    // Daily spin (rotation around tilted axis)
-    state.earthMesh.rotation.y += dt * 1.5;
+    // Pure daily spin (around local tilted Y axis, NO JITTER)
+    state.earthSpinGroup.rotation.y += dt * 2.0;
 
     // Update Sun Beam line
     state.sunBeamsGeo.setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(x, 0, z)]);
