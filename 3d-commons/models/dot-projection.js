@@ -10,11 +10,12 @@ export default {
   legend: [
     { color: "#0284c7", label: "ベクトル $\\boldsymbol a$" },
     { color: "#e11d48", label: "ベクトル $\\boldsymbol b$" },
-    { color: "#d97706", label: "$\\boldsymbol a$ の正射影" }
+    { color: "#d97706", label: "$\\boldsymbol a$ の正射影" },
+    { color: "#94a3b8", label: "$x$ 軸（横）・$y$ 軸（縦）" }
   ],
   views: {
-    overview: { name: "🔄 全体", pos: [10, 9, 15], target: [2, 2, 0], default: true },
-    front: { name: "正面", pos: [0, 5, 22], target: [2, 2, 0] },
+    front: { name: "📐 xy平面（角度を見る）", pos: [0, 0, 22], target: [2, 2, 0], default: true },
+    overview: { name: "🔄 全体", pos: [10, 9, 15], target: [2, 2, 0] },
     top: { name: "上から", pos: [0, 22, 0], target: [2, 2, 0] }
   },
   parameters: {
@@ -30,7 +31,21 @@ export default {
     state.arrowA = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), state.origin, 6, 0x0284c7, 0.55, 0.3);
     state.arrowB = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), state.origin, 6, 0xe11d48, 0.55, 0.3);
     state.arrowProjection = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), state.origin, 1, 0xd97706, 0.45, 0.25);
-    state.group.add(state.arrowA, state.arrowB, state.arrowProjection);
+    state.axisX = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-2, 0, 0), new THREE.Vector3(8, 0, 0)
+      ]),
+      new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.35, gapSize: 0.2 })
+    );
+    state.axisY = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, -2, 0), new THREE.Vector3(0, 8, 0)
+      ]),
+      new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.35, gapSize: 0.2 })
+    );
+    state.axisX.computeLineDistances();
+    state.axisY.computeLineDistances();
+    state.group.add(state.axisX, state.axisY, state.arrowA, state.arrowB, state.arrowProjection);
     state.dropLine = new THREE.Line(
       new THREE.BufferGeometry(),
       new THREE.LineDashedMaterial({ color: 0xd97706, dashSize: 0.22, gapSize: 0.16 })
