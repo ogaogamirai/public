@@ -1,8 +1,10 @@
 // 3D Commons: 円錐の切り口（円・楕円・放物線・双曲線）
 
 function classify(angle) {
-  if (angle < 40) return "楕円（0°では円）";
-  if (angle < 50) return "放物線";
+  const boundary = 45;
+  const tolerance = 0.5;
+  if (angle < boundary - tolerance) return "楕円（0°では円）";
+  if (Math.abs(angle - boundary) <= tolerance) return "放物線";
   return "双曲線";
 }
 
@@ -134,7 +136,8 @@ export default {
     const theta = angle * Math.PI / 180;
     const slope = Math.tan(theta);
     const h = state.cutHeight;
-    const points = [];
+    const branchSegments = [[], []];
+    const branchPoints = [[], []];
     const samples = 500;
     let minDistance = Infinity;
     let nearest = new THREE.Vector3();
@@ -142,7 +145,6 @@ export default {
     // On the cone x²+z²=y² and the plane y=h+x tan(theta):
     // z²=(h+x tan(theta))²-x².
     for (let branch = 0; branch < 2; branch++) {
-      if (branch > 0) points.push(null);
       let branchStarted = false;
       for (let i = 0; i <= samples; i++) {
         const x = -12 + (i / samples) * 24;
@@ -150,13 +152,17 @@ export default {
         const zSquared = y * y - x * x;
         const valid = zSquared >= 0 && Math.abs(y) <= state.coneHeight;
         if (!valid) {
-          if (branchStarted) points.push(null);
+          if (branchStarted) {
+            const segment = branchPoints[branch];
+            if (segment.length > 1) branchSegments[branch].push(segment);
+            branchPoints[branch] = [];
+          }
           branchStarted = false;
           continue;
         }
         const z = (branch === 0 ? 1 : -1) * Math.sqrt(zSquared);
         const point = new THREE.Vector3(x, y, z);
-        points.push(point);
+        branchPoints[branch].push(point);
         branchStarted = true;
         const distance = point.length();
         if (distance < minDistance) {
@@ -164,21 +170,36 @@ export default {
           nearest = point;
         }
       }
+      if (branchPoints[branch].length > 1) {
+        branchSegments[branch].push(branchPoints[branch]);
+      }
+      branchPoints[branch] = [];
     }
 
+    // For an ellipse, the two z branches are the two halves of one closed
+    // curve. Join them in reverse order so the line follows the perimeter
+    // instead of drawing two disconnected arcs.
     const geometries = [];
-    let current = [];
-    for (const point of points) {
-      if (point) current.push(point);
-      else if (current.length > 1) {
-        geometries.push(current);
-        current = [];
+    const curveType = classify(angle);
+    if (
+      curveType.startsWith("楕円") &&
+      branchSegments[0].length === 1 &&
+      branchSegments[1].length === 1
+    ) {
+      const loop = [
+        ...branchSegments[0][0],
+        ...branchSegments[1][0].slice().reverse()
+      ];
+      loop.push(loop[0].clone());
+      geometries.push(loop);
+    } else {
+      for (const segments of branchSegments) {
+        geometries.push(...segments);
       }
     }
-    if (current.length > 1) geometries.push(current);
 
-    // A Line cannot contain disconnected branches, so join each branch with
-    // a transparent gap encoded by separate line objects.
+    // A Line cannot contain disconnected branches, so keep each branch in a
+    // separate line object. The ellipse is closed explicitly above.
     if (!state.curveParts) state.curveParts = [];
     while (state.curveParts.length < geometries.length) {
       const part = new THREE.Line(
@@ -198,7 +219,9 @@ export default {
 
     // Build the cutting plane directly from y = h + x tan(theta).
     // This removes any ambiguity from Euler rotation order.
-    const half = 8.5;
+    // The curve can reach radius 10 at the cone base. Keep the plane large
+    // enough that the red intersection never visually leaves the amber plane.
+    const half = 11;
     const planeVertices = [
       -half, h - slope * half, -half,
        half, h + slope * half, -half,
