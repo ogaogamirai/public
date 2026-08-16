@@ -208,6 +208,7 @@
       border: 1px solid var(--card-border);
       pointer-events: none;
     }
+    .btn-short { display: none; }
     body.embed-mode .ui-layer { padding: 12px; }
     body.embed-mode .header-card { max-width: 280px; padding: 10px 14px; }
     body.embed-mode .header-title { font-size: 0.95rem; }
@@ -215,13 +216,76 @@
     body.embed-mode .floating-hint { display: none; }
     body.embed-mode .top-actions { top: 12px; right: 12px; }
     @media (max-width: 768px) {
-      .ui-layer { padding: 12px; }
+      .ui-layer {
+        padding: max(6px, env(safe-area-inset-top)) 8px max(6px, env(safe-area-inset-bottom));
+        gap: 6px;
+      }
       .floating-hint { display: none; }
-      .header-card { max-width: 100%; }
-      .header-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-      .controls-card { max-width: 100%; width: 100%; }
+      .category-badge { display: none; }
+      .header-desc { display: none; }
+      .header-card {
+        max-width: calc(100% - 56px);
+        padding: 6px 10px;
+        border-radius: 12px;
+      }
+      .header-title {
+        font-size: 0.88rem;
+        margin-bottom: 2px;
+      }
+      .formula-badge {
+        margin-top: 4px;
+        padding: 2px 8px;
+        font-size: 0.78rem;
+        border-radius: 8px;
+      }
+      .status-badge {
+        margin-top: 3px;
+        font-size: 0.7rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .top-actions {
+        top: max(6px, env(safe-area-inset-top));
+        right: 8px;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .action-btn {
+        padding: 5px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+      }
+      .btn-full { display: none; }
+      .btn-short { display: inline; }
+      .controls-card {
+        max-width: 100%;
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 12px;
+        gap: 6px;
+      }
+      .btn-group-title { display: none; }
+      .view-btn {
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+      }
+      .slider-row {
+        gap: 6px;
+        font-size: 0.7rem;
+      }
+      .slider-label { flex: 0 0 auto; max-width: 72px; }
+      .slider-val { min-width: 28px; font-size: 0.7rem; }
+      .slider-input { height: 22px; }
       .axis-legend { display: none !important; }
-      .top-actions { top: 12px; right: 12px; }
+    }
+    @media (max-width: 768px) and (orientation: portrait) {
+      .header-title { font-size: 0.82rem; }
+      .controls-card { padding: 6px 8px; gap: 4px; }
+      .slider-row { gap: 4px; }
     }
     .error-card {
       position: absolute;
@@ -252,8 +316,8 @@
     </div>
     <div class="floating-hint">ドラッグで平行移動 / ホイールで拡大</div>
     <div class="top-actions">
-      <button class="action-btn" type="button" id="btn-reset">範囲リセット</button>
-      <button class="action-btn" type="button" onclick="location.href='index.html'">📚 カタログ</button>
+      <button class="action-btn" type="button" id="btn-reset"><span class="btn-full">範囲リセット</span><span class="btn-short">リセット</span></button>
+      <button class="action-btn" type="button" onclick="location.href='index.html'"><span class="btn-full">📚 カタログ</span><span class="btn-short">一覧</span></button>
     </div>
     <div class="controls-card">
       <div id="views-container">
@@ -300,6 +364,10 @@
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         this.cssW = canvas.clientWidth;
         this.cssH = canvas.clientHeight;
+        const compact = this.cssW < 768;
+        this.pad = compact
+          ? { l: 28, r: 8, t: 8, b: 22 }
+          : { l: 44, r: 18, t: 18, b: 36 };
         canvas.width = Math.max(1, Math.floor(this.cssW * dpr));
         canvas.height = Math.max(1, Math.floor(this.cssH * dpr));
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
