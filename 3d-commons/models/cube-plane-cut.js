@@ -1,5 +1,62 @@
 // 3D Commons: 立方体の平面切断
 
+/** 立方体の12辺と平面の交点を求め、切断面ポリゴンを構成する */
+function computeCubePlaneSection(cubeCenter, cubeSize, planePoint, planeNormal) {
+  const h = cubeSize / 2;
+  const cx = cubeCenter.x;
+  const cy = cubeCenter.y;
+  const cz = cubeCenter.z;
+  const corners = [
+    new THREE.Vector3(cx - h, cy - h, cz - h),
+    new THREE.Vector3(cx + h, cy - h, cz - h),
+    new THREE.Vector3(cx + h, cy + h, cz - h),
+    new THREE.Vector3(cx - h, cy + h, cz - h),
+    new THREE.Vector3(cx - h, cy - h, cz + h),
+    new THREE.Vector3(cx + h, cy - h, cz + h),
+    new THREE.Vector3(cx + h, cy + h, cz + h),
+    new THREE.Vector3(cx - h, cy + h, cz + h)
+  ];
+  const edgePairs = [
+    [0, 1], [1, 2], [2, 3], [3, 0],
+    [4, 5], [5, 6], [6, 7], [7, 4],
+    [0, 4], [1, 5], [2, 6], [3, 7]
+  ];
+  const hits = [];
+  const normal = planeNormal.clone().normalize();
+  const point = planePoint.clone();
+  const eps = 1e-5;
+
+  for (const [i, j] of edgePairs) {
+    const p1 = corners[i];
+    const p2 = corners[j];
+    const dir = p2.clone().sub(p1);
+    const denom = normal.dot(dir);
+    if (Math.abs(denom) < 1e-10) continue;
+    const t = normal.dot(point.clone().sub(p1)) / denom;
+    if (t < -eps || t > 1 + eps) continue;
+    const hit = p1.clone().add(dir.multiplyScalar(t));
+    const duplicate = hits.some(
+      (q) => hit.distanceToSquared(q) < eps * eps
+    );
+    if (!duplicate) hits.push(hit);
+  }
+
+  if (hits.length < 3) return [];
+
+  const centroid = new THREE.Vector3();
+  hits.forEach((p) => centroid.add(p));
+  centroid.multiplyScalar(1 / hits.length);
+
+  const ref = hits[0].clone().sub(centroid).normalize();
+  const ortho = new THREE.Vector3().crossVectors(normal, ref).normalize();
+  hits.sort((a, b) => {
+    const da = a.clone().sub(centroid);
+    const db = b.clone().sub(centroid);
+    return Math.atan2(da.dot(ortho), da.dot(ref)) - Math.atan2(db.dot(ortho), db.dot(ref));
+  });
+  return hits;
+}
+
 export default {
   id: "cube-plane-cut",
   category: "math",
@@ -9,7 +66,7 @@ export default {
   formula: "y=h+z\\tan\\theta\\quad(0^\\circ\\leq\\theta<90^\\circ)",
   legend: [
     { color: "#0284c7", label: "立方体" },
-    { color: "#e11d48", label: "切断面" },
+    { color: "#e11d48", label: "切断面と交線の多角形" },
     { color: "#d97706", label: "立方体の辺" }
   ],
   views: {
@@ -62,8 +119,24 @@ export default {
       new THREE.BufferGeometry(),
       new THREE.LineBasicMaterial({ color: 0xe11d48, linewidth: 3 })
     );
+    state.section = new THREE.Mesh(
+      new THREE.BufferGeometry(),
+      new THREE.MeshBasicMaterial({
+        color: 0xe11d48,
+        transparent: true,
+        opacity: 0.55,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      })
+    );
+    state.sectionEdge = new THREE.LineLoop(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0xbe123c, linewidth: 3 })
+    );
     state.group.add(state.horizontalGuide);
     state.group.add(state.angleGuide);
+    state.group.add(state.section);
+    state.group.add(state.sectionEdge);
     this.updatePlane(THREE, state);
   },
 
@@ -88,6 +161,39 @@ export default {
         guideOrigin.z + 3.4 * Math.cos(theta)
       )
     ]);
+
+    const planeNormal = new THREE.Vector3(0, 0, 1);
+    planeNormal.applyEuler(state.plane.rotation);
+    const sectionPoints = computeCubePlaneSection(
+      state.cube.position,
+      6,
+      state.plane.position,
+      planeNormal
+    );
+    if (sectionPoints.length >= 3) {
+      const positions = [];
+      sectionPoints.forEach((p) => positions.push(p.x, p.y, p.z));
+      const sectionGeo = new THREE.BufferGeometry();
+      sectionGeo.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(positions, 3)
+      );
+      const indices = [];
+      for (let i = 1; i < sectionPoints.length - 1; i++) {
+        indices.push(0, i, i + 1);
+      }
+      sectionGeo.setIndex(indices);
+      sectionGeo.computeVertexNormals();
+      state.section.geometry.dispose();
+      state.section.geometry = sectionGeo;
+      state.section.visible = true;
+      state.sectionEdge.geometry.dispose();
+      state.sectionEdge.geometry = new THREE.BufferGeometry().setFromPoints(sectionPoints);
+      state.sectionEdge.visible = true;
+    } else {
+      state.section.visible = false;
+      state.sectionEdge.visible = false;
+    }
   },
 
   onParamChange(THREE, state) {
