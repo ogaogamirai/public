@@ -168,7 +168,13 @@
       gap: 12px;
       font-size: 0.82rem;
     }
-    .slider-label { color: var(--text-muted); font-weight: 500; flex: 1; }
+    .slider-label {
+      color: var(--text-muted);
+      font-weight: 500;
+      flex: 0 0 116px;
+      white-space: nowrap;
+      overflow: visible;
+    }
     .slider-val { font-weight: 700; color: var(--accent-blue); min-width: 40px; text-align: right; }
     .slider-input { flex: 1.4; accent-color: var(--accent-blue); cursor: pointer; }
     .axis-legend {
@@ -277,12 +283,7 @@
         gap: 6px;
         font-size: 0.7rem;
       }
-      .slider-label {
-        flex: 0 0 116px;
-        max-width: none;
-        white-space: nowrap;
-        overflow: visible;
-      }
+      .slider-label { flex-basis: 116px; max-width: none; }
       .slider-val { min-width: 28px; font-size: 0.7rem; }
       .slider-input { height: 22px; }
       .axis-legend { display: none !important; }

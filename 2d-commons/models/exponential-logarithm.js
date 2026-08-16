@@ -21,13 +21,13 @@ export default {
   },
   parameters: {
     base: {
-      label: "底 $a$（$a>1$）",
+      label: "底 $a\\;(a>1)$",
       min: 1.2,
       max: 10,
       step: 0.1,
       value: Math.E,
       formatValue(value) {
-        return Math.abs(value - Math.E) < 0.005 ? "e≈2.718" : value.toFixed(1);
+        return Math.abs(value - Math.E) < 0.005 ? "e" : value.toFixed(1);
       }
     }
   },
