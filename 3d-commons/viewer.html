@@ -414,11 +414,25 @@
       }
     }
 
+    // Math text parser helper for inline $...$
+    function renderMathText(text) {
+      if (!text) return "";
+      if (!window.katex) return text;
+      return text.replace(/\$([^\$]+)\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math, { displayMode: false, throwOnError: false });
+        } catch (e) {
+          console.warn("KaTeX error:", e);
+          return match;
+        }
+      });
+    }
+
     // Build UI Controls from Model Metadata
     function initModelUI(m) {
       document.getElementById("model-category").textContent = m.categoryLabel || "3D COMMONS";
       document.getElementById("model-title").textContent = m.title || m.id;
-      document.getElementById("model-desc").textContent = m.description || "";
+      document.getElementById("model-desc").innerHTML = renderMathText(m.description || "");
 
       // KaTeX Formula
       const formulaEl = document.getElementById("model-formula");
@@ -456,7 +470,7 @@
 
           const label = document.createElement("span");
           label.className = "slider-label";
-          label.textContent = p.label || key;
+          label.innerHTML = renderMathText(p.label || key);
 
           const input = document.createElement("input");
           input.type = "range";
@@ -494,7 +508,7 @@
         m.legend.forEach(item => {
           const row = document.createElement("div");
           row.className = "axis-row";
-          row.innerHTML = `<span class="axis-dot" style="background: ${item.color}; box-shadow: 0 0 6px ${item.color};"></span> <span>${item.label}</span>`;
+          row.innerHTML = `<span class="axis-dot" style="background: ${item.color}; box-shadow: 0 0 6px ${item.color};"></span> <span>${renderMathText(item.label)}</span>`;
           legendEl.appendChild(row);
         });
       }
