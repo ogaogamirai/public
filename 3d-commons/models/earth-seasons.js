@@ -95,23 +95,13 @@ export default {
     const eqLine = new THREE.Line(eqGeo, new THREE.LineBasicMaterial({ color: 0x059669, linewidth: 2 }));
     state.earthTiltGroup.add(eqLine);
 
-    // Tropic of Cancer & Capricorn Rings
-    const tropicN = [];
-    const tropicS = [];
-    const tropicR = Math.cos((23.44 * Math.PI) / 180) * EARTH_R * 1.02;
-    const tropicH = Math.sin((23.44 * Math.PI) / 180) * EARTH_R * 1.02;
-    for (let i = 0; i <= 64; i++) {
-      const a = (i / 64) * Math.PI * 2;
-      tropicN.push(new THREE.Vector3(Math.cos(a) * tropicR, tropicH, Math.sin(a) * tropicR));
-      tropicS.push(new THREE.Vector3(Math.cos(a) * tropicR, -tropicH, Math.sin(a) * tropicR));
-    }
+    // Tropic of Cancer & Capricorn Rings (latitude = axial tilt)
     const tropMat = new THREE.LineDashedMaterial({ color: 0xd97706, dashSize: 0.2, gapSize: 0.15 });
-    const tropNLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(tropicN), tropMat);
-    const tropSLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(tropicS), tropMat);
-    tropNLine.computeLineDistances();
-    tropSLine.computeLineDistances();
-    state.earthTiltGroup.add(tropNLine);
-    state.earthTiltGroup.add(tropSLine);
+    state.tropNLine = new THREE.Line(new THREE.BufferGeometry(), tropMat);
+    state.tropSLine = new THREE.Line(new THREE.BufferGeometry(), tropMat);
+    state.earthTiltGroup.add(state.tropNLine);
+    state.earthTiltGroup.add(state.tropSLine);
+    this.updateTropics(THREE, state);
 
     // 3C. Pure Spin Group
     state.earthSpinGroup = new THREE.Group();
@@ -144,9 +134,29 @@ export default {
     state.earthTiltGroup.rotation.set(tiltRad, 0, 0);
   },
 
+  updateTropics(THREE, state) {
+    const tiltDeg = state.params.axialTilt !== undefined ? state.params.axialTilt : 23.44;
+    const tiltRad = (tiltDeg * Math.PI) / 180;
+    const earthR = state.EARTH_R * 1.02;
+    const tropicR = Math.cos(tiltRad) * earthR;
+    const tropicH = Math.sin(tiltRad) * earthR;
+    const tropicN = [];
+    const tropicS = [];
+    for (let i = 0; i <= 64; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      tropicN.push(new THREE.Vector3(Math.cos(a) * tropicR, tropicH, Math.sin(a) * tropicR));
+      tropicS.push(new THREE.Vector3(Math.cos(a) * tropicR, -tropicH, Math.sin(a) * tropicR));
+    }
+    state.tropNLine.geometry.setFromPoints(tropicN);
+    state.tropSLine.geometry.setFromPoints(tropicS);
+    state.tropNLine.computeLineDistances();
+    state.tropSLine.computeLineDistances();
+  },
+
   onParamChange(THREE, state, key, val) {
     if (key === "axialTilt") {
       this.updateTilt(THREE, state);
+      this.updateTropics(THREE, state);
     }
   },
 
