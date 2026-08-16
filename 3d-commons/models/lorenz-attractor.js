@@ -1,19 +1,19 @@
 // ==============================================================================
 // 3D Commons Model Definition: Lorenz Attractor (ローレンツ・カオス軌道)
-// 物理・数値解析的に厳密な RK4（4次ルンゲ＝クッタ法）実装
+// 明るく上品なライトテーマ最適化版 (RK4 高精度数値解析)
 // ==============================================================================
 
 export default {
   id: "lorenz-attractor",
   category: "physics",
-  categoryLabel: "⚛️ 物理・カオス",
+  categoryLabel: "⚛️ 物理・カオス理論",
   title: "ローレンツ・アトラクター（決定論的カオス）",
   description: "大気対流の微分方程式から現れる「カオスの蝶」。初期値のわずかな差（0.0001）が時間とともに全く異なる軌道を描くバタフライ効果の真実。",
   formula: "\\begin{cases} \\dot{x} = \\sigma (y - x) \\\\ \\dot{y} = x (\\rho - z) - y \\\\ \\dot{z} = xy - \\beta z \\end{cases}",
   
   legend: [
-    { color: "#38bdf8", label: "<strong>軌道 1</strong>: 初期値 $(0.1, 0, 0)$" },
-    { color: "#f43f5e", label: "<strong>軌道 2</strong>: 初期値 $(0.1001, 0, 0)$（わずか $10^{-4}$ の差）" }
+    { color: "#0284c7", label: "<strong>軌道 1</strong>: 初期値 $(0.1, 0, 0)$" },
+    { color: "#e11d48", label: "<strong>軌道 2</strong>: 初期値 $(0.1001, 0, 0)$（わずか $10^{-4}$ の差）" }
   ],
 
   views: {
@@ -31,25 +31,30 @@ export default {
   init(THREE, scene, state) {
     state.MAX_POINTS = 3500;
     
-    // Trajectory 1 (Blue)
+    // Faint Reference Grid at bottom
+    const baseGrid = new THREE.GridHelper(80, 20, 0xcbd5e1, 0xe2e8f0);
+    baseGrid.position.set(0, 0, 0);
+    scene.add(baseGrid);
+
+    // Trajectory 1 (Sapphire Blue)
     state.points1 = [];
     state.geo1 = new THREE.BufferGeometry();
     const pos1 = new Float32Array(state.MAX_POINTS * 3);
     state.geo1.setAttribute('position', new THREE.BufferAttribute(pos1, 3));
-    state.line1 = new THREE.Line(state.geo1, new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 2, transparent: true, opacity: 0.85 }));
+    state.line1 = new THREE.Line(state.geo1, new THREE.LineBasicMaterial({ color: 0x0284c7, linewidth: 2, transparent: true, opacity: 0.85 }));
     scene.add(state.line1);
 
-    // Trajectory 2 (Pink - perturbed)
+    // Trajectory 2 (Rose Red)
     state.points2 = [];
     state.geo2 = new THREE.BufferGeometry();
     const pos2 = new Float32Array(state.MAX_POINTS * 3);
     state.geo2.setAttribute('position', new THREE.BufferAttribute(pos2, 3));
-    state.line2 = new THREE.Line(state.geo2, new THREE.LineBasicMaterial({ color: 0xf43f5e, linewidth: 2, transparent: true, opacity: 0.85 }));
+    state.line2 = new THREE.Line(state.geo2, new THREE.LineBasicMaterial({ color: 0xe11d48, linewidth: 2, transparent: true, opacity: 0.85 }));
     scene.add(state.line2);
 
     // Leader Heads
-    state.head1 = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
-    state.head2 = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
+    state.head1 = new THREE.Mesh(new THREE.SphereGeometry(0.9, 16, 16), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.2 }));
+    state.head2 = new THREE.Mesh(new THREE.SphereGeometry(0.9, 16, 16), new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.2 }));
     scene.add(state.head1);
     scene.add(state.head2);
 

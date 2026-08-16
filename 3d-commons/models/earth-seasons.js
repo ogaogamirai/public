@@ -1,6 +1,6 @@
 // ==============================================================================
 // 3D Commons Model Definition: Earth Seasons & Tilt (地軸の傾きと季節の公転)
-// 天文学・幾何学的に厳密な「慣性空間固定地軸」モデル
+// 明るく上品なライトテーマ最適化版 (天文学的完全固定地軸)
 // ==============================================================================
 
 export default {
@@ -12,9 +12,9 @@ export default {
   formula: "\\delta = 23.44^\\circ \\times \\sin\\left(\\frac{360^\\circ}{365} (N - 80)\\right)",
   
   legend: [
-    { color: "#f43f5e", label: "<strong>地軸（北極）</strong>: 宇宙空間に固定（ブレない自転軸）" },
-    { color: "#34d399", label: "<strong>赤道面</strong>: 自転基準面（23.4° 傾斜）" },
-    { color: "#fbbf24", label: "<strong>太陽光線</strong>: 季節ごとの入射角" }
+    { color: "#e11d48", label: "<strong>地軸（北極）</strong>: 宇宙空間に固定（ブレない自転軸）" },
+    { color: "#059669", label: "<strong>赤道面</strong>: 自転基準面（23.4° 傾斜）" },
+    { color: "#d97706", label: "<strong>太陽光線</strong>: 季節ごとの入射角" }
   ],
 
   views: {
@@ -36,13 +36,13 @@ export default {
     state.ORBIT_R = ORBIT_R;
     state.EARTH_R = EARTH_R;
 
-    // 1. Central Sun
+    // 1. Central Sun (Warm Amber Glow)
     const sunGeo = new THREE.SphereGeometry(1.6, 32, 32);
-    const sunMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+    const sunMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
     state.sun = new THREE.Mesh(sunGeo, sunMat);
     scene.add(state.sun);
 
-    const sunLight = new THREE.PointLight(0xffedd5, 2.5, 60);
+    const sunLight = new THREE.PointLight(0xffedd5, 2.8, 60);
     scene.add(sunLight);
 
     // 2. Orbit Ring
@@ -52,25 +52,17 @@ export default {
       orbitPoints.push(new THREE.Vector3(Math.cos(a) * ORBIT_R, 0, Math.sin(a) * ORBIT_R));
     }
     const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
-    const orbitLine = new THREE.Line(orbitGeo, new THREE.LineDashedMaterial({ color: 0x334155, dashSize: 0.4, gapSize: 0.2 }));
+    const orbitLine = new THREE.Line(orbitGeo, new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.4, gapSize: 0.2 }));
     orbitLine.computeLineDistances();
     scene.add(orbitLine);
 
     // 3. Earth Hierarchical Structure:
-    // earthOrbitGroup (moves to (x, 0, z), NO ROTATION)
-    //  └── earthTiltGroup (fixed celestial tilt towards +Z, NO SPIN JITTER)
-    //       ├── axisLine & markers
-    //       ├── equatorRing & tropicLines
-    //       └── earthSpinGroup (pure spin around local tilted Y axis)
-    //            └── earthMesh (sphere + continents)
-    
     state.earthOrbitGroup = new THREE.Group();
     scene.add(state.earthOrbitGroup);
 
     state.earthTiltGroup = new THREE.Group();
     state.earthOrbitGroup.add(state.earthTiltGroup);
 
-    // Fixed Celestial Tilt: Rotate around X-axis by tilt angle so North Pole points towards +Z
     this.updateTilt(THREE, state);
 
     // 3A. Axis Line (North / South Pole)
@@ -79,11 +71,11 @@ export default {
       new THREE.Vector3(0, EARTH_R * 1.6, 0)
     ];
     const axisGeo = new THREE.BufferGeometry().setFromPoints(axisPoints);
-    const axisLine = new THREE.Line(axisGeo, new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 3 }));
+    const axisLine = new THREE.Line(axisGeo, new THREE.LineBasicMaterial({ color: 0x0284c7, linewidth: 3 }));
     state.earthTiltGroup.add(axisLine);
 
-    // North pole cone (Red marker)
-    const npDot = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.7, 16), new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
+    // North pole cone (Rose Red marker)
+    const npDot = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.7, 16), new THREE.MeshBasicMaterial({ color: 0xe11d48 }));
     npDot.position.set(0, EARTH_R * 1.6, 0);
     state.earthTiltGroup.add(npDot);
 
@@ -93,17 +85,17 @@ export default {
     spDot.rotation.x = Math.PI;
     state.earthTiltGroup.add(spDot);
 
-    // 3B. Equator Ring (Green)
+    // 3B. Equator Ring (Emerald Green)
     const eqPoints = [];
     for (let i = 0; i <= 64; i++) {
       const a = (i / 64) * Math.PI * 2;
       eqPoints.push(new THREE.Vector3(Math.cos(a) * EARTH_R * 1.04, 0, Math.sin(a) * EARTH_R * 1.04));
     }
     const eqGeo = new THREE.BufferGeometry().setFromPoints(eqPoints);
-    const eqLine = new THREE.Line(eqGeo, new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 2 }));
+    const eqLine = new THREE.Line(eqGeo, new THREE.LineBasicMaterial({ color: 0x059669, linewidth: 2 }));
     state.earthTiltGroup.add(eqLine);
 
-    // Tropic of Cancer (23.4° N) & Capricorn (23.4° S) Rings
+    // Tropic of Cancer & Capricorn Rings
     const tropicN = [];
     const tropicS = [];
     const tropicR = Math.cos((23.44 * Math.PI) / 180) * EARTH_R * 1.02;
@@ -113,7 +105,7 @@ export default {
       tropicN.push(new THREE.Vector3(Math.cos(a) * tropicR, tropicH, Math.sin(a) * tropicR));
       tropicS.push(new THREE.Vector3(Math.cos(a) * tropicR, -tropicH, Math.sin(a) * tropicR));
     }
-    const tropMat = new THREE.LineDashedMaterial({ color: 0xfbbf24, dashSize: 0.2, gapSize: 0.15 });
+    const tropMat = new THREE.LineDashedMaterial({ color: 0xd97706, dashSize: 0.2, gapSize: 0.15 });
     const tropNLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(tropicN), tropMat);
     const tropSLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(tropicS), tropMat);
     tropNLine.computeLineDistances();
@@ -125,31 +117,30 @@ export default {
     state.earthSpinGroup = new THREE.Group();
     state.earthTiltGroup.add(state.earthSpinGroup);
 
-    // Earth Sphere
+    // Earth Sphere (Ocean Blue)
     const earthGeo = new THREE.SphereGeometry(EARTH_R, 32, 32);
     const earthMat = new THREE.MeshStandardMaterial({
-      color: 0x1e3a8a,
-      roughness: 0.7,
+      color: 0x2563eb,
+      roughness: 0.6,
       metalness: 0.1
     });
     state.earthMesh = new THREE.Mesh(earthGeo, earthMat);
     state.earthSpinGroup.add(state.earthMesh);
 
-    // Lat/Long Grids on Earth
+    // Lat/Long Grids on Earth (Sky Blue)
     const wireGeo = new THREE.WireframeGeometry(new THREE.SphereGeometry(EARTH_R * 1.005, 18, 12));
-    const wireMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25 });
+    const wireMat = new THREE.LineBasicMaterial({ color: 0x93c5fd, transparent: true, opacity: 0.45 });
     state.earthSpinGroup.add(new THREE.LineSegments(wireGeo, wireMat));
 
-    // 4. Sunlight Ray Beam (Connecting Sun to Earth)
+    // 4. Sunlight Ray Beam (Warm Amber)
     state.sunBeamsGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-    state.sunBeams = new THREE.Line(state.sunBeamsGeo, new THREE.LineDashedMaterial({ color: 0xfbbf24, dashSize: 0.4, gapSize: 0.2, transparent: true, opacity: 0.85 }));
+    state.sunBeams = new THREE.Line(state.sunBeamsGeo, new THREE.LineDashedMaterial({ color: 0xd97706, dashSize: 0.4, gapSize: 0.2, transparent: true, opacity: 0.85 }));
     scene.add(state.sunBeams);
   },
 
   updateTilt(THREE, state) {
     const tiltDeg = state.params.axialTilt !== undefined ? state.params.axialTilt : 23.44;
     const tiltRad = (tiltDeg * Math.PI) / 180;
-    // Rotate around X axis so North Pole points towards +Z in celestial space
     state.earthTiltGroup.rotation.set(tiltRad, 0, 0);
   },
 
@@ -166,19 +157,13 @@ export default {
     }
 
     const day = state.params.dayOfYear;
-    
-    // Astronomical alignment:
-    // - Day 172 (June 21 - Summer Solstice): Earth is at (0, 0, -ORBIT_R), North pole (+Z tilt) points directly toward Sun (0,0,0)
-    // - Day 355 (Dec 22 - Winter Solstice): Earth is at (0, 0, +ORBIT_R), North pole points away from Sun
-    // - Day 80 (March 21 - Vernal Equinox): Earth is at (+ORBIT_R, 0, 0)
-    // - Day 266 (Sept 23 - Autumnal Equinox): Earth is at (-ORBIT_R, 0, 0)
     const angle = ((day - 80) / 365) * Math.PI * 2;
     const x = Math.cos(angle) * state.ORBIT_R;
     const z = -Math.sin(angle) * state.ORBIT_R;
 
     state.earthOrbitGroup.position.set(x, 0, z);
 
-    // Pure daily spin (around local tilted Y axis, NO JITTER)
+    // Pure daily spin (around local tilted Y axis)
     state.earthSpinGroup.rotation.y += dt * 2.0;
 
     // Update Sun Beam line

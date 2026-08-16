@@ -1,23 +1,22 @@
 // ==============================================================================
 // 3D Commons Model Definition: Euler Spiral (オイラーの螺旋と複素正弦波)
+// 明るく上品なライトテーマ最適化版
 // ==============================================================================
 
 export default {
   id: "euler-spiral",
   category: "math",
-  categoryLabel: "📐 数学",
+  categoryLabel: "📐 数学・複素関数",
   title: "複素正弦波とオイラーの螺旋",
   description: "複素平面上の回転 $e^{it}$ は、3次元空間では美しい螺旋（ヘリックス）です。見る角度によって「真円」や「サイン波」「コサイン波」へと姿を変えます。",
   formula: "e^{it} = \\cos(t) + i\\sin(t)",
   
-  // 凡例定義
   legend: [
-    { color: "#fbbf24", label: "<strong>X 軸</strong>: 時間 / 空間 $t$" },
-    { color: "#f43f5e", label: "<strong>Y 軸</strong>: 実部 $\\text{Re} = \\cos(t)$" },
-    { color: "#38bdf8", label: "<strong>Z 軸</strong>: 虚部 $\\text{Im} = \\sin(t)$" }
+    { color: "#d97706", label: "<strong>X 軸</strong>: 時間 / 空間 $t$" },
+    { color: "#e11d48", label: "<strong>Y 軸</strong>: 実部 $\\text{Re} = \\cos(t)$" },
+    { color: "#0284c7", label: "<strong>Z 軸</strong>: 虚部 $\\text{Im} = \\sin(t)$" }
   ],
 
-  // プリセット視点
   views: {
     "3d": { name: "🔄 3D 螺旋 (全貌)", pos: [14, 12, 18], target: [0, 0, 0], default: true },
     "circle": { name: "⭕ 正面：複素平面 (円)", pos: [-30, 0, 0], target: [0, 0, 0] },
@@ -25,20 +24,17 @@ export default {
     "cos": { name: "🌊 上：実部 (cos波)", pos: [0, 0, 30], target: [0, 0, 0] }
   },
 
-  // スライダー・パラメータ
   parameters: {
     turns: { label: "周期数 (Turns)", min: 1, max: 6, step: 0.5, value: 3.5 },
     speed: { label: "位相速度", min: 0, max: 2, step: 0.1, value: 1.0 }
   },
 
-  // シーン初期化
   init(THREE, scene, state) {
     const LENGTH = 24;
     const RADIUS = 3.0;
     state.LENGTH = LENGTH;
     state.RADIUS = RADIUS;
 
-    // 1. Central Helix Curve
     class HelixCurve extends THREE.Curve {
       getPoint(u) {
         const t = (u - 0.5) * LENGTH;
@@ -48,83 +44,81 @@ export default {
     }
     state.HelixCurve = HelixCurve;
 
-    // Tube Mesh
+    // Tube Mesh (Elegant Sapphire Blue)
     const helixPath = new HelixCurve();
     state.helixPath = helixPath;
-    const tubeGeo = new THREE.TubeGeometry(helixPath, 300, 0.12, 16, false);
+    const tubeGeo = new THREE.TubeGeometry(helixPath, 300, 0.14, 16, false);
     const tubeMat = new THREE.MeshStandardMaterial({
-      color: 0x38bdf8,
-      emissive: 0x0284c7,
-      emissiveIntensity: 0.8,
-      roughness: 0.1,
-      metalness: 0.9
+      color: 0x0284c7,
+      roughness: 0.2,
+      metalness: 0.5
     });
     state.helixMesh = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(state.helixMesh);
 
     // 2. Projections
-    // Cos Line
+    // Cos Line (Rose Pink)
     state.cosGeo = new THREE.BufferGeometry();
-    state.cosLine = new THREE.Line(state.cosGeo, new THREE.LineBasicMaterial({ color: 0xf43f5e, linewidth: 3, transparent: true, opacity: 0.85 }));
+    state.cosLine = new THREE.Line(state.cosGeo, new THREE.LineBasicMaterial({ color: 0xe11d48, linewidth: 3, transparent: true, opacity: 0.85 }));
     scene.add(state.cosLine);
 
-    // Sin Line
+    // Sin Line (Cyan/Blue)
     state.sinGeo = new THREE.BufferGeometry();
-    state.sinLine = new THREE.Line(state.sinGeo, new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 3, transparent: true, opacity: 0.85 }));
+    state.sinLine = new THREE.Line(state.sinGeo, new THREE.LineBasicMaterial({ color: 0x0284c7, linewidth: 3, transparent: true, opacity: 0.85 }));
     scene.add(state.sinLine);
 
-    // Complex Circle Line
+    // Complex Circle Line (Amber Gold)
     const circlePoints = [];
     for (let i = 0; i <= 100; i++) {
       const a = (i / 100) * Math.PI * 2;
       circlePoints.push(new THREE.Vector3(-LENGTH / 2, Math.cos(a) * RADIUS, Math.sin(a) * RADIUS));
     }
     const circleGeo = new THREE.BufferGeometry().setFromPoints(circlePoints);
-    const circleLine = new THREE.Line(circleGeo, new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 3, transparent: true, opacity: 0.9 }));
+    const circleLine = new THREE.Line(circleGeo, new THREE.LineBasicMaterial({ color: 0xd97706, linewidth: 3, transparent: true, opacity: 0.9 }));
     scene.add(circleLine);
 
-    // Axis
+    // Time Axis
     const axisGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(-LENGTH / 2 - 1, 0, 0),
       new THREE.Vector3(LENGTH / 2 + 1, 0, 0)
     ]);
-    const axisMat = new THREE.LineDashedMaterial({ color: 0x64748b, dashSize: 0.5, gapSize: 0.25 });
+    const axisMat = new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.5, gapSize: 0.25 });
     const timeAxis = new THREE.Line(axisGeo, axisMat);
     timeAxis.computeLineDistances();
     scene.add(timeAxis);
 
-    // Grids
-    const gridXY = new THREE.GridHelper(LENGTH, 24, 0x1e293b, 0x0f172a);
+    // Clean Grids for Light Background
+    const gridXY = new THREE.GridHelper(LENGTH, 24, 0xcbd5e1, 0xe2e8f0);
     gridXY.position.set(0, 0, -RADIUS * 1.6);
     gridXY.rotation.x = Math.PI / 2;
     scene.add(gridXY);
 
-    const gridXZ = new THREE.GridHelper(LENGTH, 24, 0x1e293b, 0x0f172a);
+    const gridXZ = new THREE.GridHelper(LENGTH, 24, 0xcbd5e1, 0xe2e8f0);
     gridXZ.position.set(0, -RADIUS * 1.6, 0);
     scene.add(gridXZ);
 
     // Traveling Dot & Leaders
-    state.dot = new THREE.Mesh(new THREE.SphereGeometry(0.35, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    state.dot = new THREE.Mesh(new THREE.SphereGeometry(0.35, 32, 32), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.1, metalness: 0.8 }));
     scene.add(state.dot);
 
     state.phasorGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-    state.phasorLine = new THREE.Line(state.phasorGeo, new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 3 }));
+    state.phasorLine = new THREE.Line(state.phasorGeo, new THREE.LineBasicMaterial({ color: 0xd97706, linewidth: 3 }));
     scene.add(state.phasorLine);
 
     state.leaderYGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
     state.leaderZGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-    const leaderMat = new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.3, gapSize: 0.2, transparent: true, opacity: 0.6 });
-    state.leaderY = new THREE.Line(state.leaderYGeo, leaderMat);
-    state.leaderZ = new THREE.Line(state.leaderZGeo, leaderMat);
+    const leaderMat = new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.3, gapSize: 0.2, transparent: true, opacity: 0.7 });
+    state.leaderY = new THREE.Line(leaderYGeo, leaderMat);
+    state.leaderZ = new THREE.Line(leaderZGeo, leaderMat);
     scene.add(state.leaderY);
     scene.add(state.leaderZ);
 
-    state.shadowCosDot = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
-    state.shadowSinDot = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
-    state.circleDot = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+    state.shadowCosDot = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), new THREE.MeshBasicMaterial({ color: 0xe11d48 }));
+    state.shadowSinDot = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), new THREE.MeshBasicMaterial({ color: 0x0284c7 }));
+    state.circleDot = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), new THREE.MeshBasicMaterial({ color: 0xd97706 }));
     scene.add(state.shadowCosDot);
     scene.add(state.shadowSinDot);
-    scene.add(state.circleDot);
+    scene.add(circleDot);
 
     this.updateCurve(THREE, state);
   },
@@ -134,7 +128,7 @@ export default {
     const RADIUS = state.RADIUS;
     state.helixPath = new state.HelixCurve();
     state.helixMesh.geometry.dispose();
-    state.helixMesh.geometry = new THREE.TubeGeometry(state.helixPath, 300, 0.12, 16, false);
+    state.helixMesh.geometry = new THREE.TubeGeometry(state.helixPath, 300, 0.14, 16, false);
 
     const cosPoints = [];
     const sinPoints = [];
@@ -155,7 +149,6 @@ export default {
     }
   },
 
-  // フレームごとの更新
   update(THREE, state, dt, time) {
     if (!state.helixPath) return;
     const speed = state.params.speed !== undefined ? state.params.speed : 1.0;
