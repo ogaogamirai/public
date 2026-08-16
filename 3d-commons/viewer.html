@@ -311,77 +311,89 @@
     body.embed-mode .axis-legend { padding: 8px 12px; bottom: 12px; right: 12px; border-radius: 12px; }
     body.embed-mode .top-actions { top: 12px; right: 12px; }
 
-    /* ===================================================
-       📱 Mobile Responsive Layout (< 768px)
-       =================================================== */
+    .btn-short { display: none; }
+
+    /* Mobile: compact chrome, keep the lesson description */
     @media (max-width: 768px) {
       .ui-layer {
-        padding: 12px;
+        padding: max(6px, env(safe-area-inset-top)) 8px max(6px, env(safe-area-inset-bottom));
         justify-content: space-between;
+        gap: 6px;
       }
 
-      .floating-hint {
-        display: none;
-      }
+      .floating-hint { display: none; }
+      .category-badge { display: none; }
 
-      /* Header on top */
       .header-card {
-        max-width: 100%;
-        padding: 12px 14px;
-        border-radius: 14px;
+        max-width: calc(100% - 56px);
+        padding: 8px 10px;
+        border-radius: 12px;
       }
       .header-title {
-        font-size: 1.05rem;
+        font-size: 0.88rem;
+        margin-bottom: 4px;
       }
       .header-desc {
-        font-size: 0.78rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        display: block;
+        font-size: 0.72rem;
+        line-height: 1.45;
+        -webkit-line-clamp: unset;
+        overflow: visible;
       }
       .formula-badge {
-        font-size: 0.8rem;
-        padding: 4px 8px;
+        font-size: 0.75rem;
+        padding: 2px 8px;
         margin-top: 4px;
+        border-radius: 8px;
       }
 
       .top-actions {
-        top: 12px;
-        right: 12px;
+        top: max(6px, env(safe-area-inset-top));
+        right: 8px;
+        flex-direction: column;
+        gap: 4px;
       }
       .action-btn {
-        padding: 6px 10px;
-        font-size: 0.75rem;
+        padding: 5px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
       }
+      .btn-full { display: none; }
+      .btn-short { display: inline; }
 
-      /* Controls at bottom */
       .controls-card {
         max-width: 100%;
         width: 100%;
-        padding: 12px 14px;
-        border-radius: 14px;
-        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        gap: 6px;
       }
+      .btn-group-title { display: none; }
       .btn-group {
         overflow-x: auto;
         flex-wrap: nowrap;
         padding-bottom: 2px;
         -webkit-overflow-scrolling: touch;
+        gap: 4px;
       }
       .view-btn {
         flex-shrink: 0;
-        padding: 6px 10px;
-        font-size: 0.78rem;
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 0.7rem;
       }
       .slider-row {
-        font-size: 0.78rem;
+        gap: 6px;
+        font-size: 0.7rem;
       }
+      .slider-label { flex: 0 1 auto; max-width: 42%; }
+      .slider-val { min-width: 28px; }
+      .slider-input { height: 22px; }
 
-      /* Hide legend on mobile to keep 3D view clean */
-      .axis-legend {
-        display: none !important;
-      }
+      .axis-legend { display: none !important; }
+    }
+    @media (max-width: 768px) and (orientation: portrait) {
+      .controls-card { padding: 6px 8px; gap: 4px; }
     }
 
     /* Error Overlay */
@@ -419,8 +431,8 @@
 
     <!-- Top Actions -->
     <div class="top-actions">
-      <button class="action-btn" id="btn-pause" onclick="togglePlayPause()">⏸️ 一時停止</button>
-      <button class="action-btn" id="btn-catalog" onclick="location.href='index.html'">📚 カタログ</button>
+      <button class="action-btn" id="btn-pause" onclick="togglePlayPause()"><span class="btn-full">⏸️ 一時停止</span><span class="btn-short">停止</span></button>
+      <button class="action-btn" id="btn-catalog" onclick="location.href='index.html'"><span class="btn-full">📚 カタログ</span><span class="btn-short">一覧</span></button>
     </div>
 
     <!-- Controls Panel -->
@@ -644,7 +656,9 @@
     window.togglePlayPause = function() {
       modelState.isPaused = !modelState.isPaused;
       const btn = document.getElementById("btn-pause");
-      btn.textContent = modelState.isPaused ? "▶️ 再生" : "⏸️ 一時停止";
+      btn.innerHTML = modelState.isPaused
+        ? '<span class="btn-full">▶️ 再生</span><span class="btn-short">再生</span>'
+        : '<span class="btn-full">⏸️ 一時停止</span><span class="btn-short">停止</span>';
     };
 
     // Animation Loop
