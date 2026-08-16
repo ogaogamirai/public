@@ -62,6 +62,14 @@ export default {
     state.point.position.copy(point);
     state.normal.position.copy(point);
     state.normal.setDirection(normal);
+    const readout = document.getElementById("model-formula");
+    if (readout && window.katex) {
+      katex.render(
+        `\\boldsymbol n=(0,\\cos(${state.params.tilt}^\\circ),\\sin(${state.params.tilt}^\\circ))`,
+        readout,
+        { displayMode: false, throwOnError: false }
+      );
+    }
   },
 
   onParamChange(THREE, state) {

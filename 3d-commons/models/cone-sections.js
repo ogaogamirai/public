@@ -201,6 +201,14 @@ export default {
     state.planeEdge.rotation.z = -theta;
     state.cutDot.position.copy(nearest);
     state.currentType = classify(angle);
+    const readout = document.getElementById("model-formula");
+    if (readout && window.katex) {
+      katex.render(
+        `\\theta=${angle}^\\circ\\quad\\text{分類：${state.currentType}}`,
+        readout,
+        { displayMode: false, throwOnError: false }
+      );
+    }
   },
 
   onParamChange(THREE, state) {

@@ -152,7 +152,7 @@ export default {
     const readout = document.getElementById("model-formula");
     if (readout && window.katex) {
       katex.render(
-        `|\\boldsymbol a|\\cos\\theta=${Math.abs(projectionLength).toFixed(2)}\\quad\\boldsymbol a\\cdot\\boldsymbol b=|\\boldsymbol a||\\boldsymbol b|\\cos\\theta=${(state.bLength * projectionLength).toFixed(2)}`,
+        `|\\boldsymbol a|\\cos\\theta=${projectionLength.toFixed(2)}\\quad\\boldsymbol a\\cdot\\boldsymbol b=|\\boldsymbol a||\\boldsymbol b|\\cos\\theta=${(state.bLength * projectionLength).toFixed(2)}`,
         readout,
         { displayMode: false, throwOnError: false }
       );

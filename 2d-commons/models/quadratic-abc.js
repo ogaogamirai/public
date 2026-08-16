@@ -12,7 +12,8 @@ export default {
   legend: [
     { color: "#0284c7", label: "グラフ $y=ax^2+bx+c$" },
     { color: "#e11d48", label: "頂点" },
-    { color: "#d97706", label: "軸 $x=-b/(2a)$" }
+    { color: "#d97706", label: "軸 $x=-b/(2a)$" },
+    { color: "#059669", label: "$y$ 切片 $(0,c)$" }
   ],
   views: {
     std: { name: "標準 $a=1$", params: { a: 1, b: 0, c: 0 }, default: true },

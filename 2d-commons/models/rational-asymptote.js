@@ -55,15 +55,17 @@ export default {
     const right = plot.pad.l + plot.innerW();
 
     // Asymptotes are reference lines, not part of the function.
-    const [pLeft] = plot.toScreen(p, 0);
     ctx.save();
     ctx.setLineDash([7, 5]);
     ctx.lineWidth = 1.5;
-    ctx.strokeStyle = "#e11d48";
-    ctx.beginPath();
-    ctx.moveTo(pLeft, top);
-    ctx.lineTo(pLeft, bottom);
-    ctx.stroke();
+    if (Math.abs(a) > 1e-9) {
+      const [pLeft] = plot.toScreen(p, 0);
+      ctx.strokeStyle = "#e11d48";
+      ctx.beginPath();
+      ctx.moveTo(pLeft, top);
+      ctx.lineTo(pLeft, bottom);
+      ctx.stroke();
+    }
 
     const [, qTop] = plot.toScreen(0, q);
     ctx.strokeStyle = "#d97706";
@@ -72,6 +74,18 @@ export default {
     ctx.lineTo(right, qTop);
     ctx.stroke();
     ctx.restore();
+
+    if (Math.abs(a) <= 1e-9) {
+      const [holeX, holeY] = plot.toScreen(p, q);
+      ctx.fillStyle = "#f8fafc";
+      ctx.strokeStyle = "#e11d48";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(holeX, holeY, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      return;
+    }
 
     // Draw the two branches separately; never connect across x = p.
     ctx.strokeStyle = "#0284c7";

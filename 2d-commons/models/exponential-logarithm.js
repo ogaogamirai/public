@@ -64,6 +64,17 @@ export default {
     ctx.stroke();
     ctx.setLineDash([]);
 
+    // The logarithm has the boundary x = 0 and is defined only for x > 0.
+    const [domainX] = plot.toScreen(0, 0);
+    ctx.beginPath();
+    ctx.strokeStyle = "#e11d48";
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 4]);
+    ctx.moveTo(domainX, plot.pad.t);
+    ctx.lineTo(domainX, plot.pad.t + plot.innerH());
+    ctx.stroke();
+    ctx.setLineDash([]);
+
     // y = a^x. Clip by the visible plot range to avoid an artificial jump.
     ctx.beginPath();
     ctx.strokeStyle = "#0284c7";

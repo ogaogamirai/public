@@ -84,6 +84,15 @@ export default {
       profilePoints.push(new THREE.Vector3(x, x * x, 0));
     }
     state.profile.geometry.setFromPoints(profilePoints);
+    const volume = Math.PI * Math.pow(R, 4) / 2;
+    const readout = document.getElementById("model-formula");
+    if (readout && window.katex) {
+      katex.render(
+        `V=2\\pi\\int_0^R x^3\\,dx=${volume.toFixed(2)}\\quad(R=${R.toFixed(1)})`,
+        readout,
+        { displayMode: false, throwOnError: false }
+      );
+    }
   },
 
   onParamChange(THREE, state) {
