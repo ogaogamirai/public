@@ -1,5 +1,35 @@
 // 3D Commons: 内積と正射影
 
+function makeLabel(THREE, text, color) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 128;
+  const context = canvas.getContext("2d");
+  const texture = new THREE.CanvasTexture(canvas);
+  const sprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false })
+  );
+  sprite.scale.set(3.4, 0.85, 1);
+  sprite.userData.labelCanvas = canvas;
+  sprite.userData.labelContext = context;
+  sprite.userData.labelTexture = texture;
+  sprite.userData.labelColor = color;
+  setLabel(sprite, text);
+  return sprite;
+}
+
+function setLabel(sprite, text) {
+  const canvas = sprite.userData.labelCanvas;
+  const context = sprite.userData.labelContext;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.font = "bold 42px Arial, sans-serif";
+  context.fillStyle = sprite.userData.labelColor;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
+  sprite.userData.labelTexture.needsUpdate = true;
+}
+
 export default {
   id: "dot-projection",
   category: "math",
@@ -58,7 +88,14 @@ export default {
       new THREE.BufferGeometry(),
       new THREE.LineBasicMaterial({ color: 0x7c3aed, linewidth: 3 })
     );
-    state.group.add(state.dropLine, state.arc, state.rightAngle);
+    state.labelA = makeLabel(THREE, "|a|（斜辺）", "#0284c7");
+    state.labelProjection = makeLabel(THREE, "|a|cosθ（正射影）", "#d97706");
+    state.labelTheta = makeLabel(THREE, "θ", "#475569");
+    state.labelRight = makeLabel(THREE, "90°", "#7c3aed");
+    state.group.add(
+      state.dropLine, state.arc, state.rightAngle,
+      state.labelA, state.labelProjection, state.labelTheta, state.labelRight
+    );
     this.updateProjection(THREE, state);
   },
 
@@ -91,6 +128,20 @@ export default {
     } else {
       state.rightAngle.visible = false;
     }
+    state.labelA.position.set(a.x / 2, 0.5, 0);
+    state.labelProjection.position.copy(projection).multiplyScalar(0.5);
+    state.labelProjection.position.z = 0.15;
+    const labelAngle = theta / 2;
+    state.labelTheta.position.set(
+      2.15 * Math.cos(labelAngle),
+      2.15 * Math.sin(labelAngle),
+      0.15
+    );
+    state.labelRight.position.copy(projection).add(
+      perpendicular.lengthSq() > 1e-8
+        ? perpendicular.normalize().multiplyScalar(0.65)
+        : new THREE.Vector3(0, 0.65, 0)
+    );
     const arcPoints = [];
     const arcRadius = 1.6;
     for (let i = 0; i <= 24; i++) {
