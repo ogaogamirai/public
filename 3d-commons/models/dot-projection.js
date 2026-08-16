@@ -5,12 +5,12 @@ export default {
   category: "math",
   categoryLabel: "📐 数B・ベクトル",
   title: "内積と正射影",
-  description: "ベクトル a をベクトル b の向きに正射影すると、内積が「どれだけ同じ方向を向いているか」を表す長さとして見えてきます。",
+  description: "ベクトル a を斜辺とする直角三角形を作ると、正射影の長さは |a|cosθ です。さらに |b| を掛けると、内積 |a||b|cosθ になります。",
   formula: "\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a=\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}\\boldsymbol b",
   legend: [
     { color: "#0284c7", label: "ベクトル $\\boldsymbol a$" },
     { color: "#e11d48", label: "ベクトル $\\boldsymbol b$" },
-    { color: "#d97706", label: "$\\boldsymbol a$ の正射影" },
+    { color: "#d97706", label: "$\\boldsymbol a$ の正射影（$|\\boldsymbol a|\\cos\\theta$）" },
     { color: "#94a3b8", label: "$x$ 軸（横）・$y$ 軸（縦）" }
   ],
   views: {
@@ -54,7 +54,11 @@ export default {
       new THREE.BufferGeometry(),
       new THREE.LineBasicMaterial({ color: 0x64748b, linewidth: 2 })
     );
-    state.group.add(state.dropLine, state.arc);
+    state.rightAngle = new THREE.LineSegments(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0x7c3aed, linewidth: 3 })
+    );
+    state.group.add(state.dropLine, state.arc, state.rightAngle);
     this.updateProjection(THREE, state);
   },
 
@@ -71,6 +75,22 @@ export default {
     state.arrowProjection.setLength(Math.abs(projectionLength), 0.45, 0.25);
     state.dropLine.geometry.setFromPoints([a, projection]);
     state.dropLine.computeLineDistances();
+    const projectionDirection = projectionLength >= 0
+      ? bDirection
+      : bDirection.clone().multiplyScalar(-1);
+    const perpendicular = a.clone().sub(projection);
+    if (perpendicular.lengthSq() > 1e-8 && Math.abs(projectionLength) > 1e-8) {
+      perpendicular.normalize();
+      const markerSize = 0.45;
+      const p0 = projection;
+      const p1 = p0.clone().add(projectionDirection.clone().multiplyScalar(markerSize));
+      const p2 = p1.clone().add(perpendicular.clone().multiplyScalar(markerSize));
+      const p3 = p0.clone().add(perpendicular.clone().multiplyScalar(markerSize));
+      state.rightAngle.geometry.setFromPoints([p0, p1, p1, p2, p2, p3]);
+      state.rightAngle.visible = true;
+    } else {
+      state.rightAngle.visible = false;
+    }
     const arcPoints = [];
     const arcRadius = 1.6;
     for (let i = 0; i <= 24; i++) {
@@ -81,7 +101,7 @@ export default {
     const readout = document.getElementById("model-formula");
     if (readout && window.katex) {
       katex.render(
-        `\\theta=${state.params.angle}^\\circ\\quad\\boldsymbol a\\cdot\\boldsymbol b=${(state.bLength * projectionLength).toFixed(2)}\\quad\\text{正射影の長さ}=${Math.abs(projectionLength).toFixed(2)}`,
+        `|\\boldsymbol a|\\cos\\theta=${Math.abs(projectionLength).toFixed(2)}\\quad\\boldsymbol a\\cdot\\boldsymbol b=|\\boldsymbol a||\\boldsymbol b|\\cos\\theta=${(state.bLength * projectionLength).toFixed(2)}`,
         readout,
         { displayMode: false, throwOnError: false }
       );
