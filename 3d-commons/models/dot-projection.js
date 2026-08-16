@@ -1,0 +1,60 @@
+// 3D Commons: 内積と正射影
+
+export default {
+  id: "dot-projection",
+  category: "math",
+  categoryLabel: "📐 数B・ベクトル",
+  title: "内積と正射影",
+  description: "ベクトル a をベクトル b の向きに正射影すると、内積が「どれだけ同じ方向を向いているか」を表す長さとして見えてきます。",
+  formula: "\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a=\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}\\boldsymbol b",
+  legend: [
+    { color: "#0284c7", label: "ベクトル $\\boldsymbol a$" },
+    { color: "#e11d48", label: "ベクトル $\\boldsymbol b$" },
+    { color: "#d97706", label: "$\\boldsymbol a$ の正射影" }
+  ],
+  views: {
+    overview: { name: "🔄 全体", pos: [10, 9, 15], target: [2, 2, 0], default: true },
+    front: { name: "正面", pos: [0, 5, 22], target: [2, 2, 0] },
+    top: { name: "上から", pos: [0, 22, 0], target: [2, 2, 0] }
+  },
+  parameters: {
+    angle: { label: "2本のベクトルの角度", min: 0, max: 180, step: 5, value: 45 }
+  },
+
+  init(THREE, scene, state) {
+    state.group = new THREE.Group();
+    scene.add(state.group);
+    state.origin = new THREE.Vector3(0, 0, 0);
+    state.aLength = 6;
+    state.bLength = 6;
+    state.arrowA = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), state.origin, 6, 0x0284c7, 0.55, 0.3);
+    state.arrowB = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), state.origin, 6, 0xe11d48, 0.55, 0.3);
+    state.arrowProjection = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), state.origin, 1, 0xd97706, 0.45, 0.25);
+    state.group.add(state.arrowA, state.arrowB, state.arrowProjection);
+    state.dropLine = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineDashedMaterial({ color: 0xd97706, dashSize: 0.22, gapSize: 0.16 })
+    );
+    state.group.add(state.dropLine);
+    this.updateProjection(THREE, state);
+  },
+
+  updateProjection(THREE, state) {
+    const theta = state.params.angle * Math.PI / 180;
+    const a = new THREE.Vector3(state.aLength, 0, 0);
+    const bDirection = new THREE.Vector3(Math.cos(theta), Math.sin(theta), 0).normalize();
+    const b = bDirection.clone().multiplyScalar(state.bLength);
+    const projectionLength = a.dot(bDirection);
+    const projection = bDirection.clone().multiplyScalar(projectionLength);
+    state.arrowA.setDirection(a.clone().normalize());
+    state.arrowB.setDirection(bDirection);
+    state.arrowProjection.setDirection(projectionLength >= 0 ? bDirection : bDirection.clone().multiplyScalar(-1));
+    state.arrowProjection.setLength(Math.abs(projectionLength), 0.45, 0.25);
+    state.dropLine.geometry.setFromPoints([a, projection]);
+    state.dropLine.computeLineDistances();
+  },
+
+  onParamChange(THREE, state) {
+    this.updateProjection(THREE, state);
+  }
+};

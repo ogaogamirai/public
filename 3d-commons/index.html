@@ -420,6 +420,62 @@
           </div>
         </div>
       </div>
+      <!-- 8. Skew Lines -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数C・空間図形</div>
+          <h2 class="card-title">ねじれの位置</h2>
+          <p class="card-desc">
+            2本の直線が平行でも交わってもいない状態を、視点を変えながら確認します。
+          </p>
+          <div class="card-formula" id="formula-skew"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=skew-lines" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('skew-lines')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('skew-lines')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Dot Projection -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数B・ベクトル</div>
+          <h2 class="card-title">内積と正射影</h2>
+          <p class="card-desc">
+            2本のベクトルの角度を変え、内積が同じ方向の成分を取り出す量であることを観察します。
+          </p>
+          <div class="card-formula" id="formula-projection"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=dot-projection" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('dot-projection')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('dot-projection')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. Parallelepiped -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数C・空間ベクトル</div>
+          <h2 class="card-title">空間ベクトルが張る平行六面体</h2>
+          <p class="card-desc">
+            3本のベクトルを辺として立体を作り、形が変わっても体積が保たれることを確認します。
+          </p>
+          <div class="card-formula" id="formula-parallelepiped"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=parallelepiped" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('parallelepiped')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('parallelepiped')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- How to Use Section -->
@@ -445,6 +501,9 @@
         katex.render("V=2\\pi\\int_0^R x\\cdot x^2\\,dx", document.getElementById("formula-solid"), { displayMode: false });
         katex.render("y=h+z\\tan\\theta\\quad(0^\\circ\\leq\\theta<90^\\circ)", document.getElementById("formula-cube"), { displayMode: false });
         katex.render("\\boldsymbol{n}\\cdot(\\boldsymbol{r}-\\boldsymbol{r_0})=0", document.getElementById("formula-normal"), { displayMode: false });
+        katex.render("L_1:(t,0,0),\\quad L_2:(s\\cos\\phi,1,s\\sin\\phi+2)", document.getElementById("formula-skew"), { displayMode: false });
+        katex.render("\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a=\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}\\boldsymbol b", document.getElementById("formula-projection"), { displayMode: false });
+        katex.render("V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|", document.getElementById("formula-parallelepiped"), { displayMode: false });
 
         // Render inline $...$ in descriptions
         document.querySelectorAll('.card-desc').forEach(el => {
