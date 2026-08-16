@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌌 3D Commons — リベラルアーツ 3D 数理・科学教材ライブラリ</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070a12;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(56, 189, 248, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-pink: #f43f5e;
+      --accent-yellow: #fbbf24;
+      --accent-green: #34d399;
+      --accent-purple: #c084fc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(192, 132, 252, 0.08) 0%, transparent 40%);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      width: 100%;
+    }
+
+    /* Hero Header */
+    .hero {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Cards Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      margin-bottom: 60px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 18px 40px rgba(56, 189, 248, 0.15);
+    }
+
+    .card-category {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cat-math { color: var(--accent-cyan); }
+    .cat-physics { color: var(--accent-pink); }
+    .cat-geoscience { color: var(--accent-yellow); }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+
+    .card-formula {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 20px;
+      font-size: 0.92rem;
+      text-align: center;
+      overflow-x: auto;
+    }
+
+    /* Actions */
+    .card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-launch {
+      background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+      color: #04131f;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+    }
+    .btn-launch:hover {
+      opacity: 0.95;
+      transform: scale(1.02);
+      color: #04131f;
+    }
+
+    .btn-copy-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* How to Use Section */
+    .guide-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 32px;
+      margin-top: 20px;
+    }
+
+    .guide-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .guide-code {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+      overflow-x: auto;
+      margin: 10px 0 16px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0284c7;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="hero-badge">🌌 Open 3D Commons</div>
+      <h1 class="hero-title">リベラルアーツ 3D 教材ライブラリ</h1>
+      <p class="hero-desc">
+        数学・物理・地学・複雑系の「立体の本質」をわずか数キロバイトで直感体験。<br>
+        Webサイトや Aether 詳細画面に 1 行で埋め込めるオープン教材ギャラリーです。
+      </p>
+    </header>
+
+    <!-- Cards Grid -->
+    <div class="grid">
+      <!-- 1. Euler Spiral -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数学・複素関数</div>
+          <h2 class="card-title">複素正弦波とオイラーの螺旋</h2>
+          <p class="card-desc">
+            複素数平面上の回転 $e^{it}$ を 3D 空間で観察。見る角度によって「真円」や「サイン波」「コサイン波」へと姿を変えるオイラーの公式の幾何学的実体。
+          </p>
+          <div class="card-formula" id="formula-euler"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=euler-spiral" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('euler-spiral')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('euler-spiral')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Lorenz Attractor -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-physics">⚛️ 物理・カオス理論</div>
+          <h2 class="card-title">ローレンツ・アトラクター</h2>
+          <p class="card-desc">
+            大気対流の微分方程式から現れる「決定論的カオス」。初期値のわずかな差が時間とともに全く異なる軌道を描くバタフライ効果をリアルタイムシミュレーション。
+          </p>
+          <div class="card-formula" id="formula-lorenz"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=lorenz-attractor" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('lorenz-attractor')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('lorenz-attractor')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Earth Seasons -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-geoscience">🌍 地学・天文学</div>
+          <h2 class="card-title">地軸の傾き（23.4°）と四季</h2>
+          <p class="card-desc">
+            自転軸が23.4度傾いたまま公転することで、なぜ太陽の南中高度と昼夜の長さが変化し四季が生まれるのか。スライダーで公転位置や地軸角を変えて体感。
+          </p>
+          <div class="card-formula" id="formula-earth"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=earth-seasons" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('earth-seasons')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('earth-seasons')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to Use Section -->
+    <div class="guide-box">
+      <h3 class="guide-title">💡 Aether や 教材 HTML への埋め込み方</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+        Aether の付箋の <code>desc</code> や、教材・ブログの HTML 中に以下の <code>&lt;iframe&gt;</code> タグを貼り付けるだけで、その場に美しい 3D 挿絵が出現します：
+      </p>
+      <div class="guide-code">&lt;iframe src="https://ogaogamirai.github.io/public/3d-commons/viewer.html?model=euler-spiral&amp;embed=true" width="100%" height="320px" frameborder="0" style="border-radius: 16px;"&gt;&lt;/iframe&gt;</div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">✨ コピーしました！</div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.katex) {
+        katex.render("e^{it} = \\cos(t) + i\\sin(t)", document.getElementById("formula-euler"), { displayMode: false });
+        katex.render("\\dot{x} = \\sigma(y-x),\\; \\dot{y} = x(\\rho-z)-y,\\; \\dot{z} = xy-\\beta z", document.getElementById("formula-lorenz"), { displayMode: false });
+        katex.render("\\delta = 23.44^\\circ \\times \\sin\\left(\\frac{360^\\circ}{365} (N + 284)\\right)", document.getElementById("formula-earth"), { displayMode: false });
+      }
+    });
+
+    const BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+
+    function copyIframe(modelId) {
+      const url = `${BASE_URL}viewer.html?model=${modelId}&embed=true`;
+      const code = `<iframe src="${url}" width="100%" height="320px" frameborder="0" style="border-radius: 16px; border: 1px solid rgba(56,189,248,0.3);"></iframe>`;
+      navigator.clipboard.writeText(code).then(() => showToast("📋 iframe 埋め込みタグをコピーしました！"));
+    }
+
+    function copyLink(modelId) {
+      const url = `${BASE_URL}viewer.html?model=${modelId}`;
+      navigator.clipboard.writeText(url).then(() => showToast("🔗 観測所リンクをコピーしました！"));
+    }
+  </script>
+</body>
+</html>

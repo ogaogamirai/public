@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌌 3D Commons Universal Viewer</title>
+  
+  <!-- Fonts & Math -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <!-- Three.js & OrbitControls & Tween -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --card-bg: rgba(16, 24, 40, 0.88);
+      --card-border: rgba(56, 189, 248, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-pink: #f43f5e;
+      --accent-yellow: #fbbf24;
+      --accent-green: #34d399;
+      --accent-purple: #c084fc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* UI Overlay Layer */
+    .ui-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    /* Compact Embed Mode */
+    body.embed-mode .ui-layer {
+      padding: 12px;
+    }
+    body.embed-mode .header-card {
+      max-width: 320px;
+      padding: 10px 14px;
+    }
+    body.embed-mode .header-title {
+      font-size: 0.95rem;
+    }
+    body.embed-mode .header-desc {
+      display: none;
+    }
+
+    /* Header Info Card */
+    .header-card {
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      max-width: 480px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+      transition: all 0.2s ease;
+    }
+
+    .category-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .header-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .formula-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    /* Floating Action Bar (Top Right) */
+    .top-actions {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      pointer-events: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .action-btn {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .action-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: var(--accent-cyan);
+      color: #fff;
+    }
+
+    /* Controls Panel (Bottom Left) */
+    .controls-card {
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-self: flex-start;
+      max-width: 440px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+
+    .btn-group-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .view-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .view-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+    }
+    .view-btn.active {
+      background: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      color: #04131f;
+      font-weight: 600;
+    }
+
+    /* Sliders */
+    .sliders-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.8rem;
+    }
+    .slider-label {
+      color: var(--text-muted);
+      flex: 1;
+    }
+    .slider-val {
+      font-weight: 600;
+      color: var(--accent-cyan);
+      min-width: 36px;
+      text-align: right;
+    }
+    .slider-input {
+      flex: 1.5;
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    /* Axis / Legend (Bottom Right) */
+    .axis-legend {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+
+    .axis-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .axis-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Error Overlay */
+    .error-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      padding: 24px;
+      border-radius: 16px;
+      color: #fff;
+      max-width: 420px;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      display: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <div class="ui-layer">
+    <!-- Header Card -->
+    <div class="header-card" id="header-card">
+      <div class="category-badge" id="model-category">Loading...</div>
+      <div class="header-title" id="model-title">3D Commons</div>
+      <div class="header-desc" id="model-desc"></div>
+      <div class="formula-badge" id="model-formula" style="display:none;"></div>
+    </div>
+
+    <!-- Top Actions -->
+    <div class="top-actions">
+      <button class="action-btn" id="btn-pause" onclick="togglePlayPause()">⏸️ 一時停止</button>
+      <button class="action-btn" id="btn-catalog" onclick="location.href='index.html'">📚 カタログ</button>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-card" id="controls-card">
+      <div id="views-container">
+        <div class="btn-group-title">🎯 視点切り替え</div>
+        <div class="btn-group" id="views-group"></div>
+      </div>
+      <div id="sliders-container" style="display:none;">
+        <div class="btn-group-title">🎛️ パラメータ調整</div>
+        <div class="sliders-group" id="sliders-group"></div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="axis-legend" id="axis-legend" style="display:none;"></div>
+  </div>
+
+  <div class="error-card" id="error-card">
+    <h3>⚠️ モデルの読み込みエラー</h3>
+    <p id="error-msg" style="margin-top: 8px; font-size: 0.85rem; color: #fca5a5;"></p>
+    <button class="action-btn" style="margin: 16px auto 0;" onclick="location.href='viewer.html?model=euler-spiral'">オイラーの螺旋を開く</button>
+  </div>
+
+  <script type="module">
+    // Determine Model ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const modelId = urlParams.get('model') || 'euler-spiral';
+    const isEmbed = urlParams.get('embed') === 'true';
+    if (isEmbed) document.body.classList.add('embed-mode');
+
+    // Three.js Scene Core
+    const container = document.getElementById("canvas-container");
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0a0e17, 0.02);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setClearColor(0x0a0e17, 1.0);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0x38bdf8, 2.0);
+    dirLight.position.set(20, 30, 20);
+    scene.add(dirLight);
+
+    const pointLight = new THREE.PointLight(0xf43f5e, 3.0, 50);
+    pointLight.position.set(-10, -10, 10);
+    scene.add(pointLight);
+
+    // Global State
+    let currentModel = null;
+    const modelState = {
+      params: {},
+      isPaused: false
+    };
+
+    // Load Model Module Dynamically
+    async function loadModel(id) {
+      try {
+        const modulePath = `./models/${id}.js`;
+        const module = await import(modulePath);
+        currentModel = module.default;
+        initModelUI(currentModel);
+        
+        // Initialize Model Three.js Scene
+        if (currentModel.parameters) {
+          for (const [k, p] of Object.entries(currentModel.parameters)) {
+            modelState.params[k] = p.value;
+          }
+        }
+        currentModel.init(THREE, scene, modelState);
+
+        // Set Initial Camera
+        if (currentModel.views) {
+          const defaultKey = Object.keys(currentModel.views).find(k => currentModel.views[k].default) || Object.keys(currentModel.views)[0];
+          const v = currentModel.views[defaultKey];
+          camera.position.set(...v.pos);
+          controls.target.set(...v.target);
+        }
+      } catch (err) {
+        console.error("Failed to load model:", err);
+        document.getElementById("error-card").style.display = "block";
+        document.getElementById("error-msg").textContent = `モデル "${id}" の読み込みに失敗しました: ${err.message}`;
+      }
+    }
+
+    // Build UI Controls from Model Metadata
+    function initModelUI(m) {
+      document.getElementById("model-category").textContent = m.categoryLabel || "3D COMMONS";
+      document.getElementById("model-title").textContent = m.title || m.id;
+      document.getElementById("model-desc").textContent = m.description || "";
+
+      // KaTeX Formula
+      const formulaEl = document.getElementById("model-formula");
+      if (m.formula && window.katex) {
+        formulaEl.style.display = "inline-block";
+        try {
+          katex.render(m.formula, formulaEl, { displayMode: false, throwOnError: false });
+        } catch(e) {
+          formulaEl.textContent = m.formula;
+        }
+      }
+
+      // Views Buttons
+      const viewsGroup = document.getElementById("views-group");
+      viewsGroup.innerHTML = "";
+      if (m.views) {
+        Object.entries(m.views).forEach(([key, v], idx) => {
+          const btn = document.createElement("button");
+          btn.className = `view-btn ${v.default || idx === 0 ? 'active' : ''}`;
+          btn.textContent = v.name || key;
+          btn.onclick = () => switchView(v, btn);
+          viewsGroup.appendChild(btn);
+        });
+      }
+
+      // Sliders
+      const slidersContainer = document.getElementById("sliders-container");
+      const slidersGroup = document.getElementById("sliders-group");
+      slidersGroup.innerHTML = "";
+      if (m.parameters && Object.keys(m.parameters).length > 0) {
+        slidersContainer.style.display = "block";
+        Object.entries(m.parameters).forEach(([key, p]) => {
+          const row = document.createElement("div");
+          row.className = "slider-row";
+
+          const label = document.createElement("span");
+          label.className = "slider-label";
+          label.textContent = p.label || key;
+
+          const input = document.createElement("input");
+          input.type = "range";
+          input.className = "slider-input";
+          input.min = p.min;
+          input.max = p.max;
+          input.step = p.step || 1;
+          input.value = p.value;
+
+          const valSpan = document.createElement("span");
+          valSpan.className = "slider-val";
+          valSpan.textContent = p.value;
+
+          input.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            valSpan.textContent = val;
+            modelState.params[key] = val;
+            if (currentModel.onParamChange) {
+              currentModel.onParamChange(THREE, modelState, key, val);
+            }
+          };
+
+          row.appendChild(label);
+          row.appendChild(input);
+          row.appendChild(valSpan);
+          slidersGroup.appendChild(row);
+        });
+      }
+
+      // Legend
+      const legendEl = document.getElementById("axis-legend");
+      legendEl.innerHTML = "";
+      if (m.legend && m.legend.length > 0) {
+        legendEl.style.display = "flex";
+        m.legend.forEach(item => {
+          const row = document.createElement("div");
+          row.className = "axis-row";
+          row.innerHTML = `<span class="axis-dot" style="background: ${item.color}; box-shadow: 0 0 6px ${item.color};"></span> <span>${item.label}</span>`;
+          legendEl.appendChild(row);
+        });
+      }
+    }
+
+    // Switch View Function
+    window.switchView = function(viewConfig, btn) {
+      document.querySelectorAll('#views-group .view-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      if (window.TWEEN) {
+        new TWEEN.Tween(camera.position)
+          .to({ x: viewConfig.pos[0], y: viewConfig.pos[1], z: viewConfig.pos[2] }, 1000)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+
+        new TWEEN.Tween(controls.target)
+          .to({ x: viewConfig.target[0], y: viewConfig.target[1], z: viewConfig.target[2] }, 1000)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+      } else {
+        camera.position.set(...viewConfig.pos);
+        controls.target.set(...viewConfig.target);
+      }
+    };
+
+    // Play / Pause
+    window.togglePlayPause = function() {
+      modelState.isPaused = !modelState.isPaused;
+      const btn = document.getElementById("btn-pause");
+      btn.textContent = modelState.isPaused ? "▶️ 再生" : "⏸️ 一時停止";
+    };
+
+    // Animation Loop
+    let lastTime = 0;
+    function animate(time) {
+      requestAnimationFrame(animate);
+      const dt = lastTime === 0 ? 0.016 : Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      if (window.TWEEN) TWEEN.update(time);
+      controls.update();
+
+      if (currentModel && currentModel.update && !modelState.isPaused) {
+        currentModel.update(THREE, modelState, dt, time / 1000);
+      }
+
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(animate);
+
+    // Resize
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Start loading
+    loadModel(modelId);
+  </script>
+</body>
+</html>

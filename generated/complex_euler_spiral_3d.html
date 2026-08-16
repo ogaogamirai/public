@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌌 オイラーの螺旋：複素平面と正弦波の 3D 観測所</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <!-- Solid UMD Three.js & Controls (Guaranteed to work locally with file:// protocol) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --card-bg: rgba(16, 24, 40, 0.88);
+      --card-border: rgba(56, 189, 248, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-pink: #f43f5e;
+      --accent-yellow: #fbbf24;
+      --accent-green: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* UI Overlay */
+    .ui-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+    }
+
+    .header-card {
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      max-width: 480px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .header-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .formula-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    /* View Controls */
+    .controls-card {
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-self: flex-start;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+
+    .btn-group-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .view-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .view-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: var(--accent-cyan);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .view-btn.active {
+      background: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      color: #04131f;
+      font-weight: 600;
+    }
+
+    /* Axis Legend */
+    .axis-legend {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+
+    .axis-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .axis-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .axis-x { background: var(--accent-yellow); box-shadow: 0 0 8px var(--accent-yellow); }
+    .axis-y { background: var(--accent-pink); box-shadow: 0 0 8px var(--accent-pink); }
+    .axis-z { background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
+
+    /* Floating Hint */
+    .floating-hint {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <div class="ui-layer">
+    <!-- Header info -->
+    <div class="header-card">
+      <div class="header-title">🌌 複素正弦波とオイラーの螺旋</div>
+      <div class="header-desc">
+        複素平面上の回転 <span id="math-inline-exp"></span> は、3次元空間では美しい螺旋（ヘリックス）です。見る角度によって「真円」や「サイン波」「コサイン波」へと姿を変えます。
+      </div>
+      <div class="formula-badge" id="math-formula-main"></div>
+    </div>
+
+    <div class="floating-hint">🖱️ マウスドラッグで自由回転 / ホイールでズーム</div>
+
+    <!-- Controls -->
+    <div class="controls-card">
+      <div class="btn-group-title">🎯 観測角度の切り替え（射影の真実）</div>
+      <div class="btn-group">
+        <button class="view-btn active" onclick="switchView('3d', this)">🔄 3D 螺旋 (全貌)</button>
+        <button class="view-btn" onclick="switchView('circle', this)">⭕ 正面：複素平面 (円)</button>
+        <button class="view-btn" onclick="switchView('sin', this)">〰️ 横：虚部 (sin波)</button>
+        <button class="view-btn" onclick="switchView('cos', this)">🌊 上：実部 (cos波)</button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="axis-legend">
+      <div class="axis-row"><span class="axis-dot axis-x"></span> <strong>X 軸</strong>: 時間 / 空間 \( t \)</div>
+      <div class="axis-row"><span class="axis-dot axis-y"></span> <strong>Y 軸</strong>: 実部 \( \text{Re} = \cos(t) \)</div>
+      <div class="axis-row"><span class="axis-dot axis-z"></span> <strong>Z 軸</strong>: 虚部 \( \text{Im} = \sin(t) \)</div>
+    </div>
+  </div>
+
+  <script>
+    // KaTeX render
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.katex) {
+        katex.render("e^{it}", document.getElementById("math-inline-exp"));
+        katex.render("e^{it} = \\cos(t) + i\\sin(t)", document.getElementById("math-formula-main"), { displayMode: false });
+      }
+    });
+
+    // Three.js Setup
+    const container = document.getElementById("canvas-container");
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0a0e17, 0.02);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setClearColor(0x0a0e17, 1.0);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0x38bdf8, 2.0);
+    dirLight.position.set(20, 30, 20);
+    scene.add(dirLight);
+
+    const pointLight = new THREE.PointLight(0xf43f5e, 3.0, 50);
+    pointLight.position.set(-10, -10, 10);
+    scene.add(pointLight);
+
+    // ==========================================
+    // 3D Helix Construction
+    // ==========================================
+    const LENGTH = 24;      // X range: -12 to +12
+    const RADIUS = 3.0;     // Spiral radius
+    const TURNS = 3.5;      // Total periods
+
+    // 1. Central Helix Curve
+    class HelixCurve extends THREE.Curve {
+      getPoint(u) {
+        const t = (u - 0.5) * LENGTH;
+        const angle = (u - 0.5) * TURNS * Math.PI * 2;
+        const x = t;
+        const y = Math.cos(angle) * RADIUS;
+        const z = Math.sin(angle) * RADIUS;
+        return new THREE.Vector3(x, y, z);
+      }
+    }
+
+    const helixPath = new HelixCurve();
+    const tubeGeo = new THREE.TubeGeometry(helixPath, 300, 0.12, 16, false);
+
+    const tubeMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      emissive: 0x0284c7,
+      emissiveIntensity: 0.8,
+      roughness: 0.1,
+      metalness: 0.9
+    });
+    const helixMesh = new THREE.Mesh(tubeGeo, tubeMat);
+    scene.add(helixMesh);
+
+    // 2. Projections (Shadow Waves)
+    // 2A. Real Projection (X-Y plane: cos wave)
+    const cosPoints = [];
+    for (let i = 0; i <= 300; i++) {
+      const u = i / 300;
+      const t = (u - 0.5) * LENGTH;
+      const angle = (u - 0.5) * TURNS * Math.PI * 2;
+      cosPoints.push(new THREE.Vector3(t, Math.cos(angle) * RADIUS, -RADIUS * 1.6));
+    }
+    const cosGeo = new THREE.BufferGeometry().setFromPoints(cosPoints);
+    const cosMat = new THREE.LineBasicMaterial({ color: 0xf43f5e, linewidth: 3, transparent: true, opacity: 0.85 });
+    const cosLine = new THREE.Line(cosGeo, cosMat);
+    scene.add(cosLine);
+
+    // 2B. Imaginary Projection (X-Z plane: sin wave)
+    const sinPoints = [];
+    for (let i = 0; i <= 300; i++) {
+      const u = i / 300;
+      const t = (u - 0.5) * LENGTH;
+      const angle = (u - 0.5) * TURNS * Math.PI * 2;
+      sinPoints.push(new THREE.Vector3(t, -RADIUS * 1.6, Math.sin(angle) * RADIUS));
+    }
+    const sinGeo = new THREE.BufferGeometry().setFromPoints(sinPoints);
+    const sinMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 3, transparent: true, opacity: 0.85 });
+    const sinLine = new THREE.Line(sinGeo, sinMat);
+    scene.add(sinLine);
+
+    // 2C. Complex Plane Circle (Y-Z plane at X = -LENGTH/2)
+    const circlePoints = [];
+    for (let i = 0; i <= 100; i++) {
+      const a = (i / 100) * Math.PI * 2;
+      circlePoints.push(new THREE.Vector3(-LENGTH / 2, Math.cos(a) * RADIUS, Math.sin(a) * RADIUS));
+    }
+    const circleGeo = new THREE.BufferGeometry().setFromPoints(circlePoints);
+    const circleMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 3, transparent: true, opacity: 0.9 });
+    const circleLine = new THREE.Line(circleGeo, circleMat);
+    scene.add(circleLine);
+
+    // 3. Central Time Axis (X axis)
+    const axisGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-LENGTH / 2 - 1, 0, 0),
+      new THREE.Vector3(LENGTH / 2 + 1, 0, 0)
+    ]);
+    const axisMat = new THREE.LineDashedMaterial({ color: 0x64748b, dashSize: 0.5, gapSize: 0.25 });
+    const timeAxis = new THREE.Line(axisGeo, axisMat);
+    timeAxis.computeLineDistances();
+    scene.add(timeAxis);
+
+    // Coordinate Grid Planes
+    const gridXY = new THREE.GridHelper(LENGTH, 24, 0x1e293b, 0x0f172a);
+    gridXY.position.set(0, 0, -RADIUS * 1.6);
+    gridXY.rotation.x = Math.PI / 2;
+    scene.add(gridXY);
+
+    const gridXZ = new THREE.GridHelper(LENGTH, 24, 0x1e293b, 0x0f172a);
+    gridXZ.position.set(0, -RADIUS * 1.6, 0);
+    scene.add(gridXZ);
+
+    // 4. Traveling Photon / Phasor Dot
+    const dotGeo = new THREE.SphereGeometry(0.35, 32, 32);
+    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const photon = new THREE.Mesh(dotGeo, dotMat);
+    scene.add(photon);
+
+    // Phasor Vector (Line from axis to photon)
+    const phasorGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+    const phasorMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 3 });
+    const phasorLine = new THREE.Line(phasorGeo, phasorMat);
+    scene.add(phasorLine);
+
+    // Projection Connecting Lines
+    const leaderYGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+    const leaderZGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+    const leaderMat = new THREE.LineDashedMaterial({ color: 0x94a3b8, dashSize: 0.3, gapSize: 0.2, transparent: true, opacity: 0.6 });
+    const leaderY = new THREE.Line(leaderYGeo, leaderMat);
+    const leaderZ = new THREE.Line(leaderZGeo, leaderMat);
+    scene.add(leaderY);
+    scene.add(leaderZ);
+
+    // Shadow dots on projections
+    const shadowCosDot = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
+    const shadowSinDot = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+    const circleDot = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+    scene.add(shadowCosDot);
+    scene.add(shadowSinDot);
+    scene.add(circleDot);
+
+    // ==========================================
+    // Camera View Positions
+    // ==========================================
+    const views = {
+      '3d': { pos: new THREE.Vector3(14, 12, 18), target: new THREE.Vector3(0, 0, 0) },
+      'circle': { pos: new THREE.Vector3(-30, 0, 0), target: new THREE.Vector3(0, 0, 0) }, // Look along X axis
+      'sin': { pos: new THREE.Vector3(0, 30, 0), target: new THREE.Vector3(0, 0, 0) },     // Look from Top Y (see Sin wave on X-Z)
+      'cos': { pos: new THREE.Vector3(0, 0, 30), target: new THREE.Vector3(0, 0, 0) }      // Look from Front Z (see Cos wave on X-Y)
+    };
+
+    camera.position.copy(views['3d'].pos);
+    controls.target.copy(views['3d'].target);
+
+    window.switchView = function(viewKey, btn) {
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const targetView = views[viewKey];
+      if (!targetView) return;
+
+      if (window.TWEEN) {
+        new TWEEN.Tween(camera.position)
+          .to(targetView.pos, 1000)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+
+        new TWEEN.Tween(controls.target)
+          .to(targetView.target, 1000)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+      } else {
+        camera.position.copy(targetView.pos);
+        controls.target.copy(targetView.target);
+      }
+    };
+
+    // Animation Loop
+    let animTime = 0;
+    function animate(time) {
+      requestAnimationFrame(animate);
+      if (window.TWEEN) TWEEN.update(time);
+      controls.update();
+
+      // Traveling phasor animation
+      animTime += 0.005;
+      const u = (animTime % 1.0);
+      const curPos = helixPath.getPoint(u);
+      photon.position.copy(curPos);
+
+      // Update Phasor
+      const axisPos = new THREE.Vector3(curPos.x, 0, 0);
+      phasorGeo.setFromPoints([axisPos, curPos]);
+
+      // Update Projections & Dots
+      const projCos = new THREE.Vector3(curPos.x, curPos.y, -RADIUS * 1.6);
+      const projSin = new THREE.Vector3(curPos.x, -RADIUS * 1.6, curPos.z);
+      const projCircle = new THREE.Vector3(-LENGTH / 2, curPos.y, curPos.z);
+
+      shadowCosDot.position.copy(projCos);
+      shadowSinDot.position.copy(projSin);
+      circleDot.position.copy(projCircle);
+
+      leaderYGeo.setFromPoints([curPos, projCos]);
+      leaderZGeo.setFromPoints([curPos, projSin]);
+      leaderY.computeLineDistances();
+      leaderZ.computeLineDistances();
+
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(animate);
+
+    // Window Resize
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
