@@ -18,8 +18,8 @@ export default {
     top: { name: "上から", pos: [0, 20, 0], target: [0, 1, 0] }
   },
   parameters: {
-    tilt: { label: "平面の傾き（度）", min: -70, max: 70, step: 1, value: 30 },
-    height: { label: "平面の高さ", min: -3, max: 5, step: 0.1, value: 1 }
+    tilt: { label: "平面の傾き $\\theta$（度）", min: -70, max: 70, step: 1, value: 30 },
+    height: { label: "基準点 $\\boldsymbol r_0$ の高さ $y_0$", min: -3, max: 5, step: 0.1, value: 1 }
   },
 
   init(THREE, scene, state) {
@@ -45,7 +45,7 @@ export default {
     );
     state.group.add(state.point);
     state.normal = new THREE.ArrowHelper(
-      new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 1, 0), 4, 0xe11d48, 0.55, 0.3
+      new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 4, 0xe11d48, 0.55, 0.3
     );
     state.group.add(state.normal);
     this.updatePlane(THREE, state);
@@ -64,8 +64,12 @@ export default {
     state.normal.setDirection(normal);
     const readout = document.getElementById("model-formula");
     if (readout && window.katex) {
+      const tilt = state.params.tilt;
+      const y0 = state.params.height;
+      const cy = Math.cos(theta).toFixed(3);
+      const sz = Math.sin(theta).toFixed(3);
       katex.render(
-        `\\boldsymbol n=(0,\\cos(${state.params.tilt}^\\circ),\\sin(${state.params.tilt}^\\circ))`,
+        `\\boldsymbol n=(0,\\cos ${tilt}^\\circ,\\sin ${tilt}^\\circ)=(0,${cy},${sz}),\\ \\boldsymbol r_0=(0,${y0.toFixed(1)},0)\\quad\\Rightarrow\\ \\cos ${tilt}^\\circ(y-${y0.toFixed(1)})+\\sin ${tilt}^\\circ z=0`,
         readout,
         { displayMode: false, throwOnError: false }
       );
