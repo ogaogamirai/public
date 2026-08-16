@@ -5,8 +5,8 @@ export default {
   category: "math",
   categoryLabel: "📐 数C・空間図形",
   title: "立方体の平面切断",
-  description: "立方体を平面で切ると、切断面に多角形が現れます。水平からの切断角 θ を0°から80°まで動かし、平面の高さと切断の向きが位置関係をどう変えるか確認します。",
-  formula: "z=h+x\\tan\\theta\\quad(0^\\circ\\leq\\theta<90^\\circ)",
+  description: "立方体を平面で切ると、切断面に多角形が現れます。水平面を垂直方向へ起こす角度 θ を0°から80°まで動かし、切断面の向きと位置関係を確認します。",
+  formula: "y=h+z\\tan\\theta\\quad(0^\\circ\\leq\\theta<90^\\circ)",
   legend: [
     { color: "#0284c7", label: "立方体" },
     { color: "#e11d48", label: "切断面" },
@@ -19,7 +19,7 @@ export default {
   },
   parameters: {
     height: { label: "平面の高さ h", min: -1, max: 5, step: 0.1, value: 2 },
-    angle: { label: "切断角 θ（水平=0°）", min: 0, max: 80, step: 5, value: 45 }
+    angle: { label: "垂直方向への傾き θ", min: 0, max: 80, step: 5, value: 45 }
   },
 
   init(THREE, scene, state) {
@@ -71,19 +71,21 @@ export default {
     const theta = state.params.angle * Math.PI / 180;
     const y = state.params.height;
     state.plane.position.set(0, y, 0);
-    state.plane.rotation.z = -theta;
+    // PlaneGeometry starts in the XY plane. Rotate it to horizontal first,
+    // then tilt around the x-axis so the slope is visibly vertical (y-z).
+    state.plane.rotation.set(Math.PI / 2 - theta, 0, 0);
     state.planeEdge.position.copy(state.plane.position);
     state.planeEdge.rotation.copy(state.plane.rotation);
-    const guideOrigin = new THREE.Vector3(-3.2, y, -4.2);
+    const guideOrigin = new THREE.Vector3(-4.2, y, -3.2);
     state.horizontalGuide.geometry.setFromPoints([
-      guideOrigin, new THREE.Vector3(0.2, y, -4.2)
+      guideOrigin, new THREE.Vector3(-4.2, y, 0.2)
     ]);
     state.angleGuide.geometry.setFromPoints([
       guideOrigin,
       new THREE.Vector3(
-        guideOrigin.x + 3.4 * Math.cos(theta),
+        -4.2,
         y + 3.4 * Math.sin(theta),
-        -4.2
+        guideOrigin.z + 3.4 * Math.cos(theta)
       )
     ]);
   },
