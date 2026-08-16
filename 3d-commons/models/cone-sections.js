@@ -97,7 +97,7 @@ export default {
     scene.add(state.axis);
 
     state.plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(17, 17),
+      new THREE.BufferGeometry(),
       new THREE.MeshBasicMaterial({
         color: 0xf59e0b,
         transparent: true,
@@ -106,16 +106,12 @@ export default {
         depthWrite: false
       })
     );
-    state.plane.position.y = state.cutHeight;
-    state.plane.rotation.x = Math.PI / 2;
     scene.add(state.plane);
 
     state.planeEdge = new THREE.LineSegments(
-      new THREE.EdgesGeometry(state.plane.geometry),
+      new THREE.BufferGeometry(),
       new THREE.LineBasicMaterial({ color: 0xd97706, transparent: true, opacity: 0.6 })
     );
-    state.planeEdge.position.copy(state.plane.position);
-    state.planeEdge.rotation.copy(state.plane.rotation);
     scene.add(state.planeEdge);
 
     state.curve = new THREE.Line(
@@ -146,6 +142,7 @@ export default {
     // On the cone x²+z²=y² and the plane y=h+x tan(theta):
     // z²=(h+x tan(theta))²-x².
     for (let branch = 0; branch < 2; branch++) {
+      if (branch > 0) points.push(null);
       let branchStarted = false;
       for (let i = 0; i <= samples; i++) {
         const x = -12 + (i / samples) * 24;
@@ -199,9 +196,23 @@ export default {
     });
     state.curve.visible = false;
 
-    // Match the analytic plane y = h + x tan(theta) used by the curve.
-    state.plane.rotation.set(Math.PI / 2, 0, theta);
-    state.planeEdge.rotation.copy(state.plane.rotation);
+    // Build the cutting plane directly from y = h + x tan(theta).
+    // This removes any ambiguity from Euler rotation order.
+    const half = 8.5;
+    const planeVertices = [
+      -half, h - slope * half, -half,
+       half, h + slope * half, -half,
+       half, h + slope * half,  half,
+      -half, h - slope * half,  half
+    ];
+    const planeGeometry = new THREE.BufferGeometry();
+    planeGeometry.setAttribute("position", new THREE.Float32BufferAttribute(planeVertices, 3));
+    planeGeometry.setIndex([0, 1, 2, 0, 2, 3]);
+    planeGeometry.computeVertexNormals();
+    state.plane.geometry.dispose();
+    state.plane.geometry = planeGeometry;
+    state.planeEdge.geometry.dispose();
+    state.planeEdge.geometry = new THREE.EdgesGeometry(planeGeometry);
     state.cutDot.position.copy(nearest);
     state.currentType = classify(angle);
     const readout = document.getElementById("model-formula");
