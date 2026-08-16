@@ -8,9 +8,10 @@ export default {
   description: "3本のベクトルを辺として平行六面体を作ります。辺の傾きを変えると形は変わりますが、今回のせん断では体積が保たれることを観察します。",
   formula: "V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|",
   legend: [
-    { color: "#0284c7", label: "ベクトル $\\boldsymbol a$" },
-    { color: "#e11d48", label: "ベクトル $\\boldsymbol b$" },
-    { color: "#d97706", label: "ベクトル $\\boldsymbol c$" }
+    { color: "#0284c7", label: "ベクトル $\\boldsymbol a$（辺 $\\overrightarrow{OA}$）" },
+    { color: "#e11d48", label: "ベクトル $\\boldsymbol b$（辺 $\\overrightarrow{OB}$・スライダーで傾き変更）" },
+    { color: "#d97706", label: "ベクトル $\\boldsymbol c$（辺 $\\overrightarrow{OC}$）" },
+    { color: "#475569", label: "底面（$\\boldsymbol a$ と $\\boldsymbol b$ が張る平行四辺形）" }
   ],
   views: {
     overview: { name: "🔄 全体", pos: [12, 10, 16], target: [2, 2, 1], default: true },
@@ -36,17 +37,33 @@ export default {
     state.base = new THREE.Mesh(
       new THREE.BufferGeometry(),
       new THREE.MeshBasicMaterial({
-        color: 0xd97706, transparent: true, opacity: 0.28, side: THREE.DoubleSide
+        color: 0x475569, transparent: true, opacity: 0.28, side: THREE.DoubleSide
       })
     );
     state.edges = new THREE.LineSegments(
       new THREE.BufferGeometry(),
       new THREE.LineBasicMaterial({ color: 0x94a3b8, linewidth: 2 })
     );
+    state.edgeA = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0x0284c7, linewidth: 3 })
+    );
+    state.edgeB = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0xe11d48, linewidth: 3 })
+    );
+    state.edgeC = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: 0xd97706, linewidth: 3 })
+    );
     state.arrowA = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 5, 0x0284c7, 0.5, 0.28);
     state.arrowB = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 4, 0xe11d48, 0.5, 0.28);
     state.arrowC = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(), 3, 0xd97706, 0.5, 0.28);
-    state.group.add(state.surface, state.base, state.edges, state.arrowA, state.arrowB, state.arrowC);
+    state.group.add(
+      state.surface, state.base, state.edges,
+      state.edgeA, state.edgeB, state.edgeC,
+      state.arrowA, state.arrowB, state.arrowC
+    );
     this.updateShape(THREE, state);
   },
 
@@ -87,8 +104,15 @@ export default {
     state.base.geometry.dispose();
     state.base.geometry = baseGeometry;
 
+    state.edgeA.geometry.dispose();
+    state.edgeA.geometry = new THREE.BufferGeometry().setFromPoints([o, a]);
+    state.edgeB.geometry.dispose();
+    state.edgeB.geometry = new THREE.BufferGeometry().setFromPoints([o, b]);
+    state.edgeC.geometry.dispose();
+    state.edgeC.geometry = new THREE.BufferGeometry().setFromPoints([o, c]);
+
     const edgePairs = [
-      [o, a], [o, b], [o, c], [a, ab], [a, ac],
+      [a, ab], [a, ac],
       [b, ab], [b, bc], [c, ac], [c, bc],
       [ab, abc], [ac, abc], [bc, abc]
     ];
@@ -105,10 +129,11 @@ export default {
     state.arrowC.setDirection(c.clone().normalize());
     state.arrowC.setLength(c.length(), 0.5, 0.28);
     const volume = Math.abs(a.dot(new THREE.Vector3().crossVectors(b, c)));
+    const shear = state.params.shear;
     const readout = document.getElementById("model-formula");
     if (readout && window.katex) {
       katex.render(
-        `V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|=${volume.toFixed(1)}`,
+        `V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|=${volume.toFixed(1)}\\quad(b_x=${shear.toFixed(1)})`,
         readout,
         { displayMode: false, throwOnError: false }
       );
