@@ -484,13 +484,15 @@
     let currentModel = null;
     const modelState = {
       params: {},
-      isPaused: false
+      isPaused: false,
+      isReady: false
     };
 
-    // Load Model Module Dynamically
+    // Load Model Module Dynamically with Cache Buster
     async function loadModel(id) {
       try {
-        const modulePath = `./models/${id}.js`;
+        const cacheBuster = Date.now();
+        const modulePath = `./models/${id}.js?v=${cacheBuster}`;
         const module = await import(modulePath);
         currentModel = module.default;
         initModelUI(currentModel);
@@ -502,6 +504,7 @@
           }
         }
         currentModel.init(THREE, scene, modelState);
+        modelState.isReady = true;
 
         // Set Initial Camera
         if (currentModel.views) {
@@ -654,7 +657,7 @@
       if (window.TWEEN) TWEEN.update(time);
       controls.update();
 
-      if (currentModel && currentModel.update && !modelState.isPaused) {
+      if (currentModel && currentModel.update && modelState.isReady && !modelState.isPaused) {
         currentModel.update(THREE, modelState, dt, time / 1000);
       }
 
