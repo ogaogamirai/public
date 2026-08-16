@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2D Commons — 高校数学の対話教材</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(226, 232, 240, 0.85);
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent-blue: #0284c7;
+      --accent-blue-hover: #0369a1;
+      --shadow-md: 0 12px 32px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.03);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 10% 10%, rgba(2, 132, 199, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 90% 90%, rgba(5, 150, 105, 0.04) 0%, transparent 45%);
+    }
+    .container { max-width: 1120px; margin: 0 auto; padding: 56px 24px 80px; }
+    .hero { text-align: center; margin-bottom: 56px; }
+    .hero-badge {
+      display: inline-flex;
+      padding: 6px 16px;
+      background: rgba(2, 132, 199, 0.08);
+      border: 1px solid rgba(2, 132, 199, 0.25);
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 16px;
+      letter-spacing: 0.06em;
+    }
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 660px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+    .hero-desc a { color: var(--accent-blue); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      margin-bottom: 60px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+    }
+    .card-category {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 18px;
+      flex-grow: 1;
+    }
+    .card-formula {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 22px;
+      text-align: center;
+      color: #0369a1;
+    }
+    .btn-launch {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-hover));
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 11px 18px;
+      border-radius: 14px;
+      display: flex;
+      justify-content: center;
+      font-size: 0.92rem;
+    }
+    .btn-copy-group { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-secondary {
+      background: rgba(241, 245, 249, 0.8);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+    }
+    .guide-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 32px;
+    }
+    .guide-code {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      color: #0369a1;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-size: 0.88rem;
+      opacity: 0;
+      transition: 0.3s;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <div class="hero-badge">2D COMMONS</div>
+      <h1 class="hero-title">高校数学の対話教材</h1>
+      <p class="hero-desc">
+        係数を動かすと、式の意味がグラフに残ります。<br>
+        立体版は <a href="../3d-commons/">3D Commons</a> です。
+      </p>
+    </header>
+    <div class="grid">
+      <div class="card">
+        <div>
+          <div class="card-category">数I・二次関数</div>
+          <h2 class="card-title">二次関数の係数 a, b, c</h2>
+          <p class="card-desc">$a$ は開きと向き、$b$ は軸の左右、$c$ は切片。頂点が追従する様子を見る導入です。</p>
+          <div class="card-formula" id="f1"></div>
+        </div>
+        <div>
+          <a class="btn-launch" href="viewer.html?model=quadratic-abc">グラフを開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" type="button" onclick="copyIframe('quadratic-abc')">iframe をコピー</button>
+            <button class="btn-secondary" type="button" onclick="copyLink('quadratic-abc')">リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div>
+          <div class="card-category">数I・二次方程式</div>
+          <h2 class="card-title">解と判別式</h2>
+          <p class="card-desc">$x$ 軸との交点が解。$D=b^2-4ac$ の符号が、交点の個数になります。</p>
+          <div class="card-formula" id="f2"></div>
+        </div>
+        <div>
+          <a class="btn-launch" href="viewer.html?model=quadratic-discriminant">グラフを開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" type="button" onclick="copyIframe('quadratic-discriminant')">iframe をコピー</button>
+            <button class="btn-secondary" type="button" onclick="copyLink('quadratic-discriminant')">リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div>
+          <div class="card-category">数I・二次不等式</div>
+          <h2 class="card-title">不等式が表す領域</h2>
+          <p class="card-desc">境界は等式、塗りは「こちら側」。以上と以下を切り替えて確認します。</p>
+          <div class="card-formula" id="f3"></div>
+        </div>
+        <div>
+          <a class="btn-launch" href="viewer.html?model=inequality-region">グラフを開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" type="button" onclick="copyIframe('inequality-region')">iframe をコピー</button>
+            <button class="btn-secondary" type="button" onclick="copyLink('inequality-region')">リンクをコピー</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="guide-box">
+      <h3 style="font-family:Outfit,sans-serif;margin-bottom:12px;">埋め込み</h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);">教材 HTML や Aether の desc に iframe を1行貼れます。</p>
+      <div class="guide-code">&lt;iframe src="https://ogaogamirai.github.io/public/2d-commons/viewer.html?model=quadratic-abc&amp;embed=true" width="100%" height="320px" frameborder="0" style="border-radius: 16px;"&gt;&lt;/iframe&gt;</div>
+    </div>
+  </div>
+  <div id="toast" class="toast">コピーしました</div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!window.katex) return;
+      katex.render("y = ax^2 + bx + c", document.getElementById("f1"), { displayMode: false });
+      katex.render("D = b^2 - 4ac", document.getElementById("f2"), { displayMode: false });
+      katex.render("y \\ge ax^2 + bx + c", document.getElementById("f3"), { displayMode: false });
+      document.querySelectorAll(".card-desc").forEach((el) => {
+        el.innerHTML = el.innerHTML.replace(/\$([^\$]+)\$/g, (_m, math) => {
+          try { return katex.renderToString(math, { displayMode: false, throwOnError: false }); }
+          catch { return _m; }
+        });
+      });
+    });
+    const BASE_URL = window.location.origin + window.location.pathname.replace("index.html", "");
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2000);
+    }
+    function copyIframe(id) {
+      const url = `${BASE_URL}viewer.html?model=${id}&embed=true`;
+      const code = `<iframe src="${url}" width="100%" height="320px" frameborder="0" style="border-radius:16px;border:1px solid rgba(2,132,199,0.25);"></iframe>`;
+      navigator.clipboard.writeText(code).then(() => showToast("iframe をコピーしました"));
+    }
+    function copyLink(id) {
+      navigator.clipboard.writeText(`${BASE_URL}viewer.html?model=${id}`).then(() => showToast("リンクをコピーしました"));
+    }
+  </script>
+</body>
+</html>

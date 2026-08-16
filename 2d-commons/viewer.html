@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>2D Commons Viewer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <style>
+    :root {
+      --bg-canvas: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(226, 232, 240, 0.85);
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      --accent-blue: #0284c7;
+      --accent-blue-hover: #0369a1;
+      --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 10px 28px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.03);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    #plot-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      touch-action: none;
+      cursor: grab;
+    }
+    #plot-canvas.dragging { cursor: grabbing; }
+    .ui-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+      gap: 16px;
+    }
+    .header-card {
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px 20px;
+      max-width: 460px;
+      box-shadow: var(--shadow-md);
+    }
+    .category-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .header-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .formula-badge {
+      display: none;
+      margin-top: 8px;
+      padding: 6px 12px;
+      background: rgba(2, 132, 199, 0.06);
+      border: 1px solid rgba(2, 132, 199, 0.2);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      color: #0369a1;
+    }
+    .status-badge {
+      display: none;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #0369a1;
+    }
+    .top-actions {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      pointer-events: auto;
+      display: flex;
+      gap: 8px;
+    }
+    .action-btn {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+    .action-btn:hover {
+      background: #fff;
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+    .controls-card {
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-self: flex-start;
+      max-width: 440px;
+      box-shadow: var(--shadow-md);
+    }
+    .btn-group-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      font-weight: 700;
+    }
+    .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+    .view-btn {
+      background: rgba(241, 245, 249, 0.85);
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      color: var(--text-main);
+      padding: 7px 13px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .view-btn.active {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-hover));
+      border-color: transparent;
+      color: #fff;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.82rem;
+    }
+    .slider-label { color: var(--text-muted); font-weight: 500; flex: 1; }
+    .slider-val { font-weight: 700; color: var(--accent-blue); min-width: 40px; text-align: right; }
+    .slider-input { flex: 1.4; accent-color: var(--accent-blue); cursor: pointer; }
+    .axis-legend {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: var(--shadow-md);
+    }
+    .axis-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .axis-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .floating-hint {
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.8);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-light);
+      border: 1px solid var(--card-border);
+      pointer-events: none;
+    }
+    body.embed-mode .ui-layer { padding: 12px; }
+    body.embed-mode .header-card { max-width: 280px; padding: 10px 14px; }
+    body.embed-mode .header-title { font-size: 0.95rem; }
+    body.embed-mode .header-desc { display: none; }
+    body.embed-mode .floating-hint { display: none; }
+    body.embed-mode .top-actions { top: 12px; right: 12px; }
+    @media (max-width: 768px) {
+      .ui-layer { padding: 12px; }
+      .floating-hint { display: none; }
+      .header-card { max-width: 100%; }
+      .header-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .controls-card { max-width: 100%; width: 100%; }
+      .axis-legend { display: none !important; }
+      .top-actions { top: 12px; right: 12px; }
+    }
+    .error-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      border: 1px solid #fca5a5;
+      padding: 24px;
+      border-radius: 18px;
+      color: #991b1b;
+      max-width: 400px;
+      text-align: center;
+      display: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="plot-canvas"></canvas>
+  <div class="ui-layer">
+    <div class="header-card">
+      <div class="category-badge" id="model-category">Loading...</div>
+      <div class="header-title" id="model-title">2D Commons</div>
+      <div class="header-desc" id="model-desc"></div>
+      <div class="formula-badge" id="model-formula"></div>
+      <div class="status-badge" id="model-status"></div>
+    </div>
+    <div class="floating-hint">ドラッグで平行移動 / ホイールで拡大</div>
+    <div class="top-actions">
+      <button class="action-btn" type="button" id="btn-reset">範囲リセット</button>
+      <button class="action-btn" type="button" onclick="location.href='index.html'">📚 カタログ</button>
+    </div>
+    <div class="controls-card">
+      <div id="views-container">
+        <div class="btn-group-title">🎯 例・見方</div>
+        <div class="btn-group" id="views-group"></div>
+      </div>
+      <div id="sliders-container" style="display:none;">
+        <div class="btn-group-title">🎛️ パラメータ</div>
+        <div id="sliders-group"></div>
+      </div>
+    </div>
+    <div class="axis-legend" id="axis-legend"></div>
+  </div>
+  <div class="error-card" id="error-card">
+    <h3>モデルの読み込みエラー</h3>
+    <p id="error-msg" style="margin-top:8px;font-size:0.85rem;"></p>
+  </div>
+  <script type="module">
+    const urlParams = new URLSearchParams(window.location.search);
+    const modelId = urlParams.get("model") || "quadratic-abc";
+    if (urlParams.get("embed") === "true") document.body.classList.add("embed-mode");
+
+    function renderMathText(text) {
+      if (!text || !window.katex) return text || "";
+      return text.replace(/\$([^\$]+)\$/g, (match, math) => {
+        try { return katex.renderToString(math, { displayMode: false, throwOnError: false }); }
+        catch { return match; }
+      });
+    }
+
+    function fmt(v, step) {
+      if (!Number.isFinite(v)) return "—";
+      const s = step && step < 1 ? (step < 0.1 ? 2 : 1) : (Math.abs(v % 1) > 1e-9 ? 2 : 0);
+      return Number(v).toFixed(s);
+    }
+
+    const canvas = document.getElementById("plot-canvas");
+    const ctx = canvas.getContext("2d");
+    const plot = {
+      xMin: -6, xMax: 6, yMin: -6, yMax: 6,
+      pad: { l: 44, r: 18, t: 18, b: 36 },
+      cssW: 0, cssH: 0,
+      resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.cssW = canvas.clientWidth;
+        this.cssH = canvas.clientHeight;
+        canvas.width = Math.max(1, Math.floor(this.cssW * dpr));
+        canvas.height = Math.max(1, Math.floor(this.cssH * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      },
+      innerW() { return Math.max(1, this.cssW - this.pad.l - this.pad.r); },
+      innerH() { return Math.max(1, this.cssH - this.pad.t - this.pad.b); },
+      toScreen(x, y) {
+        const px = this.pad.l + (x - this.xMin) / (this.xMax - this.xMin) * this.innerW();
+        const py = this.pad.t + (this.yMax - y) / (this.yMax - this.yMin) * this.innerH();
+        return [px, py];
+      },
+      fromScreen(px, py) {
+        const x = this.xMin + (px - this.pad.l) / this.innerW() * (this.xMax - this.xMin);
+        const y = this.yMax - (py - this.pad.t) / this.innerH() * (this.yMax - this.yMin);
+        return [x, y];
+      },
+      resetRange() {
+        this.xMin = -6; this.xMax = 6; this.yMin = -6; this.yMax = 6;
+      },
+      clear() {
+        ctx.fillStyle = "#f8fafc";
+        ctx.fillRect(0, 0, this.cssW, this.cssH);
+      },
+      gridAndAxes() {
+        const xStep = niceStep(this.xMax - this.xMin);
+        const yStep = niceStep(this.yMax - this.yMin);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(this.pad.l, this.pad.t, this.innerW(), this.innerH());
+        ctx.clip();
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 1;
+        for (let x = Math.ceil(this.xMin / xStep) * xStep; x <= this.xMax; x += xStep) {
+          const [px] = this.toScreen(x, 0);
+          ctx.beginPath(); ctx.moveTo(px, this.pad.t); ctx.lineTo(px, this.pad.t + this.innerH()); ctx.stroke();
+        }
+        for (let y = Math.ceil(this.yMin / yStep) * yStep; y <= this.yMax; y += yStep) {
+          const [, py] = this.toScreen(0, y);
+          ctx.beginPath(); ctx.moveTo(this.pad.l, py); ctx.lineTo(this.pad.l + this.innerW(), py); ctx.stroke();
+        }
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 1.4;
+        if (this.yMin <= 0 && this.yMax >= 0) {
+          const [, y0] = this.toScreen(0, 0);
+          ctx.beginPath(); ctx.moveTo(this.pad.l, y0); ctx.lineTo(this.pad.l + this.innerW(), y0); ctx.stroke();
+        }
+        if (this.xMin <= 0 && this.xMax >= 0) {
+          const [x0] = this.toScreen(0, 0);
+          ctx.beginPath(); ctx.moveTo(x0, this.pad.t); ctx.lineTo(x0, this.pad.t + this.innerH()); ctx.stroke();
+        }
+        ctx.restore();
+        ctx.fillStyle = "#64748b";
+        ctx.font = "11px Plus Jakarta Sans, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        for (let x = Math.ceil(this.xMin / xStep) * xStep; x <= this.xMax; x += xStep) {
+          if (Math.abs(x) < 1e-9) continue;
+          const [px] = this.toScreen(x, 0);
+          if (px < this.pad.l || px > this.cssW - this.pad.r) continue;
+          ctx.fillText(String(Math.round(x * 100) / 100), px, this.cssH - 22);
+        }
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        for (let y = Math.ceil(this.yMin / yStep) * yStep; y <= this.yMax; y += yStep) {
+          if (Math.abs(y) < 1e-9) continue;
+          const [, py] = this.toScreen(0, y);
+          if (py < this.pad.t || py > this.cssH - this.pad.b) continue;
+          ctx.fillText(String(Math.round(y * 100) / 100), this.pad.l - 6, py);
+        }
+      }
+    };
+
+    function niceStep(span) {
+      const raw = span / 8;
+      const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+      const n = raw / pow;
+      if (n < 1.5) return pow;
+      if (n < 3.5) return 2 * pow;
+      if (n < 7.5) return 5 * pow;
+      return 10 * pow;
+    }
+
+    let currentModel = null;
+    const modelState = { params: {}, isReady: false, plot };
+
+    function syncSliders() {
+      document.querySelectorAll("#sliders-group input[type=range]").forEach((input) => {
+        const key = input.dataset.key;
+        if (!(key in modelState.params)) return;
+        input.value = modelState.params[key];
+        const span = input.parentElement.querySelector(".slider-val");
+        const p = currentModel.parameters[key];
+        if (span) span.textContent = fmt(modelState.params[key], p.step);
+      });
+    }
+
+    function applyView(view, btn) {
+      document.querySelectorAll("#views-group .view-btn").forEach((b) => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      if (view.params) {
+        Object.assign(modelState.params, view.params);
+        syncSliders();
+      }
+      if (view.side != null) modelState.params.side = view.side;
+      if (currentModel.onParamChange) currentModel.onParamChange(plot, modelState);
+    }
+
+    async function loadModel(id) {
+      try {
+        const module = await import(`./models/${id}.js?v=${Date.now()}`);
+        currentModel = module.default;
+        if (currentModel.parameters) {
+          for (const [k, p] of Object.entries(currentModel.parameters)) {
+            modelState.params[k] = p.value;
+          }
+        }
+        initModelUI(currentModel);
+        if (currentModel.init) currentModel.init(plot, modelState);
+        modelState.isReady = true;
+      } catch (err) {
+        document.getElementById("error-card").style.display = "block";
+        document.getElementById("error-msg").textContent = `モデル "${id}" : ${err.message}`;
+      }
+    }
+
+    function initModelUI(m) {
+      document.getElementById("model-category").textContent = m.categoryLabel || "2D COMMONS";
+      document.getElementById("model-title").textContent = m.title || m.id;
+      document.getElementById("model-desc").innerHTML = renderMathText(m.description || "");
+      const formulaEl = document.getElementById("model-formula");
+      if (m.formula && window.katex) {
+        formulaEl.style.display = "inline-block";
+        try { katex.render(m.formula, formulaEl, { displayMode: false, throwOnError: false }); }
+        catch { formulaEl.textContent = m.formula; }
+      }
+      const viewsGroup = document.getElementById("views-group");
+      viewsGroup.innerHTML = "";
+      if (m.views) {
+        Object.entries(m.views).forEach(([key, v], idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `view-btn ${v.default || idx === 0 ? "active" : ""}`;
+          btn.textContent = v.name || key;
+          btn.onclick = () => applyView(v, btn);
+          viewsGroup.appendChild(btn);
+        });
+      }
+      const slidersContainer = document.getElementById("sliders-container");
+      const slidersGroup = document.getElementById("sliders-group");
+      slidersGroup.innerHTML = "";
+      if (m.parameters && Object.keys(m.parameters).length) {
+        slidersContainer.style.display = "block";
+        Object.entries(m.parameters).forEach(([key, p]) => {
+          const row = document.createElement("div");
+          row.className = "slider-row";
+          const label = document.createElement("span");
+          label.className = "slider-label";
+          label.innerHTML = renderMathText(p.label || key);
+          const input = document.createElement("input");
+          input.type = "range";
+          input.className = "slider-input";
+          input.min = p.min; input.max = p.max; input.step = p.step || 1; input.value = p.value;
+          input.dataset.key = key;
+          const valSpan = document.createElement("span");
+          valSpan.className = "slider-val";
+          valSpan.textContent = fmt(p.value, p.step);
+          input.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            valSpan.textContent = fmt(val, p.step);
+            modelState.params[key] = val;
+            if (currentModel.onParamChange) currentModel.onParamChange(plot, modelState, key, val);
+          };
+          row.append(label, input, valSpan);
+          slidersGroup.appendChild(row);
+        });
+      }
+      const legendEl = document.getElementById("axis-legend");
+      legendEl.innerHTML = "";
+      if (m.legend && m.legend.length) {
+        legendEl.style.display = "flex";
+        m.legend.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "axis-row";
+          row.innerHTML = `<span class="axis-dot" style="background:${item.color}"></span><span>${renderMathText(item.label)}</span>`;
+          legendEl.appendChild(row);
+        });
+      }
+    }
+
+    function setStatus(html) {
+      const el = document.getElementById("model-status");
+      if (!html) { el.style.display = "none"; return; }
+      el.style.display = "block";
+      el.innerHTML = renderMathText(html);
+    }
+    window.setModelStatus = setStatus;
+
+    let dragging = false;
+    let last = [0, 0];
+    canvas.addEventListener("pointerdown", (e) => {
+      dragging = true;
+      last = [e.clientX, e.clientY];
+      canvas.classList.add("dragging");
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener("pointerup", () => {
+      dragging = false;
+      canvas.classList.remove("dragging");
+    });
+    canvas.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - last[0];
+      const dy = e.clientY - last[1];
+      last = [e.clientX, e.clientY];
+      const xSpan = plot.xMax - plot.xMin;
+      const ySpan = plot.yMax - plot.yMin;
+      const mx = dx / plot.innerW() * xSpan;
+      const my = dy / plot.innerH() * ySpan;
+      plot.xMin -= mx; plot.xMax -= mx;
+      plot.yMin += my; plot.yMax += my;
+    });
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const [wx, wy] = plot.fromScreen(e.clientX - rect.left, e.clientY - rect.top);
+      const factor = e.deltaY > 0 ? 1.12 : 1 / 1.12;
+      plot.xMin = wx + (plot.xMin - wx) * factor;
+      plot.xMax = wx + (plot.xMax - wx) * factor;
+      plot.yMin = wy + (plot.yMin - wy) * factor;
+      plot.yMax = wy + (plot.yMax - wy) * factor;
+    }, { passive: false });
+
+    document.getElementById("btn-reset").onclick = () => plot.resetRange();
+    window.addEventListener("resize", () => plot.resize());
+    plot.resize();
+
+    function frame() {
+      requestAnimationFrame(frame);
+      plot.clear();
+      plot.gridAndAxes();
+      if (currentModel && currentModel.draw && modelState.isReady) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(plot.pad.l, plot.pad.t, plot.innerW(), plot.innerH());
+        ctx.clip();
+        currentModel.draw(ctx, plot, modelState);
+        ctx.restore();
+      }
+    }
+    requestAnimationFrame(frame);
+    loadModel(modelId);
+  </script>
+</body>
+</html>
