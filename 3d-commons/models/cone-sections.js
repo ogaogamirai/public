@@ -57,6 +57,9 @@ export default {
       new THREE.ConeGeometry(state.coneRadius, state.coneHeight, 64, 1, true),
       coneMaterial
     );
+    // ConeGeometry's apex is on local +y. Flip the upper cone so its
+    // apex is at y=0 and its base is at y=coneHeight.
+    state.upperCone.rotation.z = Math.PI;
     state.upperCone.position.y = state.coneHeight / 2;
     state.group.add(state.upperCone);
 
@@ -64,7 +67,6 @@ export default {
       new THREE.ConeGeometry(state.coneRadius, state.coneHeight, 64, 1, true),
       coneMaterial
     );
-    state.lowerCone.rotation.z = Math.PI;
     state.lowerCone.position.y = -state.coneHeight / 2;
     state.group.add(state.lowerCone);
 
@@ -72,6 +74,7 @@ export default {
       new THREE.ConeGeometry(state.coneRadius, state.coneHeight, 32, 1, true),
       coneEdgeMaterial
     );
+    state.upperEdges.rotation.z = Math.PI;
     state.upperEdges.position.y = state.coneHeight / 2;
     state.group.add(state.upperEdges);
 
@@ -79,7 +82,6 @@ export default {
       new THREE.ConeGeometry(state.coneRadius, state.coneHeight, 32, 1, true),
       coneEdgeMaterial
     );
-    state.lowerEdges.rotation.z = Math.PI;
     state.lowerEdges.position.y = -state.coneHeight / 2;
     state.group.add(state.lowerEdges);
 
