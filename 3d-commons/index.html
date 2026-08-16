@@ -495,6 +495,25 @@
           </div>
         </div>
       </div>
+
+      <!-- 12. Lemniscate -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数学・極座標</div>
+          <h2 class="card-title">レムニスケート曲線（連珠形）</h2>
+          <p class="card-desc">
+            極方程式 $r^2=a^2\cos 2\theta$ で表される ∞ 形の曲線。焦点 $(\pm a/\sqrt{2},0)$ からの距離の積が一定である性質と、面積 $S=a^2$ を 3D で観察します。
+          </p>
+          <div class="card-formula" id="formula-lemniscate"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=lemniscate" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('lemniscate')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('lemniscate')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- How to Use Section -->
@@ -524,6 +543,7 @@
         katex.render("\\operatorname{proj}_{\\boldsymbol b}\\boldsymbol a=\\frac{\\boldsymbol a\\cdot\\boldsymbol b}{|\\boldsymbol b|^2}\\boldsymbol b", document.getElementById("formula-projection"), { displayMode: false });
         katex.render("z=x^2-y^2", document.getElementById("formula-saddle"), { displayMode: false });
         katex.render("V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|", document.getElementById("formula-parallelepiped"), { displayMode: false });
+        katex.render("r^2=a^2\\cos 2\\theta,\\quad (x^2+y^2)^2=a^2(x^2-y^2)", document.getElementById("formula-lemniscate"), { displayMode: false });
 
         // Render inline $...$ in descriptions
         document.querySelectorAll('.card-desc').forEach(el => {
