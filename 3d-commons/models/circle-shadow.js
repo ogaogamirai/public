@@ -187,9 +187,14 @@ export default {
     state.connDrop.geometry.setFromPoints([
       new THREE.Vector3(px, py, 0), new THREE.Vector3(px, 0, 0)
     ]);
-    // 足→cos波の先端
+    // 足→45°ミター線→cos波の先端
+    // （F の x 座標 = R·cosθ を、下のコソ波行の高さへ翻訳する）
+    const gY = -D + px;              // cos行中心から R·cosθ だけ上げた高さ
+    const gX = D;                    // 右下45°で必ず x=D の縦線上に着地する
     state.connCos.geometry.setFromPoints([
-      new THREE.Vector3(px, 0, 0), new THREE.Vector3(W0, -D + R * Math.cos(th), 0)
+      new THREE.Vector3(px, 0, 0),
+      new THREE.Vector3(gX, gY, 0),
+      new THREE.Vector3(W0, gY, 0)
     ]);
     state.connSin.computeLineDistances();
     state.connDrop.computeLineDistances();
