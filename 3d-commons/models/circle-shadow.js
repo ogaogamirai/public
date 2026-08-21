@@ -1,10 +1,12 @@
-// 3D Commons: 円の影がサイン波を作る（フーリエ教材 G2 対応）
-// 縦の影 = sin、横の影 = cos、両方を一つの立体で見る。
+// 3D Commons: 円の影がサイン波・コサイン波を作る（フーリエ教材 G2 対応）
+// 正面ビューで両方の波を見る: sin は右、cos は下。
+// らせん（真の軌道）は視点切替に連動して表示。
 
-const R = 3.5;          // 円の半径
-const W0 = 6.0;         // 波の始点 x
-const L = 15.0;         // 波の長さ
-const K = 2 * Math.PI / 6; // 空間角周波数（波長6）
+const R = 3.0;            // 円の半径
+const W0 = 4.6;           // 波の始点 x
+const L = 13.0;           // 波の長さ
+const K = 2 * Math.PI / 6;// 空間角周波数（波長6）
+const D = 5.4;            // cos 波の中心線（y = -D）
 
 function makeLabel(THREE, text, color) {
   const canvas = document.createElement("canvas");
@@ -15,7 +17,7 @@ function makeLabel(THREE, text, color) {
   const sprite = new THREE.Sprite(
     new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false })
   );
-  sprite.scale.set(4.2, 1.05, 1);
+  sprite.scale.set(3.6, 0.9, 1);
   sprite.userData.labelCanvas = canvas;
   sprite.userData.labelContext = context;
   sprite.userData.labelTexture = texture;
@@ -40,29 +42,29 @@ export default {
   id: "circle-shadow",
   category: "math",
   categoryLabel: "📐 数学・フーリエへの道",
-  title: "円の影がサイン波を作る",
-  description: "等速で回る点を「縦だけ」見るとサイン波、「横だけ」見るとコサイン波になります。回転する点と、それが描く影を同時に観察しましょう。上から見れば、波はらせんとして見えます。",
-  formula: "P=(R\\cos\\theta,\\ R\\sin\\theta)\\quad y(t)=A\\sin(\\omega t)",
+  title: "円の影がサイン波・コサイン波を作る",
+  description: "回る点の縦の影が右のサイン波、横の影が下のコサイン波。二つの波は同じ回転から生まれ、位相が $90^\\circ$ ずれているだけです。",
+  formula: "y=A\\sin\\omega t,\\quad x=A\\cos\\omega t",
   legend: [
-    { color: "#c45c26", label: "縦の影 $y=A\\sin\\omega t$（サイン波）" },
-    { color: "#2a6fad", label: "横の影 $x=A\\cos\\omega t$（コサイン波）" },
+    { color: "#c45c26", label: "縦の影 $A\\sin\\omega t$" },
+    { color: "#2a6fad", label: "横の影 $A\\cos\\omega t$" },
     { color: "#e11d48", label: "回る点 $P$" },
-    { color: "#94a3b8", label: "接続線（影の対応）" }
+    { color: "#7c3aed", label: "らせん（真の軌道）" }
   ],
   views: {
-    front: { name: "🎬 正面（円とサイン波）", pos: [9, -1, 17], target: [9, 0.5, 0], default: true },
-    top: { name: "🔄 真上から（コサインを見る）", pos: [9, 24, 0.01], target: [9, 0, 0] },
-    overview: { name: "🌀 ななめ（らせん）", pos: [2, 11, 24], target: [9, 0, 0] }
+    front: { name: "🎬 正面（sin 右・cos 下）", pos: [8.7, -1.2, 15.5], target: [8.7, -1.4, 0], params: { showHelix: 0 }, default: true },
+    top: { name: "🔄 真上から（らせん＝cos）", pos: [8.7, 21, 0.01], target: [8.7, 0, 0], params: { showHelix: 1 } },
+    overview: { name: "🌀 ななめ（らせん）", pos: [1, 10, 22], target: [8, -0.5, 0], params: { showHelix: 1 } }
   },
   parameters: {
     speed: { label: "回転の速さ ω", min: 0, max: 3, step: 0.05, value: 1 },
-    helix: { label: "らせんを表示（0=非表示 / 1=表示）", min: 0, max: 1, step: 1, value: 0 }
+    showHelix: { label: "らせん表示", min: 0, max: 1, step: 1, value: 1 }
   },
 
   init(THREE, scene, state) {
     state.theta = 0;
 
-    // 円
+    // 円（x-y 平面）
     const circlePts = [];
     for (let i = 0; i <= 96; i++) {
       const a = (i / 96) * Math.PI * 2;
@@ -73,15 +75,29 @@ export default {
       new THREE.LineBasicMaterial({ color: 0x8a8578 })
     );
 
-    // 時間軸
-    state.axis = new THREE.Line(
+    // 直径（横の影のレール）
+    state.diameter = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-R, 0, 0), new THREE.Vector3(R, 0, 0)
+      ]),
+      new THREE.LineBasicMaterial({ color: 0xb9b4a8 })
+    );
+
+    // sin 行の中心線 / cos 行の中心線
+    state.axisSin = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(W0 - 1, 0, 0), new THREE.Vector3(W0 + L, 0, 0)
       ]),
-      new THREE.LineBasicMaterial({ color: 0xc9c4b8 })
+      new THREE.LineBasicMaterial({ color: 0xd9d4c8 })
+    );
+    state.axisCos = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(W0 - 1, -D, 0), new THREE.Vector3(W0 + L, -D, 0)
+      ]),
+      new THREE.LineBasicMaterial({ color: 0xd9d4c8 })
     );
 
-    // 半径（中心→点P）
+    // 半径（中心→P）
     state.radiusLine = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(0, 0, 0), new THREE.Vector3(R, 0, 0)
@@ -89,48 +105,60 @@ export default {
       new THREE.LineBasicMaterial({ color: 0x55524a })
     );
 
-    // 点P
+    // 点 P
     state.pointP = new THREE.Mesh(
-      new THREE.SphereGeometry(0.32, 24, 16),
+      new THREE.SphereGeometry(0.28, 24, 16),
       new THREE.MeshBasicMaterial({ color: 0xe11d48 })
     );
 
-    // 接続線（P → 波の先端）
-    state.connector = new THREE.Line(
-      new THREE.BufferGeometry(),
-      new THREE.LineDashedMaterial({ color: 0xb08968, dashSize: 0.28, gapSize: 0.2 })
+    // 影の足（横の影：直径上の点）
+    state.pointF = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 20, 12),
+      new THREE.MeshBasicMaterial({ color: 0x2a6fad })
     );
 
-    // サイン波（縦の影）
+    // 接続線（P→sin波、P→F、F→cos波）
+    state.connSin = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineDashedMaterial({ color: 0xb08968, dashSize: 0.26, gapSize: 0.18 })
+    );
+    state.connDrop = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineDashedMaterial({ color: 0x2a6fad, dashSize: 0.26, gapSize: 0.18 })
+    );
+    state.connCos = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineDashedMaterial({ color: 0x2a6fad, dashSize: 0.26, gapSize: 0.18 })
+    );
+
+    // 波本体
     state.sineWave = new THREE.Line(
       new THREE.BufferGeometry(),
       new THREE.LineBasicMaterial({ color: 0xc45c26 })
     );
-
-    // コサイン波（横の影・床に沿って描く）
     state.cosWave = new THREE.Line(
       new THREE.BufferGeometry(),
-      new THREE.LineBasicMaterial({ color: 0x2a6fad, transparent: true, opacity: 0.75 })
+      new THREE.LineBasicMaterial({ color: 0x2a6fad })
     );
-
-    // らせん（真実の軌道）
     state.helix = new THREE.Line(
       new THREE.BufferGeometry(),
-      new THREE.LineBasicMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.45 })
+      new THREE.LineBasicMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.5 })
     );
     state.helix.visible = false;
 
     // ラベル
     state.labelSin = makeLabel(THREE, "縦の影 = sin", "#c45c26");
-    state.labelSin.position.set(W0 + L * 0.62, R + 1.1, 0);
+    state.labelSin.position.set(W0 + L * 0.72, R + 1.0, 0);
     state.labelCos = makeLabel(THREE, "横の影 = cos", "#2a6fad");
-    state.labelCos.position.set(W0 + L * 0.62, -(R + 2.0), 0);
+    state.labelCos.position.set(W0 + L * 0.72, -D - R - 1.0, 0);
     state.labelP = makeLabel(THREE, "P", "#e11d48");
-    state.labelP.scale.set(1.6, 0.4, 1);
+    state.labelP.scale.set(1.5, 0.38, 1);
 
     scene.add(
-      state.circle, state.axis, state.radiusLine, state.pointP,
-      state.connector, state.sineWave, state.cosWave, state.helix,
+      state.circle, state.diameter, state.axisSin, state.axisCos,
+      state.radiusLine, state.pointP, state.pointF,
+      state.connSin, state.connDrop, state.connCos,
+      state.sineWave, state.cosWave, state.helix,
       state.labelSin, state.labelCos, state.labelP
     );
     this.refresh(THREE, state);
@@ -141,29 +169,42 @@ export default {
     const px = R * Math.cos(th);
     const py = R * Math.sin(th);
 
+    // 点 P と半径
     state.pointP.position.set(px, py, 0);
     state.radiusLine.geometry.setFromPoints([
       new THREE.Vector3(0, 0, 0), new THREE.Vector3(px, py, 0)
     ]);
-    state.labelP.position.set(px * 1.25, py * 1.25, 0);
+    state.labelP.position.set(px * 1.3, py * 1.3, 0);
 
-    // 接続線
-    const wStart = new THREE.Vector3(W0, py, 0);
-    state.connector.geometry.setFromPoints([new THREE.Vector3(px, py, 0), wStart]);
-    state.connector.computeLineDistances();
+    // 横の影の足（直径上）
+    state.pointF.position.set(px, 0, 0);
+
+    // sin への接続（水平）
+    state.connSin.geometry.setFromPoints([
+      new THREE.Vector3(px, py, 0), new THREE.Vector3(W0, py, 0)
+    ]);
+    // P→足（垂直）
+    state.connDrop.geometry.setFromPoints([
+      new THREE.Vector3(px, py, 0), new THREE.Vector3(px, 0, 0)
+    ]);
+    // 足→cos波の先端
+    state.connCos.geometry.setFromPoints([
+      new THREE.Vector3(px, 0, 0), new THREE.Vector3(W0, -D + R * Math.cos(th), 0)
+    ]);
+    state.connSin.computeLineDistances();
+    state.connDrop.computeLineDistances();
+    state.connCos.computeLineDistances();
 
     // 波を再生成
     const n = 240;
     const sPts = [], cPts = [], hPts = [];
-    const showHelix = state.params.helix > 0.5;
+    const showHelix = state.params.showHelix > 0.5;
     for (let i = 0; i <= n; i++) {
       const u = (i / n) * L;
       const ang = th - u * K;
-      const s = R * Math.sin(ang);
-      const c = R * Math.cos(ang);
-      sPts.push(new THREE.Vector3(W0 + u, s, 0));
-      cPts.push(new THREE.Vector3(W0 + u, -(R + 1.4), c));
-      if (showHelix) hPts.push(new THREE.Vector3(W0 + u, s, c));
+      sPts.push(new THREE.Vector3(W0 + u, R * Math.sin(ang), 0));
+      cPts.push(new THREE.Vector3(W0 + u, -D + R * Math.cos(ang), 0));
+      hPts.push(new THREE.Vector3(W0 + u, R * Math.sin(ang), R * Math.cos(ang)));
     }
     state.sineWave.geometry.setFromPoints(sPts);
     state.cosWave.geometry.setFromPoints(cPts);
@@ -172,13 +213,13 @@ export default {
 
     if (window.setModelStatus) {
       const deg = ((th % (2 * Math.PI)) * 180 / Math.PI).toFixed(0);
-      window.setModelStatus(`θ = ${deg}°　／　縦の影 y = ${Math.sin(th).toFixed(2)}　／　横の影 x = ${Math.cos(th).toFixed(2)}`);
+      window.setModelStatus(`θ = ${deg}°　／　sin = ${Math.sin(th).toFixed(2)}　／　cos = ${Math.cos(th).toFixed(2)}`);
     }
   },
 
   update(THREE, state, dt) {
     const speed = state.params.speed;
-    if (speed > 0) {
+    if (speed > 0 && !state.paused) {
       state.theta += speed * dt;
       this.refresh(THREE, state);
     }
