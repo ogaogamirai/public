@@ -533,6 +533,25 @@
           </div>
         </div>
       </div>
+
+      <!-- 14. Circle Shadow -->
+      <div class="card">
+        <div>
+          <div class="card-category cat-math">📐 数学・フーリエへの道</div>
+          <h2 class="card-title">円の影がサイン波を作る</h2>
+          <p class="card-desc">
+            等速円運動の点を「縦だけ」見るとサイン波、「横だけ」見るとコサイン波。回る点と影を同時に観察し、真上から見れば波の正体はらせんだと分かります。速さ $\omega$ も調整できます。
+          </p>
+          <div class="card-formula" id="formula-circle-shadow"></div>
+        </div>
+        <div class="card-actions">
+          <a href="viewer.html?model=circle-shadow" class="btn-launch" target="_blank">🪐 3D 観測所で開く</a>
+          <div class="btn-copy-group">
+            <button class="btn-secondary" onclick="copyIframe('circle-shadow')">📋 iframe をコピー</button>
+            <button class="btn-secondary" onclick="copyLink('circle-shadow')">🔗 リンクをコピー</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- How to Use Section -->
@@ -564,6 +583,7 @@
         katex.render("z=x^2-y^2", document.getElementById("formula-saddle"), { displayMode: false });
         katex.render("V=|\\boldsymbol a\\cdot(\\boldsymbol b\\times\\boldsymbol c)|", document.getElementById("formula-parallelepiped"), { displayMode: false });
         katex.render("r^2=a^2\\cos 2\\theta,\\quad (x^2+y^2)^2=a^2(x^2-y^2)", document.getElementById("formula-lemniscate"), { displayMode: false });
+        katex.render("y(t)=A\\sin(\\omega t),\\quad x(t)=A\\cos(\\omega t)", document.getElementById("formula-circle-shadow"), { displayMode: false });
 
         // Render inline $...$ in descriptions
         document.querySelectorAll('.card-desc').forEach(el => {
