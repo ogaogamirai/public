@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学習エピソード モック — 単位円とサイン波</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --ink: #1c2330;
+    --sub: #5b6676;
+    --line: #dfe4ea;
+    --accent: #2f6fed;
+    --cos: #2f6fed;
+    --sin: #d94f6a;
+    --ok: #1f8a5f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 80px; }
+  header h1 { font-size: 24px; margin: 0 0 8px; letter-spacing: .01em; }
+  header p { margin: 0; color: var(--sub); font-size: 14px; }
+  .goal {
+    margin: 24px 0;
+    padding: 16px 18px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+  }
+  .goal strong { display: block; font-size: 13px; color: var(--sub); font-weight: 600; margin-bottom: 4px; }
+  section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-size: 17px;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  h2 span.step {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 20px;
+    padding: 2px 10px;
+    flex: none;
+  }
+  h2 + p.hint { margin: 0 0 16px; color: var(--sub); font-size: 13px; }
+  .stage { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  .stage canvas { background: #fff; border: 1px solid var(--line); border-radius: 8px; max-width: 100%; }
+  .controls { margin-top: 14px; }
+  .controls label { font-size: 13px; color: var(--sub); }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .quick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  button {
+    font: inherit;
+    font-size: 13px;
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover { opacity: .9; color: #fff; }
+  .readout { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; font-variant-numeric: tabular-nums; }
+  .readout div { font-size: 14px; }
+  .readout b { font-size: 18px; }
+  .readout .c { color: var(--cos); }
+  .readout .s { color: var(--sin); }
+  textarea {
+    width: 100%;
+    min-height: 88px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 14px;
+    resize: vertical;
+  }
+  textarea:focus, button:focus { outline: 2px solid rgba(47,111,237,.35); outline-offset: 1px; }
+  .qa { border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; background: #fbfcfe; }
+  .qa .q { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .qa .meta { font-size: 12px; color: var(--sub); margin-bottom: 6px; }
+  .log { margin: 0; padding: 0; list-style: none; }
+  .log li {
+    border-top: 1px solid var(--line);
+    padding: 10px 0;
+    font-size: 13px;
+    display: flex;
+    gap: 12px;
+  }
+  .log li:first-child { border-top: none; }
+  .log .tag {
+    flex: none;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sub);
+    background: #eef1f5;
+    border-radius: 4px;
+    padding: 2px 8px;
+    height: fit-content;
+  }
+  .log .body { white-space: pre-wrap; }
+  .empty { color: var(--sub); font-size: 13px; }
+  .note {
+    font-size: 13px;
+    color: var(--sub);
+    background: #fff9ec;
+    border: 1px solid #f0e0bd;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+  footer { color: var(--sub); font-size: 12px; margin-top: 24px; }
+  .out { width: 100%; min-height: 140px; font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>学習エピソード モック — 単位円とサイン波</h1>
+  <p>「AI協働型・学習エピソード」の流れを、ブラウザだけで体験するための試作画面です。</p>
+</header>
+
+<div class="note">
+  この画面はモックです。AIの質問は、記事で例示したものをあらかじめ用意しています。実際の運用では、組織が承認した対話型AIに接続します。APIキーや個人情報は、このファイルに書き込みません。記録はブラウザの中だけに置き、書き出しは手元のコピー操作で行います。
+</div>
+
+<div class="goal">
+  <strong>学習目標</strong>
+  単位円上の点の動きと、サイン波の形の関係を、初めて学ぶ人へ説明できるようにする。
+</div>
+
+<section>
+  <h2><span class="step">1</span>教材を操作して、観察する</h2>
+  <p class="hint">角度を動かし、円周上の点、横の値（cos）、縦の値（sin）、波の上の点が同時にどう変わるかを見ます。</p>
+
+  <div class="stage">
+    <canvas id="circle" width="320" height="320" aria-label="単位円"></canvas>
+    <canvas id="wave" width="520" height="320" aria-label="サイン波"></canvas>
+  </div>
+
+  <div class="controls">
+    <label for="angle">角度 θ</label>
+    <input id="angle" type="range" min="0" max="360" step="1" value="45">
+    <div class="quick">
+      <button data-angle="0">0°</button>
+      <button data-angle="45">45°</button>
+      <button data-angle="90">90°</button>
+      <button data-angle="120">120°</button>
+      <button data-angle="210">210°</button>
+      <button data-angle="315">315°</button>
+    </div>
+    <div class="readout">
+      <div>θ = <b id="v-theta">45°</b></div>
+      <div class="c">cos θ = <b id="v-cos">0.707</b></div>
+      <div class="s">sin θ = <b id="v-sin">0.707</b></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="step">2</span>先に考えたことを残す</h2>
+  <p class="hint">正解を待たずに、気づいたことと予想を短く書きます。記録すると、そのときの角度も一緒に残ります。</p>
+  <textarea id="obs" placeholder="例：45°では横と縦の長さが同じに見えた。120°にすると点が左へ動いて、横の値が負になった。"></textarea>
+  <div class="quick"><button class="primary" id="obs-add">観察として記録する</button></div>
+</section>
+
+<section>
+  <h2><span class="step">3</span>他人へ説明する資料を作る</h2>
+  <p class="hint">初めて学ぶ人に向けて、単位円の動きとサイン波の関係を説明します。これが成果物です。</p>
+  <textarea id="doc" placeholder="例：単位円の上を点が反時計回りに動くと、点の縦の位置がそのままサイン波の高さになります。だから……"></textarea>
+  <div class="quick">
+    <button class="primary" id="doc-add">説明資料として記録する</button>
+    <button id="doc-revise">改訂版として記録する</button>
+  </div>
+</section>
+
+<section>
+  <h2><span class="step">4</span>AIの問い返しに答える</h2>
+  <p class="hint">説明資料に対して質問が返ってきます。自分の言葉で答え、必要なら3へ戻って説明を直します。</p>
+  <div class="qa">
+    <div class="meta"><span id="q-count">質問 1 / 4</span>（この画面では、あらかじめ用意した質問例です）</div>
+    <div class="q" id="q-text">120度のとき、cos θ が負になるのは、単位円上の点のどの座標が負になるからですか。</div>
+    <textarea id="ans" placeholder="自分の言葉で答えます。"></textarea>
+    <div class="quick">
+      <button class="primary" id="ans-add">回答を記録する</button>
+      <button id="q-next">次の質問へ</button>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="step">5</span>AIを使わずに確かめる</h2>
+  <p class="hint">この画面と対話を閉じたつもりで、条件を変えた問いに答えます。ここは独立確認です。</p>
+  <div class="qa">
+    <div class="q">半径が2の円で同じ操作をすると、縦の値の最大はいくつになりますか。理由も書いてください。</div>
+    <textarea id="check" placeholder="図を見ずに、自分の言葉で書きます。"></textarea>
+    <div class="quick"><button class="primary" id="check-add">独立確認として記録する</button></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="step">6</span>記録を次の学習へ渡す</h2>
+  <p class="hint">残るのは完成物だけではありません。観察、説明、質問、回答、改訂が並ぶことで、理解の変化が見えます。</p>
+  <ul class="log" id="log"><li class="empty" id="log-empty">まだ記録はありません。1から順に進めると、ここに残ります。</li></ul>
+  <div class="quick">
+    <button id="export">書き出し用のテキストを作る</button>
+    <button id="clear">記録を消す</button>
+  </div>
+  <textarea class="out" id="out" placeholder="ここに書き出したテキストが表示されます。コピーして、教師への提出や次回の教材づくりに使います。" readonly></textarea>
+</section>
+
+<footer>
+  AI協働型・学習エピソードのモック（単一HTMLファイル、外部通信なし）。教材の素材を差し替えれば、他のテーマにも同じ流れを使えます。
+</footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var TAU = Math.PI * 2;
+  var angle = 45;
+  var entries = [];
+  var docCount = 0;
+
+  var questions = [
+    "120度のとき、cos θ が負になるのは、単位円上の点のどの座標が負になるからですか。",
+    "角度を45度から120度へ動かすと、どの値が増え、どの値が減りますか。",
+    "sin θ が0になる角度をすべて挙げ、そのとき点はどこにありますか。",
+    "図を使わずに、単位円の動きとサイン波の関係を説明できますか。"
+  ];
+  var qIndex = 0;
+
+  var el = function (id) { return document.getElementById(id); };
+
+  // ---- 描画 -------------------------------------------------------------
+  function setupCanvas(canvas) {
+    var ratio = window.devicePixelRatio || 1;
+    var w = canvas.width, h = canvas.height;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    canvas.width = w * ratio;
+    canvas.height = h * ratio;
+    var ctx = canvas.getContext("2d");
+    ctx.scale(ratio, ratio);
+    return { ctx: ctx, w: w, h: h };
+  }
+
+  var circle = setupCanvas(el("circle"));
+  var wave = setupCanvas(el("wave"));
+
+  function drawCircle(deg) {
+    var ctx = circle.ctx, w = circle.w, h = circle.h;
+    var cx = w / 2, cy = h / 2, R = 118;
+    var rad = deg * Math.PI / 180;
+    var px = cx + R * Math.cos(rad);
+    var py = cy - R * Math.sin(rad);
+
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.strokeStyle = "#e6eaef";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(20, cy); ctx.lineTo(w - 20, cy);
+    ctx.moveTo(cx, 20); ctx.lineTo(cx, h - 20);
+    ctx.stroke();
+
+    ctx.strokeStyle = "#c3ccd8";
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, TAU);
+    ctx.stroke();
+
+    // 角度の扇形
+    ctx.fillStyle = "rgba(47,111,237,.10)";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, 42, -rad, 0, false);
+    ctx.closePath();
+    ctx.fill();
+
+    // cos（横）
+    ctx.strokeStyle = "#2f6fed";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy); ctx.lineTo(px, cy);
+    ctx.stroke();
+
+    // sin（縦）
+    ctx.strokeStyle = "#d94f6a";
+    ctx.beginPath();
+    ctx.moveTo(px, cy); ctx.lineTo(px, py);
+    ctx.stroke();
+
+    // 半径
+    ctx.strokeStyle = "#8a97a8";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy); ctx.lineTo(px, py);
+    ctx.stroke();
+
+    ctx.fillStyle = "#1c2330";
+    ctx.beginPath();
+    ctx.arc(px, py, 5, 0, TAU);
+    ctx.fill();
+
+    ctx.fillStyle = "#5b6676";
+    ctx.font = "12px sans-serif";
+    ctx.fillText("cos θ", cx + (px - cx) / 2 - 14, cy + 16);
+    ctx.fillText("sin θ", px + (px > cx ? 8 : -34), cy + (py - cy) / 2);
+    ctx.fillText("θ = " + deg + "°", 14, 22);
+  }
+
+  function drawWave(deg) {
+    var ctx = wave.ctx, w = wave.w, h = wave.h;
+    var left = 44, right = w - 18, top = 26, bottom = h - 34;
+    var midY = (top + bottom) / 2;
+    var amp = (bottom - top) / 2 - 6;
+    var xOf = function (d) { return left + (right - left) * (d / 360); };
+    var yOf = function (v) { return midY - amp * v; };
+
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.strokeStyle = "#eef1f5";
+    ctx.lineWidth = 1;
+    ctx.fillStyle = "#8a97a8";
+    ctx.font = "11px sans-serif";
+    [0, 90, 180, 270, 360].forEach(function (d) {
+      ctx.beginPath();
+      ctx.moveTo(xOf(d), top); ctx.lineTo(xOf(d), bottom);
+      ctx.stroke();
+      ctx.fillText(d + "°", xOf(d) - 12, bottom + 18);
+    });
+
+    ctx.strokeStyle = "#e6eaef";
+    ctx.beginPath();
+    ctx.moveTo(left, midY); ctx.lineTo(right, midY);
+    ctx.stroke();
+    ctx.fillText("1", left - 22, yOf(1) + 4);
+    ctx.fillText("0", left - 22, midY + 4);
+    ctx.fillText("-1", left - 26, yOf(-1) + 4);
+
+    ctx.strokeStyle = "#d94f6a";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (var d = 0; d <= 360; d += 1) {
+      var x = xOf(d), y = yOf(Math.sin(d * Math.PI / 180));
+      if (d === 0) { ctx.moveTo(x, y); } else { ctx.lineTo(x, y); }
+    }
+    ctx.stroke();
+
+    var mx = xOf(deg), my = yOf(Math.sin(deg * Math.PI / 180));
+    ctx.strokeStyle = "#c3ccd8";
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(mx, midY); ctx.lineTo(mx, my);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "#1c2330";
+    ctx.beginPath();
+    ctx.arc(mx, my, 5, 0, TAU);
+    ctx.fill();
+
+    ctx.fillStyle = "#5b6676";
+    ctx.font = "12px sans-serif";
+    ctx.fillText("縦の値がそのまま波の高さになる", left, top - 8);
+  }
+
+  function render() {
+    drawCircle(angle);
+    drawWave(angle);
+    var rad = angle * Math.PI / 180;
+    el("v-theta").textContent = angle + "°";
+    el("v-cos").textContent = Math.cos(rad).toFixed(3);
+    el("v-sin").textContent = Math.sin(rad).toFixed(3);
+  }
+
+  // ---- 記録 -------------------------------------------------------------
+  function stamp() {
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+
+  function add(tag, text, withAngle) {
+    var body = text.trim();
+    if (!body) { return false; }
+    entries.push({
+      tag: tag,
+      at: stamp(),
+      angle: withAngle ? angle : null,
+      text: body
+    });
+    renderLog();
+    return true;
+  }
+
+  function renderLog() {
+    var list = el("log");
+    list.innerHTML = "";
+    if (!entries.length) {
+      var li = document.createElement("li");
+      li.className = "empty";
+      li.textContent = "まだ記録はありません。1から順に進めると、ここに残ります。";
+      list.appendChild(li);
+      return;
+    }
+    entries.forEach(function (e) {
+      var li = document.createElement("li");
+      var tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = e.tag + (e.angle === null ? "" : " / " + e.angle + "°");
+      var body = document.createElement("span");
+      body.className = "body";
+      body.textContent = e.at + "　" + e.text;
+      li.appendChild(tag);
+      li.appendChild(body);
+      list.appendChild(li);
+    });
+  }
+
+  function showQuestion() {
+    el("q-text").textContent = questions[qIndex];
+    el("q-count").textContent = "質問 " + (qIndex + 1) + " / " + questions.length;
+  }
+
+  // ---- 操作 -------------------------------------------------------------
+  el("angle").addEventListener("input", function (ev) {
+    angle = parseInt(ev.target.value, 10);
+    render();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-angle]"), function (btn) {
+    btn.addEventListener("click", function () {
+      angle = parseInt(btn.getAttribute("data-angle"), 10);
+      el("angle").value = angle;
+      render();
+    });
+  });
+
+  el("obs-add").addEventListener("click", function () {
+    if (add("観察", el("obs").value, true)) { el("obs").value = ""; }
+  });
+
+  el("doc-add").addEventListener("click", function () {
+    if (add("説明資料", el("doc").value, false)) { docCount = 1; }
+  });
+
+  el("doc-revise").addEventListener("click", function () {
+    if (add("説明資料の改訂 " + (docCount + 1), el("doc").value, false)) { docCount += 1; }
+  });
+
+  el("ans-add").addEventListener("click", function () {
+    if (add("AIの質問", questions[qIndex], false)) {
+      add("回答", el("ans").value || "（未記入）", false);
+      el("ans").value = "";
+    }
+  });
+
+  el("q-next").addEventListener("click", function () {
+    qIndex = (qIndex + 1) % questions.length;
+    showQuestion();
+  });
+
+  el("check-add").addEventListener("click", function () {
+    if (add("独立確認", el("check").value, false)) { el("check").value = ""; }
+  });
+
+  el("export").addEventListener("click", function () {
+    if (!entries.length) {
+      el("out").value = "記録がありません。";
+      return;
+    }
+    var lines = ["学習エピソードの記録", "学習目標: 単位円上の点の動きとサイン波の関係を説明する", ""];
+    entries.forEach(function (e) {
+      lines.push("[" + e.tag + (e.angle === null ? "" : " / " + e.angle + "°") + "] " + e.at);
+      lines.push(e.text);
+      lines.push("");
+    });
+    lines.push("次の学習へ: 補う概念、試す条件、発展課題をここに追記します。");
+    el("out").value = lines.join("\n");
+  });
+
+  el("clear").addEventListener("click", function () {
+    entries = [];
+    docCount = 0;
+    el("out").value = "";
+    renderLog();
+  });
+
+  showQuestion();
+  renderLog();
+  render();
+})();
+</script>
+</body>
+</html>

@@ -12,6 +12,7 @@
 
 | ファイル | 内容 | サイズ（目安） | ブラウザで開く（Pages） | リポジトリ上のファイル |
 |----------|------|----------------|-------------------------|------------------------|
+| `ai_learning_episode_mock.html` | **AI協働型・学習エピソード モック**（単位円とサイン波・note記事の体験用） | 約 19 KB | [開く](https://ogaogamirai.github.io/public/generated/ai_learning_episode_mock.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/ai_learning_episode_mock.html) |
 | `system-dynamics.html` | **システムダイナミクス×TOC 学習教材**（全章統合・1ファイル） | 約 680 KB | [開く](https://ogaogamirai.github.io/public/generated/system-dynamics.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/system-dynamics.html) |
 | `health_check_reexam_snapshot.html` | **健康診断・再検査定義**（TOC CRT スナップショット） | 約 76 KB | [開く](https://ogaogamirai.github.io/public/generated/health_check_reexam_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/health_check_reexam_snapshot.html) |
 | `colonial_policy_snapshot.html` | **日本の植民地政策再評価**（H1–H3 検証スナップショット） | 約 106 KB | [開く](https://ogaogamirai.github.io/public/generated/colonial_policy_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/colonial_policy_snapshot.html) |
@@ -22,6 +23,23 @@
 | `aether_中国の成長と持続可能性_snapshot.html` | 上と **同一内容**（日本語ファイル名の別名・最新版） | 約 104 KB | [開く（エンコード URL）](https://ogaogamirai.github.io/public/generated/aether_%E4%B8%AD%E5%9B%BD%E3%81%AE%E6%88%90%E9%95%B7%E3%81%A8%E6%8C%81%E7%B6%9A%E5%8F%AF%E8%83%BD%E6%80%A7_snapshot.html) | [blob](https://github.com/ogaogamirai/public/blob/main/generated/aether_%E4%B8%AD%E5%9B%BD%E3%81%AE%E6%88%90%E9%95%B7%E3%81%A8%E6%8C%81%E7%B6%9A%E5%8F%AF%E8%83%BD%E6%80%A7_snapshot.html) |
 | `README.md` | この一覧 | — | [blob（Markdown 表示）](https://github.com/ogaogamirai/public/blob/main/generated/README.md) | — |
 | `.gitkeep` | 空ディレクトリ維持用 | 0 B | — | [blob](https://github.com/ogaogamirai/public/blob/main/generated/.gitkeep) |
+
+---
+
+## ai_learning_episode_mock.html の中身
+
+note記事「AIに答えをもらう教育から、AIと学びをつくる教育へ」から参照する試作画面。単位円とサイン波を題材に、AI協働型・学習エピソードの流れを一画面で体験する。
+
+| 段 | 内容 |
+|----|------|
+| 1 | 教材を操作して観察する（角度スライダー、単位円とサイン波の連動、cos・sinの値） |
+| 2 | 先に考えたことを残す（観察と予想を、そのときの角度つきで記録） |
+| 3 | 他人へ説明する資料を作る（成果物） |
+| 4 | AIの問い返しに答える（用意した質問例に自分の言葉で回答） |
+| 5 | AIを使わずに確かめる（条件を変えた独立確認） |
+| 6 | 記録を次の学習へ渡す（観察・説明・質問・回答・改訂の書き出し） |
+
+外部通信なし。CDN、フォント、解析タグ、APIキーを含まない。入力内容はブラウザの中だけに置かれ、送信されない。実運用では、4の質問部分を組織が承認した対話型AIへ接続する。
 
 ---
 
@@ -85,4 +103,4 @@ python tools/publish_to_public.py
 - 数式は `system-dynamics.html` では jsDelivr 経由の KaTeX CDN を使用（単一ファイル配布のため）。
 - この README 自体: https://github.com/ogaogamirai/public/blob/main/generated/README.md
 
-*最終更新: 2026-08-20 — 中国の成長と持続可能性（20260820 最新スナップショット）を追加・更新。*
+*最終更新: 2026-08-25 — AI協働型・学習エピソード モック（`ai_learning_episode_mock.html`）を追加。*
