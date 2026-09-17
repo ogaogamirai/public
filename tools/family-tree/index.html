@@ -3306,6 +3306,7 @@ function createPersonCardElement(person, pos) {
     </div>
 
     <div class="card-actions-hover">
+      <button class="card-action-btn btn-action-add-parent" title="親を追加（上の世代へ）">⬆️</button>
       <button class="card-action-btn btn-action-edit" title="編集">✏️</button>
       <button class="card-action-btn btn-action-add-spouse" title="配偶者を追加">💍</button>
       <button class="card-action-btn btn-action-add-child" title="子を追加">👶</button>
@@ -3318,27 +3319,27 @@ function createPersonCardElement(person, pos) {
     openPersonModal(person.id);
   });
 
-  card.querySelector(".btn-action-add-parent").addEventListener("click", (e) => {
+  card.querySelector(".btn-action-add-parent")?.addEventListener("click", (e) => {
     e.stopPropagation();
     quickAddRelative(person.id, "parent");
   });
 
-  card.querySelector(".btn-action-edit").addEventListener("click", (e) => {
+  card.querySelector(".btn-action-edit")?.addEventListener("click", (e) => {
     e.stopPropagation();
     openPersonModal(person.id);
   });
 
-  card.querySelector(".btn-action-add-spouse").addEventListener("click", (e) => {
+  card.querySelector(".btn-action-add-spouse")?.addEventListener("click", (e) => {
     e.stopPropagation();
     quickAddRelative(person.id, "spouse");
   });
 
-  card.querySelector(".btn-action-add-child").addEventListener("click", (e) => {
+  card.querySelector(".btn-action-add-child")?.addEventListener("click", (e) => {
     e.stopPropagation();
     quickAddRelative(person.id, "child");
   });
 
-  card.querySelector(".btn-action-delete").addEventListener("click", (e) => {
+  card.querySelector(".btn-action-delete")?.addEventListener("click", (e) => {
     e.stopPropagation();
     deletePerson(person.id);
   });
