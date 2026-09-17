@@ -2448,6 +2448,18 @@ function renderTree() {
  * Level 3: Children of 更一 ⚭ 陽子 (陸 & こころ)
  * ==========================================================================
  */
+function renderGenerationMarkers(cardsContainer, ys, labels) {
+  if (!ys || !labels) return;
+  ys.forEach((y, idx) => {
+    const marker = document.createElement("div");
+    marker.className = "generation-marker";
+    marker.style.left = "16px";
+    marker.style.top = `${y - 28}px`;
+    marker.textContent = labels[idx] || `第${idx + 1}世代`;
+    cardsContainer.appendChild(marker);
+  });
+}
+
 function renderAncestryLayout(personMap, cardsContainer, svg) {
   // Key persons
   let koichi = personMap.get("p_koichi");
