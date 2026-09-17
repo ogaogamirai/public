@@ -1,0 +1,3565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FamilyTree Studio — 小笠原家 系譜図</title>
+  
+  <!-- Web Fonts (Google Fonts with robust system fallbacks) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600;700;900&family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       RESET & BASE CSS
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-color: #f7f5f0;
+      --card-bg: #ffffff;
+      --text-main: #2b2b2b;
+      --text-sub: #666666;
+      --line-color: #5c554e;
+      --accent-vermilion: #b93a26;
+      --accent-indigo: #2c4f7c;
+      --accent-sakura: #c75c7a;
+      --accent-gold: #b38838;
+      --border-color: #dcd6cd;
+      --card-radius: 6px;
+      --card-width: 70px;
+      --card-height: 220px;
+      --font-family: 'Shippori Mincho', 'Noto Serif JP', 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+      --font-sans: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Shippori Mincho', 'Noto Serif JP', serif;
+    }
+
+    /* THEME: 和モダン (Japanese Traditional) */
+    body.theme-japanese {
+      --bg-color: #fbf8f3;
+      --card-bg: #ffffff;
+      --text-main: #262422;
+      --text-sub: #6e675f;
+      --line-color: #4a443c;
+      --border-color: #ded6cb;
+      --card-radius: 4px;
+      --font-family: 'Shippori Mincho', 'Noto Serif JP', 'Yu Mincho', serif;
+      background-color: var(--bg-color);
+      background-image: radial-gradient(#ebe3d5 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* THEME: 西洋クラシック (Western Heritage) */
+    body.theme-heritage {
+      --bg-color: #f6f3eb;
+      --card-bg: #fffdfa;
+      --text-main: #332d27;
+      --text-sub: #7a7065;
+      --line-color: #8c734b;
+      --border-color: #cbba99;
+      --card-radius: 8px;
+      --font-family: 'Cormorant Garamond', 'Noto Serif JP', Georgia, serif;
+      background-color: var(--bg-color);
+      background-image: linear-gradient(135deg, #f4f0e6 25%, transparent 25%), linear-gradient(225deg, #f4f0e6 25%, transparent 25%), linear-gradient(45deg, #f4f0e6 25%, transparent 25%), linear-gradient(315deg, #f4f0e6 25%, #f6f3eb 25%);
+      background-position: 10px 0, 10px 0, 0 0, 0 0;
+      background-size: 20px 20px;
+    }
+
+    /* THEME: 洗練モダン (Modern Clean) */
+    body.theme-modern {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --line-color: #94a3b8;
+      --border-color: #e2e8f0;
+      --card-radius: 12px;
+      --font-family: var(--font-sans);
+      background-color: var(--bg-color);
+      background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      color: var(--text-main);
+      font-family: var(--font-family);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    header.app-header {
+      height: 60px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      font-family: var(--font-sans);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .brand-title-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-tag {
+      font-size: 10px;
+      font-weight: 600;
+      background: #eee7dc;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+      color: #635747;
+    }
+
+    .doc-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 16px;
+      padding-left: 16px;
+      border-left: 1px solid var(--border-color);
+    }
+
+    .doc-title-input {
+      font-family: var(--font-family);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 3px 8px;
+      transition: all 0.2s;
+    }
+
+    .doc-title-input:hover, .doc-title-input:focus {
+      background: #ffffff;
+      border-color: #c7beaf;
+      outline: none;
+    }
+
+    .doc-subtitle-input {
+      font-family: var(--font-family);
+      font-size: 12px;
+      color: var(--text-sub);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 3px 6px;
+      width: 250px;
+    }
+
+    .doc-subtitle-input:hover, .doc-subtitle-input:focus {
+      background: #ffffff;
+      border-color: #c7beaf;
+      outline: none;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+
+    .btn:hover {
+      background: #f7f5f0;
+      border-color: #bcaba0;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: #2b4b6f;
+      border-color: #243f5e;
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #203957;
+      border-color: #172a40;
+    }
+
+    .btn-vermilion {
+      background: #b93a26;
+      border-color: #a02f1d;
+      color: #ffffff;
+    }
+
+    .btn-vermilion:hover {
+      background: #9f2f1e;
+      border-color: #832517;
+    }
+
+    .select-input {
+      padding: 6px 10px;
+      font-size: 13px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ==========================================================================
+       MAIN WORKSPACE & PAN / ZOOM CANVAS
+       ========================================================================== */
+    .workspace-container {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+      width: 100%;
+      height: 100%;
+    }
+
+    #viewport.dragging {
+      cursor: grabbing;
+    }
+
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      transition: transform 0.05s ease-out;
+      will-change: transform;
+    }
+
+    #connector-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 10;
+    }
+
+    #cards-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 20;
+    }
+
+    .generation-marker {
+      position: absolute;
+      font-family: var(--font-family);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sub);
+      background: rgba(255,255,255,0.94);
+      border: 1px dashed var(--border-color);
+      padding: 4px 14px;
+      border-radius: 14px;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       PERSON CARD DESIGN (和風・縦書き短冊型)
+       ========================================================================== */
+    .person-card {
+      position: absolute;
+      width: var(--card-width);
+      height: var(--card-height);
+      box-sizing: border-box;
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--card-radius);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      padding: 6px 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      overflow: visible;
+    }
+
+    .person-card:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      border-color: #ab9c8a;
+      transform: translateY(-2px);
+      z-index: 25;
+    }
+
+    .person-card.active, .person-card.focus-person {
+      border: 2px solid var(--accent-vermilion);
+      box-shadow: 0 0 0 3px rgba(185, 58, 38, 0.22);
+      background: #fffdf9;
+    }
+
+    .person-card.gender-male {
+      border-top: 3.5px solid var(--accent-indigo);
+    }
+    .person-card.gender-female {
+      border-top: 3.5px solid var(--accent-sakura);
+    }
+    .person-card.gender-other {
+      border-top: 3.5px solid #7c5c8e;
+    }
+
+    .card-top {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+
+    .card-relation-tag {
+      font-size: 9.5px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      color: #6d6254;
+      background: #f1ebd7;
+      padding: 1px 3px;
+      border-radius: 3px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 62px;
+      text-align: center;
+      display: block;
+    }
+
+    .card-body-vertical {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 2px 0;
+      overflow: hidden;
+    }
+
+    .card-name-vertical {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-family: var(--font-family);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      line-height: 1.35;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      max-height: 155px;
+    }
+
+    .card-name-vertical ruby {
+      ruby-align: center;
+    }
+
+    .card-name-vertical rt {
+      font-size: 8px;
+      font-weight: 500;
+      color: #7a7065;
+      letter-spacing: 0;
+      font-family: var(--font-sans);
+    }
+
+    .card-name-vertical .name-sub {
+      font-size: 9px;
+      color: #8c8275;
+      font-weight: 400;
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    .card-bottom {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2px;
+      margin-top: 2px;
+    }
+
+    .card-gender-badge {
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .gender-male .card-gender-badge { color: var(--accent-indigo); }
+    .gender-female .card-gender-badge { color: var(--accent-sakura); }
+    .gender-other .card-gender-badge { color: #7c5c8e; }
+
+    .lifespan-pill {
+      font-size: 8.5px;
+      font-family: var(--font-sans);
+      color: var(--text-sub);
+      background: rgba(0,0,0,0.04);
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 46px;
+    }
+
+    .card-actions-hover {
+      position: absolute;
+      top: -34px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      background: rgba(40, 36, 32, 0.94);
+      backdrop-filter: blur(4px);
+      padding: 3px 6px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .person-card:hover .card-actions-hover {
+      display: flex;
+    }
+
+    .card-action-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .card-action-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: scale(1.1);
+    }
+
+    /* ==========================================================================
+       SVG CONNECTORS
+       ========================================================================== */
+    .svg-couple-line {
+      stroke: var(--line-color);
+      stroke-width: 2.2px;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    .svg-child-line {
+      stroke: var(--line-color);
+      stroke-width: 1.8px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .svg-junction-dot {
+      fill: var(--line-color);
+    }
+
+    .svg-marriage-icon {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      fill: var(--accent-vermilion);
+      text-anchor: middle;
+      dominant-baseline: central;
+      user-select: none;
+    }
+
+    /* ==========================================================================
+       SIDEBARS & FLOATING PANELS
+       ========================================================================== */
+    .sidebar-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 380px;
+      background: #ffffff;
+      border-right: 1px solid var(--border-color);
+      box-shadow: 4px 0 16px rgba(0,0,0,0.06);
+      z-index: 80;
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      font-family: var(--font-sans);
+    }
+
+    .sidebar-panel.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      height: 50px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: #faf8f5;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .json-editor-textarea {
+      flex: 1;
+      width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      background: #faf9f6;
+      color: #2b2b2b;
+      resize: none;
+      outline: none;
+    }
+
+    .json-editor-textarea:focus {
+      border-color: #2c4f7c;
+      background: #ffffff;
+    }
+
+    .json-error-badge {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      display: none;
+    }
+
+    .floating-controls {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      z-index: 60;
+    }
+
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text-main);
+      transition: background 0.1s;
+    }
+
+    .zoom-btn:hover {
+      background: #efe9de;
+    }
+
+    .zoom-level-text {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 0 6px;
+      font-family: var(--font-sans);
+      min-width: 44px;
+      text-align: center;
+      color: var(--text-sub);
+    }
+
+    .status-toast {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: rgba(43, 40, 38, 0.92);
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 70;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .status-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       MODAL DIALOG
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 10px;
+      width: 480px;
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+      border: 1px solid var(--border-color);
+      transform: scale(0.95);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: var(--font-sans);
+      overflow: hidden;
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #faf8f5;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      cursor: pointer;
+      color: #888888;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .modal-close-btn:hover {
+      background: #e9e3d8;
+      color: #111111;
+    }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row > .form-group {
+      flex: 1;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .form-input, .form-textarea, .form-select {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: #2c4f7c;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 56px;
+    }
+
+    .modal-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border-color);
+      background: #faf8f5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .print-document-header {
+      display: none;
+    }
+
+    /* ==========================================================================
+       PRINT SPECIFIC STYLES (@media print)
+       ========================================================================== */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 10mm 12mm;
+      }
+
+      html, body {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      header.app-header,
+      .sidebar-panel,
+      .floating-controls,
+      .status-toast,
+      .modal-backdrop,
+      .card-actions-hover {
+        display: none !important;
+      }
+
+      #app, .workspace-container, #viewport {
+        position: static !important;
+        overflow: visible !important;
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+      }
+
+      #canvas-container {
+        position: relative !important;
+        transform: none !important;
+        margin: 0 auto !important;
+      }
+
+      .print-document-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #5c554e;
+      }
+
+      .print-doc-title {
+        font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+      }
+
+      .print-doc-subtitle {
+        font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+        font-size: 13px;
+        color: #555555;
+        letter-spacing: 0.08em;
+      }
+
+      .person-card {
+        box-shadow: none !important;
+        border: 1px solid #777777 !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      .person-card.gender-male {
+        border-top: 4px solid #2c4f7c !important;
+      }
+      .person-card.gender-female {
+        border-top: 4px solid #c75c7a !important;
+      }
+
+      .svg-couple-line, .svg-child-line {
+        stroke: #222222 !important;
+      }
+      .svg-marriage-icon {
+        fill: #b93a26 !important;
+      }
+    }
+  </style>
+</head>
+<body class="theme-japanese">
+
+<div id="app">
+  <!-- NAVIGATION HEADER -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-icon">🌳</div>
+      <div class="brand-title-box">
+        <div class="brand-title">
+          FamilyTree Studio
+          <span class="brand-tag">家系図</span>
+        </div>
+      </div>
+
+      <div class="doc-meta">
+        <input type="text" id="doc-title-input" class="doc-title-input" value="小笠原家 系譜図" title="家系図の表題（クリックで変更可能）" />
+        <input type="text" id="doc-subtitle-input" class="doc-subtitle-input" value="令和八年 吉日 調製（小笠原更一 家系・両家四代系譜）" title="副題 / 作成日" />
+      </div>
+    </div>
+
+    <div class="toolbar-actions">
+      <!-- Layout Mode Selection -->
+      <select id="layout-mode-select" class="select-input" title="系図の表示形式">
+        <option value="ancestry">🏯 4代祖先系譜（複数初代合流）</option>
+        <option value="descendant">🌿 子孫展開ツリー</option>
+      </select>
+
+      <!-- Theme Selection -->
+      <select id="theme-select" class="select-input" title="デザインテーマを選択">
+        <option value="japanese">🌸 和モダン・伝統 (Japanese)</option>
+        <option value="heritage">🏛️ 西洋クラシック (Heritage)</option>
+        <option value="modern">💎 洗練モダン (Modern Clean)</option>
+      </select>
+
+      <!-- Add Person Button -->
+      <button id="btn-add-person" class="btn">
+        <span>➕ 人物を追加</span>
+      </button>
+
+      <!-- Toggle JSON Editor -->
+      <button id="btn-toggle-json" class="btn" title="データ直接編集を開閉">
+        <span>📝 構成データ</span>
+      </button>
+
+      <!-- Storage / Import / Export Dropdown -->
+      <select id="file-menu-select" class="select-input" title="保存・読込操作">
+        <option value="" disabled selected>💾 保存 / 読込</option>
+        <option value="load-ogasawara-actual">🏯 小笠原更一 家系図（本家）を読込</option>
+        <option value="load-sample">✨ 山田家 三代系図を読込</option>
+        <option value="export-json">📥 JSON保存（ダウンロード）</option>
+        <option value="import-json">📤 JSON読込（ファイルを開く）</option>
+        <option value="clear-data">🗑️ すべてリセット（新規作成）</option>
+      </select>
+      <input type="file" id="file-input-hidden" accept=".json" style="display:none;" />
+
+      <!-- Print Button -->
+      <button id="btn-open-print" class="btn btn-vermilion" title="印刷またはPDFとして保存">
+        <span>🖨️ 印刷 / PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="workspace-container">
+    <aside id="sidebar-json" class="sidebar-panel">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <span>📝</span> 家系図構成データ (JSON)
+        </div>
+        <button id="btn-close-sidebar" class="btn" style="padding: 2px 8px; font-size: 11px;">閉じる</button>
+      </div>
+      <div class="sidebar-content">
+        <div style="font-size: 11px; color: var(--text-sub);">
+          テキストを直接修正して「図に反映」を押すと即座に反映されます。
+        </div>
+        <div id="json-error-badge" class="json-error-badge"></div>
+        <textarea id="json-textarea" class="json-editor-textarea" spellcheck="false"></textarea>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-apply-json" class="btn btn-primary" style="flex: 1;">図に反映する</button>
+          <button id="btn-format-json" class="btn">整形</button>
+        </div>
+      </div>
+    </aside>
+
+    <div id="viewport">
+      <div id="canvas-container">
+        <div class="print-document-header">
+          <div id="print-doc-title" class="print-doc-title">小笠原家 系譜図</div>
+          <div id="print-doc-subtitle" class="print-doc-subtitle">令和八年 吉日 調製（小笠原更一 家系・両家四代系譜）</div>
+        </div>
+
+        <svg id="connector-svg"></svg>
+        <div id="cards-container"></div>
+      </div>
+    </div>
+
+    <div class="floating-controls">
+      <button id="btn-zoom-out" class="zoom-btn" title="縮小">−</button>
+      <span id="zoom-level-text" class="zoom-level-text">100%</span>
+      <button id="btn-zoom-in" class="zoom-btn" title="拡大">＋</button>
+      <button id="btn-zoom-fit" class="zoom-btn" title="全体にフィット" style="font-size: 13px;">⛶</button>
+      <button id="btn-zoom-reset" class="zoom-btn" title="100%に戻す" style="font-size: 11px;">1:1</button>
+    </div>
+
+    <div id="status-toast" class="status-toast">下書きを保存しました</div>
+  </div>
+</div>
+
+<!-- MODAL: PERSON EDIT / CREATE -->
+<div id="person-modal" class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div id="person-modal-title" class="modal-title">
+        <span>👤</span> 人物情報の編集
+      </div>
+      <button id="btn-modal-close" class="modal-close-btn">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="form-person-id" />
+
+      <div class="form-row">
+        <div class="form-group" style="flex: 2;">
+          <label class="form-label" for="form-name">氏名 *</label>
+          <input type="text" id="form-name" class="form-input" placeholder="例: 小笠原 更一" required />
+        </div>
+        <div class="form-group" style="flex: 2;">
+          <label class="form-label" for="form-kana">ふりがな</label>
+          <input type="text" id="form-kana" class="form-input" placeholder="例: おがさわら こういち" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="form-gender">性別</label>
+          <select id="form-gender" class="form-select">
+            <option value="male">男性 (♂)</option>
+            <option value="female">女性 (♀)</option>
+            <option value="other">その他 / 未指定</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="form-relation">続柄・肩書</label>
+          <input type="text" id="form-relation" class="form-input" placeholder="例: ご本人（当主）、実父、長男" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="form-birth">生年（西暦/和暦）</label>
+          <input type="text" id="form-birth" class="form-input" placeholder="例: 1965 (昭和40)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="form-death">没年（空欄は現存）</label>
+          <input type="text" id="form-death" class="form-input" placeholder="例: 2016 (平成28)" />
+        </div>
+        <div class="form-group" style="flex: 0.8; justify-content: center; align-items: flex-start; padding-top: 18px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
+            <input type="checkbox" id="form-is-alive" checked /> 現存
+          </label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="form-spouses">配偶者（複数選択可）</label>
+          <select id="form-spouses" class="form-select" multiple size="3" style="height: 72px;"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="form-parents">両親（複数選択可）</label>
+          <select id="form-parents" class="form-select" multiple size="3" style="height: 72px;"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="form-note">略歴・特記事項・メモ</label>
+        <textarea id="form-note" class="form-textarea" placeholder="例: 当主、旧姓、兄弟の順位、業績など"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button id="btn-delete-person" class="btn" style="color: #b91c1c; border-color: #fca5a5;">🗑️ 削除</button>
+      <div style="display: flex; gap: 8px;">
+        <button id="btn-cancel-person" class="btn">キャンセル</button>
+        <button id="btn-save-person" class="btn btn-primary">保存する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PRINT PREVIEW & OPTIONS -->
+<div id="print-modal" class="modal-backdrop">
+  <div class="modal-card" style="width: 420px;">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span>🖨️</span> 印刷 / PDF出力設定
+      </div>
+      <button id="btn-print-modal-close" class="modal-close-btn">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div style="font-size: 13px; color: var(--text-sub); line-height: 1.5;">
+        ブラウザの印刷ダイアログを呼び出します。「送信先」を「PDFに保存」にすることで、美麗なPDFファイルとして保存できます。
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">用紙の向き・サイズ目安</label>
+        <select id="print-orientation-select" class="form-select">
+          <option value="landscape">A4 横（推奨・家系図に最適）</option>
+          <option value="portrait">A4 縦</option>
+          <option value="a3-landscape">A3 横（大家族・多世代向け）</option>
+        </select>
+      </div>
+
+      <div style="background: #fdfaf3; border: 1px solid #ece4d4; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.5; color: #6a5e4d;">
+        💡 <strong>綺麗に印刷するコツ:</strong><br>
+        印刷ダイアログの「詳細設定」で<strong>「背景のグラフィック」にチェック</strong>を入れてください。カードの色や美しい背景がそのまま印刷されます。
+      </div>
+    </div>
+
+    <div class="modal-footer" style="justify-content: flex-end; gap: 8px;">
+      <button id="btn-print-cancel" class="btn">閉じる</button>
+      <button id="btn-execute-print" class="btn btn-vermilion">印刷プレビューを開く</button>
+    </div>
+  </div>
+</div>
+
+<!-- APPLICATION SCRIPT -->
+<script>
+/**
+ * FamilyTree Studio — Core Application Controller
+ */
+
+// Presets
+const OGASAWARA_ACTUAL_DATA = {
+  "title": "小笠原家 系譜図",
+  "subtitle": "令和八年 吉日 調製（小笠原更一 家系・両家四代系譜）",
+  "theme": "japanese",
+  "layoutMode": "ancestry",
+  "focusPersonId": "p_koichi",
+  "persons": [
+    {
+      "id": "p_oga_gp_f",
+      "name": "小笠原家 祖父（名前不詳）",
+      "kana": "おがさわらけ そふ",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "父方祖父",
+      "note": "小笠原家。子供7人（湊の実父）。",
+      "spouses": [
+        "p_oga_gp_m"
+      ],
+      "parents": [],
+      "children": [
+        "p_oga_sib_1",
+        "p_oga_sib_3",
+        "p_oga_sib_4",
+        "p_oga_sib_5",
+        "p_oga_sib_6",
+        "p_oga_sib_7",
+        "p_minato"
+      ]
+    },
+    {
+      "id": "p_oga_gp_m",
+      "name": "小笠原家 祖母（名前不詳）",
+      "kana": "おがさわらけ そぼ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "父方祖母",
+      "note": "小笠原家。子供7人（湊の実母）。",
+      "spouses": [
+        "p_oga_gp_f"
+      ],
+      "parents": [],
+      "children": [
+        "p_oga_sib_1",
+        "p_oga_sib_3",
+        "p_oga_sib_4",
+        "p_oga_sib_5",
+        "p_oga_sib_6",
+        "p_oga_sib_7",
+        "p_minato"
+      ]
+    },
+    {
+      "id": "p_taizo_imai",
+      "name": "今井 退蔵",
+      "kana": "いまい たいぞう",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "母方祖父",
+      "note": "今井家 当主。ゑみ子の実父。",
+      "spouses": [
+        "p_tane_imai"
+      ],
+      "parents": [],
+      "children": [
+        "p_emiko",
+        "p_imai_chihei",
+        "p_imai_yoko"
+      ]
+    },
+    {
+      "id": "p_tane_imai",
+      "name": "今井 たね",
+      "kana": "いまい たね",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "母方祖母",
+      "note": "退蔵 妻。ゑみ子の実母。",
+      "spouses": [
+        "p_taizo_imai"
+      ],
+      "parents": [],
+      "children": [
+        "p_emiko",
+        "p_imai_chihei",
+        "p_imai_yoko"
+      ]
+    },
+    {
+      "id": "p_matsuda_gp_f",
+      "name": "松田家 祖父（名前不詳）",
+      "kana": "まつだけ そふ",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の父方祖父",
+      "note": "松田家。子供11人（一郎の実父）。",
+      "spouses": [
+        "p_matsuda_gp_m"
+      ],
+      "parents": [],
+      "children": [
+        "p_matsuda_sib_1",
+        "p_matsuda_sib_2",
+        "p_matsuda_sib_3",
+        "p_matsuda_sib_4",
+        "p_matsuda_sib_5",
+        "p_matsuda_sib_6",
+        "p_matsuda_sib_7",
+        "p_matsuda_sib_8",
+        "p_matsuda_sib_9",
+        "p_matsuda_sib_10",
+        "p_ichiro_matsuda"
+      ]
+    },
+    {
+      "id": "p_matsuda_gp_m",
+      "name": "松田家 祖母（名前不詳）",
+      "kana": "まつだけ そぼ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の父方祖母",
+      "note": "松田家。子供11人（一郎の実母）。",
+      "spouses": [
+        "p_matsuda_gp_f"
+      ],
+      "parents": [],
+      "children": [
+        "p_matsuda_sib_1",
+        "p_matsuda_sib_2",
+        "p_matsuda_sib_3",
+        "p_matsuda_sib_4",
+        "p_matsuda_sib_5",
+        "p_matsuda_sib_6",
+        "p_matsuda_sib_7",
+        "p_matsuda_sib_8",
+        "p_matsuda_sib_9",
+        "p_matsuda_sib_10",
+        "p_ichiro_matsuda"
+      ]
+    },
+    {
+      "id": "p_sadae_husband",
+      "name": "祖父（貞江の夫・名前不詳）",
+      "kana": "そふ（さだえのおっと）",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の母方祖父",
+      "note": "貞江 夫。仁子の実父。",
+      "spouses": [
+        "p_sadae"
+      ],
+      "parents": [],
+      "children": [
+        "p_satoko_matsuda"
+      ]
+    },
+    {
+      "id": "p_sadae",
+      "name": "貞江",
+      "kana": "さだえ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の母方祖母",
+      "note": "子供は1人（仁子のみ）。陽子の母方祖母。",
+      "spouses": [
+        "p_sadae_husband"
+      ],
+      "parents": [],
+      "children": [
+        "p_satoko_matsuda"
+      ]
+    },
+    {
+      "id": "p_oga_sib_1",
+      "name": "長男（名前不詳）",
+      "kana": "ちょうなん",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "伯父（長男）",
+      "note": "小笠原家 7人兄弟の長男。",
+      "spouses": [],
+      "parents": [
+        "p_oga_gp_f",
+        "p_oga_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_oga_sib_3",
+      "name": "三子（名前不詳）",
+      "kana": "三し",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "伯叔父母（三子）",
+      "note": "小笠原家 7人兄弟の三子。",
+      "spouses": [],
+      "parents": [
+        "p_oga_gp_f",
+        "p_oga_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_oga_sib_4",
+      "name": "四子（名前不詳）",
+      "kana": "四し",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "伯叔父母（四子）",
+      "note": "小笠原家 7人兄弟の四子。",
+      "spouses": [],
+      "parents": [
+        "p_oga_gp_f",
+        "p_oga_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_oga_sib_5",
+      "name": "五子（名前不詳）",
+      "kana": "五し",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "伯叔父母（五子）",
+      "note": "小笠原家 7人兄弟の五子。",
+      "spouses": [],
+      "parents": [
+        "p_oga_gp_f",
+        "p_oga_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_oga_sib_6",
+      "name": "六子（名前不詳）",
+      "kana": "六し",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "伯叔父母（六子）",
+      "note": "小笠原家 7人兄弟の六子。",
+      "spouses": [],
+      "parents": [
+        "p_oga_gp_f",
+        "p_oga_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_oga_sib_7",
+      "name": "七子（名前不詳）",
+      "kana": "七し",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "伯叔父母（七子）",
+      "note": "小笠原家 7人兄弟の七子。",
+      "spouses": [],
+      "parents": [
+        "p_oga_gp_f",
+        "p_oga_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_minato",
+      "name": "小笠原 湊",
+      "kana": "おがさわら みなと",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "実父（次男）",
+      "note": "小笠原家7人兄弟の次男。更一の実父。",
+      "spouses": [
+        "p_emiko"
+      ],
+      "parents": [
+        "p_oga_gp_f",
+        "p_oga_gp_m"
+      ],
+      "children": [
+        "p_yoko_sister",
+        "p_koichi"
+      ]
+    },
+    {
+      "id": "p_emiko",
+      "name": "小笠原 ゑみ子",
+      "kana": "おがさわら えみこ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "実母（次女）",
+      "note": "旧姓：今井。退蔵・たねの娘。更一の実母。",
+      "spouses": [
+        "p_minato"
+      ],
+      "parents": [
+        "p_taizo_imai",
+        "p_tane_imai"
+      ],
+      "children": [
+        "p_yoko_sister",
+        "p_koichi"
+      ]
+    },
+    {
+      "id": "p_imai_chihei",
+      "name": "今井 地平",
+      "kana": "いまい ちへい",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "伯父（長男）",
+      "note": "今井 退蔵・たねの子。",
+      "spouses": [],
+      "parents": [
+        "p_taizo_imai",
+        "p_tane_imai"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_imai_yoko",
+      "name": "今井 洋子",
+      "kana": "いまい ようこ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "伯母（長女）",
+      "note": "今井 退蔵・たねの子。",
+      "spouses": [],
+      "parents": [
+        "p_taizo_imai",
+        "p_tane_imai"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_1",
+      "name": "兄弟姉妹 一（名前不詳）",
+      "kana": "きょうだい 一",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（一）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_2",
+      "name": "兄弟姉妹 二（名前不詳）",
+      "kana": "きょうだい 二",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（二）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_3",
+      "name": "兄弟姉妹 三（名前不詳）",
+      "kana": "きょうだい 三",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（三）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_4",
+      "name": "兄弟姉妹 四（名前不詳）",
+      "kana": "きょうだい 四",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（四）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_5",
+      "name": "兄弟姉妹 五（名前不詳）",
+      "kana": "きょうだい 五",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（五）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_6",
+      "name": "兄弟姉妹 六（名前不詳）",
+      "kana": "きょうだい 六",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（六）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_7",
+      "name": "兄弟姉妹 七（名前不詳）",
+      "kana": "きょうだい 七",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（七）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_8",
+      "name": "兄弟姉妹 八（名前不詳）",
+      "kana": "きょうだい 八",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（八）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_9",
+      "name": "兄弟姉妹 九（名前不詳）",
+      "kana": "きょうだい 九",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（九）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_matsuda_sib_10",
+      "name": "兄弟姉妹 十（名前不詳）",
+      "kana": "きょうだい 十",
+      "gender": "other",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "妻の伯叔父母（十）",
+      "note": "松田家 11人兄弟姉妹のひとり。",
+      "spouses": [],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_ichiro_matsuda",
+      "name": "松田 一郎",
+      "kana": "まつだ いちろう",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "relation": "義父（実父）",
+      "note": "松田家11人兄弟のひとり。陽子の実父。",
+      "spouses": [
+        "p_satoko_matsuda"
+      ],
+      "parents": [
+        "p_matsuda_gp_f",
+        "p_matsuda_gp_m"
+      ],
+      "children": [
+        "p_yoko_matsuda",
+        "p_kentaro_matsuda"
+      ]
+    },
+    {
+      "id": "p_satoko_matsuda",
+      "name": "松田 仁子",
+      "kana": "まつだ ひとこ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "義母（実母）",
+      "note": "貞江の一人娘。一郎 妻。陽子の実母。",
+      "spouses": [
+        "p_ichiro_matsuda"
+      ],
+      "parents": [
+        "p_sadae_husband",
+        "p_sadae"
+      ],
+      "children": [
+        "p_yoko_matsuda",
+        "p_kentaro_matsuda"
+      ]
+    },
+    {
+      "id": "p_yoko_sister",
+      "name": "洋子",
+      "kana": "ようこ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "妹（長女）",
+      "note": "小笠原 湊・ゑみ子 長女（更一の妹）。",
+      "spouses": [],
+      "parents": [
+        "p_minato",
+        "p_emiko"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_koichi",
+      "name": "小笠原 更一",
+      "kana": "おがさわら こういち",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "ご本人（当主）",
+      "note": "小笠原家 当主（湊・ゑみ子 長男）。",
+      "spouses": [
+        "p_yoko_matsuda"
+      ],
+      "parents": [
+        "p_minato",
+        "p_emiko"
+      ],
+      "children": [
+        "p_riku",
+        "p_kokoro"
+      ]
+    },
+    {
+      "id": "p_yoko_matsuda",
+      "name": "小笠原 陽子",
+      "kana": "おがさわら ようこ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "妻（長女）",
+      "note": "更一 妻（旧姓：松田）。松田 一郎・仁子 長女。",
+      "spouses": [
+        "p_koichi"
+      ],
+      "parents": [
+        "p_ichiro_matsuda",
+        "p_satoko_matsuda"
+      ],
+      "children": [
+        "p_riku",
+        "p_kokoro"
+      ]
+    },
+    {
+      "id": "p_kentaro_matsuda",
+      "name": "松田 健太郎",
+      "kana": "まつだ けんたろう",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "義兄弟（兄）",
+      "note": "松田 一郎・仁子の子（陽子の兄弟）。",
+      "spouses": [],
+      "parents": [
+        "p_ichiro_matsuda",
+        "p_satoko_matsuda"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_riku",
+      "name": "小笠原 陸",
+      "kana": "おがさわら りく",
+      "gender": "male",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "長男",
+      "note": "小笠原 更一・陽子 長男。",
+      "spouses": [],
+      "parents": [
+        "p_koichi",
+        "p_yoko_matsuda"
+      ],
+      "children": []
+    },
+    {
+      "id": "p_kokoro",
+      "name": "小笠原 こころ",
+      "kana": "おがさわら こころ",
+      "gender": "female",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "relation": "長女",
+      "note": "小笠原 更一・陽子 長女。",
+      "spouses": [],
+      "parents": [
+        "p_koichi",
+        "p_yoko_matsuda"
+      ],
+      "children": []
+    }
+  ]
+};
+
+const YAMADA_3GEN_DATA = {
+  "title": "山田家 系譜図",
+  "subtitle": "令和八年 秋 吉日 作成",
+  "theme": "japanese",
+  "persons": [
+    {
+      "id": "p1",
+      "name": "山田 勘兵衛",
+      "kana": "やまだ かんべえ",
+      "gender": "male",
+      "birth": "1932",
+      "death": "2018",
+      "isAlive": false,
+      "relation": "祖父（先代当主）",
+      "note": "地域農業の近代化を牽引。勲六等瑞宝章。",
+      "spouses": [
+        "p2"
+      ],
+      "parents": [],
+      "children": [
+        "p3",
+        "p5",
+        "p7"
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "山田 まつ",
+      "kana": "やまだ まつ",
+      "gender": "female",
+      "birth": "1935",
+      "death": "",
+      "isAlive": true,
+      "relation": "祖母",
+      "note": "旧姓：佐藤。伝統工芸・茶道教授。",
+      "spouses": [
+        "p1"
+      ],
+      "parents": [],
+      "children": [
+        "p3",
+        "p5",
+        "p7"
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "山田 太郎",
+      "kana": "やまだ たろう",
+      "gender": "male",
+      "birth": "1960",
+      "death": "",
+      "isAlive": true,
+      "relation": "長男（現当主）",
+      "note": "精密機械製造会社を創業。現代表取締役。",
+      "spouses": [
+        "p4"
+      ],
+      "parents": [
+        "p1",
+        "p2"
+      ],
+      "children": [
+        "p8",
+        "p9"
+      ]
+    },
+    {
+      "id": "p4",
+      "name": "山田 花子",
+      "kana": "やまだ はなこ",
+      "gender": "female",
+      "birth": "1963",
+      "death": "",
+      "isAlive": true,
+      "relation": "妻",
+      "note": "旧姓：田中。植物園ボランティア代表。",
+      "spouses": [
+        "p3"
+      ],
+      "parents": [],
+      "children": [
+        "p8",
+        "p9"
+      ]
+    },
+    {
+      "id": "p5",
+      "name": "木村 恵美",
+      "kana": "きむら えみ",
+      "gender": "female",
+      "birth": "1964",
+      "death": "",
+      "isAlive": true,
+      "relation": "長女",
+      "note": "木村家へ嫁ぐ。大学教授（近代文学）。",
+      "spouses": [
+        "p6"
+      ],
+      "parents": [
+        "p1",
+        "p2"
+      ],
+      "children": [
+        "p10"
+      ]
+    },
+    {
+      "id": "p6",
+      "name": "木村 誠一郎",
+      "kana": "きむら せいいちろう",
+      "gender": "male",
+      "birth": "1962",
+      "death": "",
+      "isAlive": true,
+      "relation": "義弟",
+      "note": "建築家・一級建築士事務所主宰。",
+      "spouses": [
+        "p5"
+      ],
+      "parents": [],
+      "children": [
+        "p10"
+      ]
+    },
+    {
+      "id": "p7",
+      "name": "山田 次郎",
+      "kana": "やまだ じろう",
+      "gender": "male",
+      "birth": "1968",
+      "death": "",
+      "isAlive": true,
+      "relation": "次男",
+      "note": "海外赴任（シンガポール）。国際金融アナリスト。",
+      "spouses": [],
+      "parents": [
+        "p1",
+        "p2"
+      ],
+      "children": []
+    },
+    {
+      "id": "p8",
+      "name": "山田 一樹",
+      "kana": "やまだ かずき",
+      "gender": "male",
+      "birth": "1992",
+      "death": "",
+      "isAlive": true,
+      "relation": "孫（太郎長男・次期当主）",
+      "note": "AI・ソフトウェアエンジニア。後継者。",
+      "spouses": [
+        "p11"
+      ],
+      "parents": [
+        "p3",
+        "p4"
+      ],
+      "children": [
+        "p12"
+      ]
+    },
+    {
+      "id": "p11",
+      "name": "山田 葵",
+      "kana": "やまだ あおい",
+      "gender": "female",
+      "birth": "1994",
+      "death": "",
+      "isAlive": true,
+      "relation": "一樹 妻",
+      "note": "旧姓：高橋。グラフィックデザイナー。",
+      "spouses": [
+        "p8"
+      ],
+      "parents": [],
+      "children": [
+        "p12"
+      ]
+    },
+    {
+      "id": "p9",
+      "name": "山田 遥",
+      "kana": "やまだ はるか",
+      "gender": "female",
+      "birth": "1996",
+      "death": "",
+      "isAlive": true,
+      "relation": "孫（太郎長女）",
+      "note": "医師（小児科専門医）。",
+      "spouses": [],
+      "parents": [
+        "p3",
+        "p4"
+      ],
+      "children": []
+    },
+    {
+      "id": "p10",
+      "name": "木村 翔太",
+      "kana": "きむら しょうた",
+      "gender": "male",
+      "birth": "1998",
+      "death": "",
+      "isAlive": true,
+      "relation": "甥（恵美 長男）",
+      "note": "大学院生（航空宇宙工学専攻）。",
+      "spouses": [],
+      "parents": [
+        "p5",
+        "p6"
+      ],
+      "children": []
+    },
+    {
+      "id": "p12",
+      "name": "山田 蓮",
+      "kana": "やまだ れん",
+      "gender": "male",
+      "birth": "2024",
+      "death": "",
+      "isAlive": true,
+      "relation": "曾孫（一樹 長男）",
+      "note": "令和六年 生まれ。",
+      "spouses": [],
+      "parents": [
+        "p8",
+        "p11"
+      ],
+      "children": []
+    }
+  ]
+};
+
+// Global Application State
+let appData = null;
+let currentZoom = 1.0;
+let panX = 60;
+let panY = 60;
+let isPanning = false;
+let startPanX = 0;
+let startPanY = 0;
+
+// Dimensions & Spacing Constants
+const CARD_WIDTH = 70;
+const CARD_HEIGHT = 220;
+const SPOUSE_GAP = 24;
+const SIBLING_GAP = 20;
+const GENERATION_GAP = 96;
+
+/**
+ * Initialize Application
+ */
+function initApp() {
+  const saved = localStorage.getItem("familytree_studio_data");
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.persons && parsed.persons.some(p => p.id === "p_koichi") && parsed.persons.some(p => p.id === "p_matsuda_sib_1")) {
+        appData = parsed;
+      } else {
+        appData = JSON.parse(JSON.stringify(OGASAWARA_ACTUAL_DATA));
+      }
+    } catch(e) {
+      console.warn("Failed to parse saved data, loading default", e);
+      appData = JSON.parse(JSON.stringify(OGASAWARA_ACTUAL_DATA));
+    }
+  } else {
+    appData = JSON.parse(JSON.stringify(OGASAWARA_ACTUAL_DATA));
+  }
+
+  if (!appData.layoutMode) {
+    appData.layoutMode = "ancestry";
+  }
+
+  setupHeaderControls();
+  setupPanZoom();
+  setupModals();
+  setupSidebar();
+
+  applyTheme(appData.theme || "japanese");
+  document.getElementById("doc-title-input").value = appData.title || "小笠原家 系譜図";
+  document.getElementById("doc-subtitle-input").value = appData.subtitle || "";
+  document.getElementById("layout-mode-select").value = appData.layoutMode || "ancestry";
+
+  renderTree();
+  updateJsonTextarea();
+  centerTreeInViewport();
+}
+
+function applyTheme(themeName) {
+  document.body.className = `theme-${themeName}`;
+  const select = document.getElementById("theme-select");
+  if (select) select.value = themeName;
+  if (appData) appData.theme = themeName;
+}
+
+function setupHeaderControls() {
+  const docTitleInput = document.getElementById("doc-title-input");
+  const docSubtitleInput = document.getElementById("doc-subtitle-input");
+  const layoutModeSelect = document.getElementById("layout-mode-select");
+  const themeSelect = document.getElementById("theme-select");
+  const btnAddPerson = document.getElementById("btn-add-person");
+  const fileMenuSelect = document.getElementById("file-menu-select");
+  const fileInputHidden = document.getElementById("file-input-hidden");
+  const btnOpenPrint = document.getElementById("btn-open-print");
+
+  docTitleInput.addEventListener("input", (e) => {
+    appData.title = e.target.value;
+    document.getElementById("print-doc-title").textContent = e.target.value;
+    saveDataDebounced();
+  });
+
+  docSubtitleInput.addEventListener("input", (e) => {
+    appData.subtitle = e.target.value;
+    document.getElementById("print-doc-subtitle").textContent = e.target.value;
+    saveDataDebounced();
+  });
+
+  layoutModeSelect.addEventListener("change", (e) => {
+    appData.layoutMode = e.target.value;
+    saveDataDebounced();
+    renderTree();
+    centerTreeInViewport();
+    showToast(e.target.value === "ancestry" ? "4代祖先系譜モードに切り替えました" : "子孫展開モードに切り替えました");
+  });
+
+  themeSelect.addEventListener("change", (e) => {
+    applyTheme(e.target.value);
+    saveDataDebounced();
+  });
+
+  btnAddPerson.addEventListener("click", () => {
+    openPersonModal(null);
+  });
+
+  fileMenuSelect.addEventListener("change", (e) => {
+    const val = e.target.value;
+    e.target.value = "";
+    if (val === "load-ogasawara-actual") {
+      if (confirm("小笠原更一 家系図（本家・両家4代系譜）を読み込みますか？")) {
+        appData = JSON.parse(JSON.stringify(OGASAWARA_ACTUAL_DATA));
+        applyTheme(appData.theme || "japanese");
+        document.getElementById("doc-title-input").value = appData.title;
+        document.getElementById("doc-subtitle-input").value = appData.subtitle;
+        document.getElementById("layout-mode-select").value = appData.layoutMode || "ancestry";
+        saveData();
+        renderTree();
+        updateJsonTextarea();
+        centerTreeInViewport();
+        showToast("小笠原家 系譜図を読み込みました");
+      }
+    } else if (val === "load-sample") {
+      if (confirm("山田家 三代系図を読み込みますか？")) {
+        appData = JSON.parse(JSON.stringify(YAMADA_3GEN_DATA));
+        appData.layoutMode = "descendant";
+        applyTheme(appData.theme || "japanese");
+        document.getElementById("doc-title-input").value = appData.title;
+        document.getElementById("doc-subtitle-input").value = appData.subtitle;
+        document.getElementById("layout-mode-select").value = "descendant";
+        saveData();
+        renderTree();
+        updateJsonTextarea();
+        centerTreeInViewport();
+        showToast("山田家 三代系図を読み込みました");
+      }
+    } else if (val === "export-json") {
+      exportJsonFile();
+    } else if (val === "import-json") {
+      fileInputHidden.click();
+    } else if (val === "clear-data") {
+      if (confirm("家系図の全データをクリアして新規作成しますか？")) {
+        appData = {
+          title: "新規家系図",
+          subtitle: "作成日: " + new Date().toLocaleDateString("ja-JP"),
+          theme: "japanese",
+          layoutMode: "ancestry",
+          persons: [
+            {
+              id: "p1",
+              name: "ご本人（当主）",
+              kana: "ごほんにん",
+              gender: "male",
+              birth: "",
+              death: "",
+              isAlive: true,
+              relation: "四代（現当主）",
+              note: "",
+              spouses: [],
+              parents: [],
+              children: []
+            }
+          ]
+        };
+        document.getElementById("doc-title-input").value = appData.title;
+        document.getElementById("doc-subtitle-input").value = appData.subtitle;
+        saveData();
+        renderTree();
+        updateJsonTextarea();
+        centerTreeInViewport();
+        showToast("家系図をリセットしました");
+      }
+    }
+  });
+
+  fileInputHidden.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target.result);
+        if (!parsed.persons || !Array.isArray(parsed.persons)) {
+          alert("有効な家系図JSON形式ではありません。");
+          return;
+        }
+        appData = parsed;
+        applyTheme(appData.theme || "japanese");
+        document.getElementById("doc-title-input").value = appData.title || "家系図";
+        document.getElementById("doc-subtitle-input").value = appData.subtitle || "";
+        document.getElementById("layout-mode-select").value = appData.layoutMode || "ancestry";
+        saveData();
+        renderTree();
+        updateJsonTextarea();
+        centerTreeInViewport();
+        showToast("JSONファイルを正常に読み込みました");
+      } catch(err) {
+        alert("JSONの読み込みに失敗しました: " + err.message);
+      }
+      fileInputHidden.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  btnOpenPrint.addEventListener("click", () => {
+    openPrintModal();
+  });
+}
+
+function setupPanZoom() {
+  const viewport = document.getElementById("viewport");
+  const canvasContainer = document.getElementById("canvas-container");
+  const zoomLevelText = document.getElementById("zoom-level-text");
+
+  function updateTransform() {
+    canvasContainer.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+    zoomLevelText.textContent = `${Math.round(currentZoom * 100)}%`;
+  }
+
+  viewport.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".person-card") || e.target.closest("button") || e.target.closest("input")) {
+      return;
+    }
+    isPanning = true;
+    viewport.classList.add("dragging");
+    startPanX = e.clientX - panX;
+    startPanY = e.clientY - panY;
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isPanning) return;
+    panX = e.clientX - startPanX;
+    panY = e.clientY - startPanY;
+    updateTransform();
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (isPanning) {
+      isPanning = false;
+      viewport.classList.remove("dragging");
+    }
+  });
+
+  viewport.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+    const newZoom = Math.min(Math.max(currentZoom * zoomFactor, 0.2), 2.5);
+
+    const rect = viewport.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    panX = mouseX - (mouseX - panX) * (newZoom / currentZoom);
+    panY = mouseY - (mouseY - panY) * (newZoom / currentZoom);
+    currentZoom = newZoom;
+
+    updateTransform();
+  }, { passive: false });
+
+  document.getElementById("btn-zoom-in").addEventListener("click", () => {
+    currentZoom = Math.min(currentZoom * 1.2, 2.5);
+    updateTransform();
+  });
+
+  document.getElementById("btn-zoom-out").addEventListener("click", () => {
+    currentZoom = Math.max(currentZoom * 0.8, 0.2);
+    updateTransform();
+  });
+
+  document.getElementById("btn-zoom-reset").addEventListener("click", () => {
+    currentZoom = 1.0;
+    updateTransform();
+  });
+
+  document.getElementById("btn-zoom-fit").addEventListener("click", () => {
+    centerTreeInViewport();
+  });
+}
+
+function centerTreeInViewport() {
+  const viewport = document.getElementById("viewport");
+  const vWidth = viewport.clientWidth || window.innerWidth;
+  const vHeight = viewport.clientHeight || (window.innerHeight - 60);
+
+  const bounds = calculateTreeBounds();
+  if (!bounds || bounds.width === 0) {
+    panX = 60;
+    panY = 60;
+    currentZoom = 1.0;
+  } else {
+    const padding = 60;
+    const availableW = vWidth - padding * 2;
+    const availableH = vHeight - padding * 2;
+    const scaleW = availableW / bounds.width;
+    const scaleH = availableH / bounds.height;
+    currentZoom = Math.min(Math.max(Math.min(scaleW, scaleH, 1.0), 0.25), 1.2);
+
+    panX = (vWidth - bounds.width * currentZoom) / 2 - bounds.minX * currentZoom;
+    panY = (vHeight - bounds.height * currentZoom) / 2 - bounds.minY * currentZoom;
+  }
+
+  const canvasContainer = document.getElementById("canvas-container");
+  canvasContainer.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+  document.getElementById("zoom-level-text").textContent = `${Math.round(currentZoom * 100)}%`;
+}
+
+function calculateTreeBounds() {
+  const cards = document.querySelectorAll(".person-card");
+  if (cards.length === 0) return null;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  cards.forEach(c => {
+    const x = parseFloat(c.style.left);
+    const y = parseFloat(c.style.top);
+    const w = CARD_WIDTH;
+    const h = c.offsetHeight || CARD_HEIGHT;
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x + w > maxX) maxX = x + w;
+    if (y + h > maxY) maxY = y + h;
+  });
+
+  return { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY };
+}
+
+/**
+ * Main Render Dispatcher
+ */
+function renderTree() {
+  const cardsContainer = document.getElementById("cards-container");
+  const svg = document.getElementById("connector-svg");
+  cardsContainer.innerHTML = "";
+  svg.innerHTML = "";
+
+  if (!appData || !appData.persons || appData.persons.length === 0) return;
+
+  document.getElementById("print-doc-title").textContent = appData.title || "家系図";
+  document.getElementById("print-doc-subtitle").textContent = appData.subtitle || "";
+
+  const personMap = new Map();
+  appData.persons.forEach(p => personMap.set(p.id, p));
+
+  appData.persons.forEach(p => {
+    if (!p.children) p.children = [];
+    if (!p.spouses) p.spouses = [];
+    if (!p.parents) p.parents = [];
+  });
+
+  const mode = appData.layoutMode || "ancestry";
+  if (mode === "ancestry") {
+    renderAncestryLayout(personMap, cardsContainer, svg);
+  } else {
+    renderDescendantLayout(personMap, cardsContainer, svg);
+  }
+}
+
+/**
+ * ==========================================================================
+ * ANCESTRY LAYOUT (4-GENERATION SYMMETRICAL PEDIGREE)
+ * Level 0: 4 Ancestor Couples (初代 8人 / 4組)
+ * Level 1: Parents (湊 & ゑみ子) + (一郎 & 仁子)
+ * Level 2: Children of parents (更一 & 妹 洋子) + (陽子 & 兄 健太郎)
+ * Level 3: Children of 更一 ⚭ 陽子 (陸 & こころ)
+ * ==========================================================================
+ */
+function renderAncestryLayout(personMap, cardsContainer, svg) {
+  // Identify key persons
+  let koichi = personMap.get("p_koichi");
+  let yoko = personMap.get("p_yoko_matsuda");
+
+  if (!koichi) {
+    const focusPerson = personMap.get(appData.focusPersonId || appData.persons[0].id);
+    if (focusPerson && focusPerson.parents && focusPerson.parents.length >= 2) {
+      koichi = personMap.get(focusPerson.parents[0]);
+      yoko = personMap.get(focusPerson.parents[1]);
+    } else {
+      koichi = focusPerson;
+    }
+  }
+
+  // Parents
+  const minato = (koichi && koichi.parents && koichi.parents[0]) ? personMap.get(koichi.parents[0]) : personMap.get("p_minato");
+  const emiko = (koichi && koichi.parents && koichi.parents[1]) ? personMap.get(koichi.parents[1]) : personMap.get("p_emiko");
+
+  const ichiro = (yoko && yoko.parents && yoko.parents[0]) ? personMap.get(yoko.parents[0]) : personMap.get("p_ichiro_matsuda");
+  const satoko = (yoko && yoko.parents && yoko.parents[1]) ? personMap.get(yoko.parents[1]) : personMap.get("p_satoko_matsuda");
+
+  // Grandparents
+  const oga_gp_f = (minato && minato.parents && minato.parents[0]) ? personMap.get(minato.parents[0]) : personMap.get("p_oga_gp_f");
+  const oga_gp_m = (minato && minato.parents && minato.parents[1]) ? personMap.get(minato.parents[1]) : personMap.get("p_oga_gp_m");
+
+  const taizo = (emiko && emiko.parents && emiko.parents[0]) ? personMap.get(emiko.parents[0]) : personMap.get("p_taizo_imai");
+  const tane = (emiko && emiko.parents && emiko.parents[1]) ? personMap.get(emiko.parents[1]) : personMap.get("p_tane_imai");
+
+  const matsuda_gp_f = (ichiro && ichiro.parents && ichiro.parents[0]) ? personMap.get(ichiro.parents[0]) : personMap.get("p_matsuda_gp_f");
+  const matsuda_gp_m = (ichiro && ichiro.parents && ichiro.parents[1]) ? personMap.get(ichiro.parents[1]) : personMap.get("p_matsuda_gp_m");
+
+  const sadae_f = (satoko && satoko.parents && satoko.parents[0]) ? personMap.get(satoko.parents[0]) : personMap.get("p_sadae_husband");
+  const sadae = (satoko && satoko.parents && satoko.parents[1]) ? personMap.get(satoko.parents[1]) : personMap.get("p_sadae");
+
+  // Children of minato & emiko (更一 and 妹 洋子)
+  const minatoChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(minato ? minato.id : '') || p.parents.includes(emiko ? emiko.id : ''))
+  );
+  // Sort so koichi is on the right (facing yoko)
+  minatoChildren.sort((a, b) => (a.id === (koichi ? koichi.id : '') ? 1 : (b.id === (koichi ? koichi.id : '') ? -1 : 0)));
+
+  // Children of ichiro & satoko (陽子 and 兄 健太郎)
+  const ichiroChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(ichiro ? ichiro.id : '') || p.parents.includes(satoko ? satoko.id : ''))
+  );
+  // Sort so yoko is on the left (facing koichi)
+  ichiroChildren.sort((a, b) => (a.id === (yoko ? yoko.id : '') ? -1 : (b.id === (yoko ? yoko.id : '') ? 1 : 0)));
+
+  // Children of koichi & yoko (陸 and こころ)
+  const koichiChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(koichi ? koichi.id : '') || p.parents.includes(yoko ? yoko.id : ''))
+  );
+
+  // Other siblings of grandparents
+  const ogaGpChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(oga_gp_f ? oga_gp_f.id : '') || p.parents.includes(oga_gp_m ? oga_gp_m.id : ''))
+    && p.id !== (minato ? minato.id : '')
+  );
+
+  const imaiChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(taizo ? taizo.id : '') || p.parents.includes(tane ? tane.id : ''))
+    && p.id !== (emiko ? emiko.id : '')
+  );
+
+  const matsudaGpChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(matsuda_gp_f ? matsuda_gp_f.id : '') || p.parents.includes(matsuda_gp_m ? matsuda_gp_m.id : ''))
+    && p.id !== (ichiro ? ichiro.id : '')
+  );
+
+  const nodePositions = new Map();
+  const connectorJobs = [];
+  const placedIds = new Set();
+
+  const startY = 80;
+  const lvlHeight = CARD_HEIGHT + GENERATION_GAP;
+  const yL0 = startY;
+  const yL1 = startY + lvlHeight;
+  const yL2 = startY + lvlHeight * 2;
+  const yL3 = startY + lvlHeight * 3;
+
+  // Centers of the 4 Ancestor Couples at Level 0
+  const c1_center = 420;
+  const c2_center = 960;
+  const c3_center = 1600;
+  const c4_center = 2140;
+
+  function placeCouple(f, m, center, y) {
+    if (!f && !m) return;
+    const fX = center - CARD_WIDTH - SPOUSE_GAP / 2;
+    const mX = center + SPOUSE_GAP / 2;
+    if (f) {
+      nodePositions.set(f.id, { x: fX, y, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(f.id);
+    }
+    if (m) {
+      nodePositions.set(m.id, { x: mX, y, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(m.id);
+    }
+    if (f && m) {
+      connectorJobs.push({
+        type: "couple",
+        y: y + CARD_HEIGHT / 2,
+        x1: fX + CARD_WIDTH,
+        x2: mX
+      });
+    }
+  }
+
+  placeCouple(oga_gp_f, oga_gp_m, c1_center, yL0);
+  placeCouple(taizo, tane, c2_center, yL0);
+  placeCouple(matsuda_gp_f, matsuda_gp_m, c3_center, yL0);
+  placeCouple(sadae_f, sadae, c4_center, yL0);
+
+  // Level 1: 湊, ゑみ子, 一郎, 仁子
+  const minatoX = c1_center - CARD_WIDTH / 2;
+  const emikoX = c2_center - CARD_WIDTH / 2;
+  const minatoCoupleCenter = (minatoX + CARD_WIDTH + emikoX) / 2;
+
+  if (minato) {
+    nodePositions.set(minato.id, { x: minatoX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(minato.id);
+    connectorJobs.push({
+      type: "drop_to_child",
+      fromX: c1_center,
+      fromY: yL0 + CARD_HEIGHT,
+      toX: minatoX + CARD_WIDTH / 2,
+      toY: yL1
+    });
+  }
+
+  if (emiko) {
+    nodePositions.set(emiko.id, { x: emikoX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(emiko.id);
+    connectorJobs.push({
+      type: "drop_to_child",
+      fromX: c2_center,
+      fromY: yL0 + CARD_HEIGHT,
+      toX: emikoX + CARD_WIDTH / 2,
+      toY: yL1
+    });
+  }
+
+  if (minato && emiko) {
+    connectorJobs.push({
+      type: "couple",
+      y: yL1 + CARD_HEIGHT / 2,
+      x1: minatoX + CARD_WIDTH,
+      x2: emikoX
+    });
+  }
+
+  const ichiroX = c3_center - CARD_WIDTH / 2;
+  const satokoX = c4_center - CARD_WIDTH / 2;
+  const ichiroCoupleCenter = (ichiroX + CARD_WIDTH + satokoX) / 2;
+
+  if (ichiro) {
+    nodePositions.set(ichiro.id, { x: ichiroX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(ichiro.id);
+    connectorJobs.push({
+      type: "drop_to_child",
+      fromX: c3_center,
+      fromY: yL0 + CARD_HEIGHT,
+      toX: ichiroX + CARD_WIDTH / 2,
+      toY: yL1
+    });
+  }
+
+  if (satoko) {
+    nodePositions.set(satoko.id, { x: satokoX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(satoko.id);
+    connectorJobs.push({
+      type: "drop_to_child",
+      fromX: c4_center,
+      fromY: yL0 + CARD_HEIGHT,
+      toX: satokoX + CARD_WIDTH / 2,
+      toY: yL1
+    });
+  }
+
+  if (ichiro && satoko) {
+    connectorJobs.push({
+      type: "couple",
+      y: yL1 + CARD_HEIGHT / 2,
+      x1: ichiroX + CARD_WIDTH,
+      x2: satokoX
+    });
+  }
+
+  // Level 2: Children of 湊 & ゑみ子 (更一 & 妹 洋子)
+  // Perfectly centered under minatoCoupleCenter!
+  const minatoKidsW = minatoChildren.length * CARD_WIDTH + (minatoChildren.length - 1) * SIBLING_GAP;
+  let curMinatoKidX = minatoCoupleCenter - minatoKidsW / 2;
+  const minatoKidXs = [];
+
+  minatoChildren.forEach(child => {
+    nodePositions.set(child.id, { x: curMinatoKidX, y: yL2, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    minatoKidXs.push(curMinatoKidX + CARD_WIDTH / 2);
+    curMinatoKidX += CARD_WIDTH + SIBLING_GAP;
+  });
+
+  if (minatoKidXs.length > 0) {
+    connectorJobs.push({
+      type: "children_fork",
+      parentMidX: minatoCoupleCenter,
+      parentBottomY: yL1 + CARD_HEIGHT,
+      forkY: yL1 + CARD_HEIGHT + GENERATION_GAP / 2,
+      minChildX: Math.min(...minatoKidXs),
+      maxChildX: Math.max(...minatoKidXs),
+      childMidXs: minatoKidXs,
+      childTopY: yL2
+    });
+  }
+
+  // Level 2: Children of 一郎 & 仁子 (陽子 & 兄 健太郎)
+  // Perfectly centered under ichiroCoupleCenter!
+  const ichiroKidsW = ichiroChildren.length * CARD_WIDTH + (ichiroChildren.length - 1) * SIBLING_GAP;
+  let curIchiroKidX = ichiroCoupleCenter - ichiroKidsW / 2;
+  const ichiroKidXs = [];
+
+  ichiroChildren.forEach(child => {
+    nodePositions.set(child.id, { x: curIchiroKidX, y: yL2, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    ichiroKidXs.push(curIchiroKidX + CARD_WIDTH / 2);
+    curIchiroKidX += CARD_WIDTH + SIBLING_GAP;
+  });
+
+  if (ichiroKidXs.length > 0) {
+    connectorJobs.push({
+      type: "children_fork",
+      parentMidX: ichiroCoupleCenter,
+      parentBottomY: yL1 + CARD_HEIGHT,
+      forkY: yL1 + CARD_HEIGHT + GENERATION_GAP / 2,
+      minChildX: Math.min(...ichiroKidXs),
+      maxChildX: Math.max(...ichiroKidXs),
+      childMidXs: ichiroKidXs,
+      childTopY: yL2
+    });
+  }
+
+  // Connect 更一 and 陽子 as a couple at Level 2!
+  const posKoichi = koichi ? nodePositions.get(koichi.id) : null;
+  const posYoko = yoko ? nodePositions.get(yoko.id) : null;
+  let koichiCoupleCenter = (minatoCoupleCenter + ichiroCoupleCenter) / 2;
+
+  if (posKoichi && posYoko) {
+    connectorJobs.push({
+      type: "couple",
+      y: yL2 + CARD_HEIGHT / 2,
+      x1: posKoichi.x + CARD_WIDTH,
+      x2: posYoko.x
+    });
+    koichiCoupleCenter = (posKoichi.x + CARD_WIDTH + posYoko.x) / 2;
+  }
+
+  // Level 3: Children of 更一 & 陽子 (陸 & こころ)
+  // Perfectly centered under koichiCoupleCenter!
+  const koichiKidsW = koichiChildren.length * CARD_WIDTH + (koichiChildren.length - 1) * SIBLING_GAP;
+  let curKoichiKidX = koichiCoupleCenter - koichiKidsW / 2;
+  const koichiKidXs = [];
+
+  koichiChildren.forEach(child => {
+    nodePositions.set(child.id, { x: curKoichiKidX, y: yL3, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    koichiKidXs.push(curKoichiKidX + CARD_WIDTH / 2);
+    curKoichiKidX += CARD_WIDTH + SIBLING_GAP;
+  });
+
+  if (koichiKidXs.length > 0) {
+    connectorJobs.push({
+      type: "children_fork",
+      parentMidX: koichiCoupleCenter,
+      parentBottomY: yL2 + CARD_HEIGHT,
+      forkY: yL2 + CARD_HEIGHT + GENERATION_GAP / 2,
+      minChildX: Math.min(...koichiKidXs),
+      maxChildX: Math.max(...koichiKidXs),
+      childMidXs: koichiKidXs,
+      childTopY: yL3
+    });
+  }
+
+  // Relatives at Level 1
+  let extraLeftX = minatoX - SIBLING_GAP - CARD_WIDTH;
+  ogaGpChildren.forEach(c => {
+    nodePositions.set(c.id, { x: extraLeftX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(c.id);
+    extraLeftX -= (CARD_WIDTH + SIBLING_GAP);
+  });
+
+  let extraImaiX = emikoX + CARD_WIDTH + SIBLING_GAP;
+  imaiChildren.forEach(c => {
+    nodePositions.set(c.id, { x: extraImaiX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(c.id);
+    extraImaiX += (CARD_WIDTH + SIBLING_GAP);
+  });
+
+  let extraMatsudaX = ichiroX - SIBLING_GAP - CARD_WIDTH;
+  matsudaGpChildren.forEach(c => {
+    nodePositions.set(c.id, { x: extraMatsudaX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(c.id);
+    extraMatsudaX -= (CARD_WIDTH + SIBLING_GAP);
+  });
+
+  let extraFarRightX = c4_center + CARD_WIDTH + 60;
+  appData.persons.forEach(p => {
+    if (!placedIds.has(p.id)) {
+      nodePositions.set(p.id, { x: extraFarRightX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(p.id);
+      extraFarRightX += (CARD_WIDTH + SIBLING_GAP);
+    }
+  });
+
+  appData.persons.forEach(person => {
+    const pos = nodePositions.get(person.id);
+    if (!pos) return;
+    const cardEl = createPersonCardElement(person, pos);
+    cardsContainer.appendChild(cardEl);
+  });
+
+  drawSvgConnectors(connectorJobs, svg);
+
+  const ancestryLabels = [
+    "初代（四代前・曾祖父母 / 諸家初代）",
+    "二代（三代前・ご両親の世代）",
+    "三代（二代前・更一様・陽子様世代）",
+    "四代（現世代・お子様世代）"
+  ];
+  for (let lvl = 0; lvl <= 3; lvl++) {
+    const y = startY + lvl * lvlHeight;
+    const marker = document.createElement("div");
+    marker.className = "generation-marker";
+    marker.style.left = "16px";
+    marker.style.top = `${y - 28}px`;
+    marker.textContent = ancestryLabels[lvl] || `第${lvl + 1}世代`;
+    cardsContainer.appendChild(marker);
+  }
+}
+
+/**
+ * ==========================================================================
+ * DESCENDANT LAYOUT (TOP-DOWN RECURSIVE SUBTREE)
+ * ==========================================================================
+ */
+function renderDescendantLayout(personMap, cardsContainer, svg) {
+  const levels = new Map();
+  function getLevel(id, visited = new Set()) {
+    if (levels.has(id)) return levels.get(id);
+    if (visited.has(id)) return 0;
+    visited.add(id);
+
+    const person = personMap.get(id);
+    if (!person || !person.parents || person.parents.length === 0) {
+      levels.set(id, 0);
+      return 0;
+    }
+
+    let maxParentLevel = -1;
+    person.parents.forEach(pid => {
+      maxParentLevel = Math.max(maxParentLevel, getLevel(pid, visited));
+    });
+    const lvl = maxParentLevel + 1;
+    levels.set(id, lvl);
+    return lvl;
+  }
+
+  appData.persons.forEach(p => getLevel(p.id));
+
+  appData.persons.forEach(p => {
+    const myLvl = levels.get(p.id) || 0;
+    p.spouses.forEach(sid => {
+      const spLvl = levels.get(sid) || 0;
+      const maxL = Math.max(myLvl, spLvl);
+      levels.set(p.id, maxL);
+      levels.set(sid, maxL);
+    });
+  });
+
+  const placedPersons = new Set();
+  const nodePositions = new Map();
+  const connectorJobs = [];
+
+  const rootPersons = appData.persons.filter(p => p.parents.length === 0);
+  const rootUnits = [];
+  const rootVisited = new Set();
+
+  rootPersons.forEach(p => {
+    if (rootVisited.has(p.id)) return;
+    rootVisited.add(p.id);
+    const unit = { primary: p, spouse: null, children: [] };
+    if (p.spouses && p.spouses.length > 0) {
+      const spId = p.spouses[0];
+      const spouse = personMap.get(spId);
+      if (spouse && rootPersons.includes(spouse)) {
+        unit.spouse = spouse;
+        rootVisited.add(spId);
+      }
+    }
+    const childIds = new Set(p.children || []);
+    if (unit.spouse && unit.spouse.children) {
+      unit.spouse.children.forEach(cid => childIds.add(cid));
+    }
+    unit.children = Array.from(childIds).map(cid => personMap.get(cid)).filter(Boolean);
+    rootUnits.push(unit);
+  });
+
+  rootPersons.forEach(p => {
+    if (!rootVisited.has(p.id)) {
+      rootVisited.add(p.id);
+      rootUnits.push({
+        primary: p,
+        spouse: null,
+        children: (p.children || []).map(cid => personMap.get(cid)).filter(Boolean)
+      });
+    }
+  });
+
+  function layoutUnitTree(personId, spouseId, currentLevel, startX) {
+    const primary = personMap.get(personId);
+    const spouse = spouseId ? personMap.get(spouseId) : null;
+    if (!primary) return { width: 0, childrenMidX: startX };
+
+    const childIds = new Set(primary.children || []);
+    if (spouse && spouse.children) {
+      spouse.children.forEach(cid => childIds.add(cid));
+    }
+    const children = Array.from(childIds).map(cid => personMap.get(cid)).filter(Boolean);
+
+    const hasSpouse = !!spouse;
+    const unitCardWidth = hasSpouse ? (CARD_WIDTH * 2 + SPOUSE_GAP) : CARD_WIDTH;
+    const currentY = currentLevel * (CARD_HEIGHT + GENERATION_GAP) + 60;
+
+    let childrenTotalWidth = 0;
+    const childLayouts = [];
+    let curChildX = startX;
+
+    if (children.length > 0) {
+      const visitedChild = new Set();
+      children.forEach((c) => {
+        if (visitedChild.has(c.id)) return;
+        visitedChild.add(c.id);
+
+        let cSpouseId = null;
+        if (c.spouses && c.spouses.length > 0) {
+          cSpouseId = c.spouses[0];
+          visitedChild.add(cSpouseId);
+        }
+
+        const res = layoutUnitTree(c.id, cSpouseId, currentLevel + 1, curChildX);
+        childLayouts.push({
+          child: c,
+          childSpouse: cSpouseId ? personMap.get(cSpouseId) : null,
+          layout: res,
+          x: curChildX
+        });
+        curChildX += res.width + SIBLING_GAP;
+      });
+
+      childrenTotalWidth = curChildX - startX - (childLayouts.length > 0 ? SIBLING_GAP : 0);
+    }
+
+    const totalWidth = Math.max(unitCardWidth, childrenTotalWidth);
+
+    let parentStartX = startX;
+    if (totalWidth > unitCardWidth) {
+      parentStartX = startX + (totalWidth - unitCardWidth) / 2;
+    }
+
+    nodePositions.set(primary.id, {
+      x: parentStartX,
+      y: currentY,
+      width: CARD_WIDTH,
+      height: CARD_HEIGHT
+    });
+    placedPersons.add(primary.id);
+
+    let spousePosX = null;
+    if (hasSpouse) {
+      spousePosX = parentStartX + CARD_WIDTH + SPOUSE_GAP;
+      nodePositions.set(spouse.id, {
+        x: spousePosX,
+        y: currentY,
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT
+      });
+      placedPersons.add(spouse.id);
+
+      connectorJobs.push({
+        type: "couple",
+        p1Id: primary.id,
+        p2Id: spouse.id,
+        y: currentY + CARD_HEIGHT / 2,
+        x1: parentStartX + CARD_WIDTH,
+        x2: spousePosX
+      });
+    }
+
+    if (children.length > 0 && childLayouts.length > 0) {
+      const parentMidX = hasSpouse ? (parentStartX + CARD_WIDTH + SPOUSE_GAP / 2) : (parentStartX + CARD_WIDTH / 2);
+      const parentBottomY = currentY + CARD_HEIGHT;
+      const forkY = currentY + CARD_HEIGHT + (GENERATION_GAP / 2);
+
+      const childMidXs = childLayouts.map(cl => {
+        const cPos = nodePositions.get(cl.child.id);
+        return cPos ? (cPos.x + CARD_WIDTH / 2) : (cl.x + CARD_WIDTH / 2);
+      });
+
+      connectorJobs.push({
+        type: "children_fork",
+        parentMidX,
+        parentBottomY,
+        forkY,
+        minChildX: Math.min(...childMidXs),
+        maxChildX: Math.max(...childMidXs),
+        childMidXs,
+        childTopY: (currentLevel + 1) * (CARD_HEIGHT + GENERATION_GAP) + 60
+      });
+    }
+
+    return { width: totalWidth, midX: parentStartX + unitCardWidth / 2 };
+  }
+
+  let currentStartX = 60;
+  rootUnits.forEach(ru => {
+    const res = layoutUnitTree(ru.primary.id, ru.spouse ? ru.spouse.id : null, 0, currentStartX);
+    currentStartX += res.width + SIBLING_GAP * 2;
+  });
+
+  appData.persons.forEach(p => {
+    if (!placedPersons.has(p.id)) {
+      const lvl = levels.get(p.id) || 0;
+      const y = lvl * (CARD_HEIGHT + GENERATION_GAP) + 60;
+      nodePositions.set(p.id, { x: currentStartX, y: y, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedPersons.add(p.id);
+      currentStartX += CARD_WIDTH + SIBLING_GAP;
+    }
+  });
+
+  appData.persons.forEach(person => {
+    const pos = nodePositions.get(person.id);
+    if (!pos) return;
+    const cardEl = createPersonCardElement(person, pos);
+    cardsContainer.appendChild(cardEl);
+  });
+
+  drawSvgConnectors(connectorJobs, svg);
+
+  const maxLvl = Math.max(...Array.from(levels.values()), 0);
+  const genLabels = ["第一世代 (祖父母)", "第二世代 (親・伯叔父)", "第三世代 (子・甥姪)", "第四世代 (孫)", "第五世代 (曾孫)"];
+  for (let lvl = 0; lvl <= maxLvl; lvl++) {
+    const y = lvl * (CARD_HEIGHT + GENERATION_GAP) + 60;
+    const marker = document.createElement("div");
+    marker.className = "generation-marker";
+    marker.style.left = "16px";
+    marker.style.top = `${y - 28}px`;
+    marker.textContent = genLabels[lvl] || `第${lvl + 1}世代`;
+    cardsContainer.appendChild(marker);
+  }
+}
+
+function formatVerticalNameHtml(person) {
+  let name = person.name || '名称未設定';
+  let sub = '';
+  if (name.includes('（')) {
+    const parts = name.split('（');
+    name = parts[0];
+    sub = parts[1].replace('）', '');
+  }
+  
+  let mainEscaped = escapeHtml(name);
+  if (person.kana && !sub) {
+    mainEscaped = `<ruby>${mainEscaped}<rt>${escapeHtml(person.kana)}</rt></ruby>`;
+  }
+  
+  let subHtml = sub ? `<div class="name-sub">（${escapeHtml(sub)}）</div>` : '';
+  return `<div class="card-name-vertical">${mainEscaped}${subHtml}</div>`;
+}
+
+function formatVerticalNameHtml(person) {
+  let name = person.name || '名称未設定';
+  let sub = '';
+  if (name.includes('（')) {
+    const parts = name.split('（');
+    name = parts[0];
+    sub = parts[1].replace('）', '');
+  }
+  
+  let mainEscaped = escapeHtml(name);
+  if (person.kana && !sub) {
+    mainEscaped = `<ruby>${mainEscaped}<rt>${escapeHtml(person.kana)}</rt></ruby>`;
+  }
+  
+  let subHtml = sub ? `<div class="name-sub">（${escapeHtml(sub)}）</div>` : '';
+  return `<div class="card-name-vertical">${mainEscaped}${subHtml}</div>`;
+}
+
+function createPersonCardElement(person, pos) {
+  const card = document.createElement("div");
+  card.className = `person-card gender-${person.gender || 'other'}`;
+  card.id = `card-${person.id}`;
+  card.style.left = `${pos.x}px`;
+  card.style.top = `${pos.y}px`;
+
+  const genderIcon = person.gender === 'male' ? '♂' : (person.gender === 'female' ? '♀' : '✦');
+
+  let lifespanText = "";
+  if (person.birth) {
+    lifespanText = person.birth;
+    if (person.death) {
+      lifespanText += ` - ${person.death}`;
+    } else if (person.isAlive !== false) {
+      lifespanText += ` - 現存`;
+    }
+  } else if (person.isAlive === false) {
+    lifespanText = "故人";
+  }
+
+  const relationText = person.relation || (person.gender === 'male' ? '男性' : '女性');
+
+  card.innerHTML = `
+    <div class="card-top">
+      <span class="card-relation-tag" title="${escapeHtml(relationText)}">${escapeHtml(relationText)}</span>
+    </div>
+
+    <div class="card-body-vertical">
+      ${formatVerticalNameHtml(person)}
+    </div>
+
+    <div class="card-bottom">
+      ${lifespanText ? `<span class="lifespan-pill" title="${escapeHtml(lifespanText)}">${escapeHtml(lifespanText)}</span>` : '<span style="flex:1"></span>'}
+      <span class="card-gender-badge">${genderIcon}</span>
+    </div>
+
+    <div class="card-actions-hover">
+      <button class="card-action-btn btn-action-edit" title="編集">✏️</button>
+      <button class="card-action-btn btn-action-add-spouse" title="配偶者を追加">💍</button>
+      <button class="card-action-btn btn-action-add-child" title="子を追加">👶</button>
+      <button class="card-action-btn btn-action-delete" title="削除">🗑️</button>
+    </div>
+  `;
+
+  card.addEventListener("click", (e) => {
+    if (e.target.closest(".card-actions-hover")) return;
+    openPersonModal(person.id);
+  });
+
+  card.querySelector(".btn-action-edit").addEventListener("click", (e) => {
+    e.stopPropagation();
+    openPersonModal(person.id);
+  });
+
+  card.querySelector(".btn-action-add-spouse").addEventListener("click", (e) => {
+    e.stopPropagation();
+    quickAddRelative(person.id, "spouse");
+  });
+
+  card.querySelector(".btn-action-add-child").addEventListener("click", (e) => {
+    e.stopPropagation();
+    quickAddRelative(person.id, "child");
+  });
+
+  card.querySelector(".btn-action-delete").addEventListener("click", (e) => {
+    e.stopPropagation();
+    deletePerson(person.id);
+  });
+
+  return card;
+}
+
+function drawSvgConnectors(jobs, svg) {
+  let svgContent = "";
+
+  jobs.forEach(job => {
+    if (job.type === "couple") {
+      svgContent += `
+        <line x1="${job.x1}" y1="${job.y - 3}" x2="${job.x2}" y2="${job.y - 3}" class="svg-couple-line" />
+        <line x1="${job.x1}" y1="${job.y + 3}" x2="${job.x2}" y2="${job.y + 3}" class="svg-couple-line" />
+        <text x="${(job.x1 + job.x2) / 2}" y="${job.y}" class="svg-marriage-icon">⚭</text>
+      `;
+    } else if (job.type === "drop_to_child") {
+      const midY = (job.fromY + job.toY) / 2;
+      svgContent += `
+        <line x1="${job.fromX}" y1="${job.fromY}" x2="${job.fromX}" y2="${midY}" class="svg-child-line" />
+        <line x1="${job.fromX}" y1="${midY}" x2="${job.toX}" y2="${midY}" class="svg-child-line" />
+        <line x1="${job.toX}" y1="${midY}" x2="${job.toX}" y2="${job.toY}" class="svg-child-line" />
+        <circle cx="${job.fromX}" cy="${job.fromY}" r="3" class="svg-junction-dot" />
+        <circle cx="${job.toX}" cy="${job.toY}" r="3" class="svg-junction-dot" />
+      `;
+    } else if (job.type === "children_fork") {
+      svgContent += `
+        <line x1="${job.parentMidX}" y1="${job.parentBottomY}" x2="${job.parentMidX}" y2="${job.forkY}" class="svg-child-line" />
+        <circle cx="${job.parentMidX}" cy="${job.parentBottomY}" r="3" class="svg-junction-dot" />
+      `;
+
+      if (job.minChildX < job.maxChildX) {
+        svgContent += `
+          <line x1="${Math.min(job.parentMidX, job.minChildX)}" y1="${job.forkY}" x2="${Math.max(job.parentMidX, job.maxChildX)}" y2="${job.forkY}" class="svg-child-line" />
+        `;
+      } else {
+        svgContent += `
+          <line x1="${job.parentMidX}" y1="${job.forkY}" x2="${job.minChildX}" y2="${job.forkY}" class="svg-child-line" />
+        `;
+      }
+
+      job.childMidXs.forEach(cx => {
+        svgContent += `
+          <line x1="${cx}" y1="${job.forkY}" x2="${cx}" y2="${job.childTopY}" class="svg-child-line" />
+          <circle cx="${cx}" cy="${job.childTopY}" r="3" class="svg-junction-dot" />
+        `;
+      });
+    }
+  });
+
+  svg.innerHTML = svgContent;
+}
+
+function setupModals() {
+  const modal = document.getElementById("person-modal");
+  const btnClose = document.getElementById("btn-modal-close");
+  const btnCancel = document.getElementById("btn-cancel-person");
+  const btnSave = document.getElementById("btn-save-person");
+  const btnDelete = document.getElementById("btn-delete-person");
+
+  btnClose.addEventListener("click", () => closeModal());
+  btnCancel.addEventListener("click", () => closeModal());
+
+  btnSave.addEventListener("click", () => {
+    savePersonFromModal();
+  });
+
+  btnDelete.addEventListener("click", () => {
+    const id = document.getElementById("form-person-id").value;
+    if (id && confirm("この人物を家系図から削除しますか？")) {
+      deletePerson(id);
+      closeModal();
+    }
+  });
+
+  const printModal = document.getElementById("print-modal");
+  document.getElementById("btn-print-modal-close").addEventListener("click", () => printModal.classList.remove("open"));
+  document.getElementById("btn-print-cancel").addEventListener("click", () => printModal.classList.remove("open"));
+  document.getElementById("btn-execute-print").addEventListener("click", () => {
+    printModal.classList.remove("open");
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  });
+}
+
+function openPersonModal(personId) {
+  const modal = document.getElementById("person-modal");
+  const title = document.getElementById("person-modal-title");
+  const idInput = document.getElementById("form-person-id");
+  const nameInput = document.getElementById("form-name");
+  const kanaInput = document.getElementById("form-kana");
+  const genderInput = document.getElementById("form-gender");
+  const relationInput = document.getElementById("form-relation");
+  const birthInput = document.getElementById("form-birth");
+  const deathInput = document.getElementById("form-death");
+  const isAliveInput = document.getElementById("form-is-alive");
+  const noteInput = document.getElementById("form-note");
+  const spousesSelect = document.getElementById("form-spouses");
+  const parentsSelect = document.getElementById("form-parents");
+  const btnDelete = document.getElementById("btn-delete-person");
+
+  spousesSelect.innerHTML = "";
+  parentsSelect.innerHTML = "";
+
+  appData.persons.forEach(p => {
+    if (p.id !== personId) {
+      const opt1 = new Option(`${p.name} (${p.relation || p.gender})`, p.id);
+      const opt2 = new Option(`${p.name} (${p.relation || p.gender})`, p.id);
+      spousesSelect.add(opt1);
+      parentsSelect.add(opt2);
+    }
+  });
+
+  if (personId) {
+    const person = appData.persons.find(p => p.id === personId);
+    if (!person) return;
+    title.innerHTML = `<span>👤</span> ${escapeHtml(person.name)} の情報を編集`;
+    idInput.value = person.id;
+    nameInput.value = person.name || "";
+    kanaInput.value = person.kana || "";
+    genderInput.value = person.gender || "male";
+    relationInput.value = person.relation || "";
+    birthInput.value = person.birth || "";
+    deathInput.value = person.death || "";
+    isAliveInput.checked = person.isAlive !== false;
+    noteInput.value = person.note || "";
+    btnDelete.style.display = "inline-flex";
+
+    Array.from(spousesSelect.options).forEach(opt => {
+      opt.selected = (person.spouses || []).includes(opt.value);
+    });
+    Array.from(parentsSelect.options).forEach(opt => {
+      opt.selected = (person.parents || []).includes(opt.value);
+    });
+  } else {
+    title.innerHTML = `<span>➕</span> 新しい人物を追加`;
+    idInput.value = "";
+    nameInput.value = "";
+    kanaInput.value = "";
+    genderInput.value = "male";
+    relationInput.value = "";
+    birthInput.value = "";
+    deathInput.value = "";
+    isAliveInput.checked = true;
+    noteInput.value = "";
+    btnDelete.style.display = "none";
+  }
+
+  modal.classList.add("open");
+  nameInput.focus();
+}
+
+function closeModal() {
+  document.getElementById("person-modal").classList.remove("open");
+}
+
+function openPrintModal() {
+  document.getElementById("print-modal").classList.add("open");
+}
+
+function savePersonFromModal() {
+  const idInput = document.getElementById("form-person-id").value;
+  const name = document.getElementById("form-name").value.trim();
+  if (!name) {
+    alert("氏名を入力してください。");
+    return;
+  }
+
+  const kana = document.getElementById("form-kana").value.trim();
+  const gender = document.getElementById("form-gender").value;
+  const relation = document.getElementById("form-relation").value.trim();
+  const birth = document.getElementById("form-birth").value.trim();
+  const death = document.getElementById("form-death").value.trim();
+  const isAlive = document.getElementById("form-is-alive").checked;
+  const note = document.getElementById("form-note").value.trim();
+
+  const selectedSpouses = Array.from(document.getElementById("form-spouses").selectedOptions).map(o => o.value);
+  const selectedParents = Array.from(document.getElementById("form-parents").selectedOptions).map(o => o.value);
+
+  if (idInput) {
+    const person = appData.persons.find(p => p.id === idInput);
+    if (person) {
+      (person.spouses || []).forEach(oldSid => {
+        if (!selectedSpouses.includes(oldSid)) {
+          const sp = appData.persons.find(p => p.id === oldSid);
+          if (sp) sp.spouses = (sp.spouses || []).filter(sid => sid !== person.id);
+        }
+      });
+
+      (person.parents || []).forEach(oldPid => {
+        if (!selectedParents.includes(oldPid)) {
+          const pr = appData.persons.find(p => p.id === oldPid);
+          if (pr) pr.children = (pr.children || []).filter(cid => cid !== person.id);
+        }
+      });
+
+      person.name = name;
+      person.kana = kana;
+      person.gender = gender;
+      person.relation = relation;
+      person.birth = birth;
+      person.death = death;
+      person.isAlive = isAlive;
+      person.note = note;
+      person.spouses = selectedSpouses;
+      person.parents = selectedParents;
+
+      selectedSpouses.forEach(sid => {
+        const sp = appData.persons.find(p => p.id === sid);
+        if (sp && !sp.spouses.includes(person.id)) {
+          sp.spouses.push(person.id);
+        }
+      });
+
+      selectedParents.forEach(pid => {
+        const pr = appData.persons.find(p => p.id === pid);
+        if (pr && !pr.children.includes(person.id)) {
+          pr.children.push(person.id);
+        }
+      });
+    }
+  } else {
+    const newId = "p" + (Date.now() % 1000000);
+    const newPerson = {
+      id: newId,
+      name,
+      kana,
+      gender,
+      relation,
+      birth,
+      death,
+      isAlive,
+      note,
+      spouses: selectedSpouses,
+      parents: selectedParents,
+      children: []
+    };
+
+    selectedSpouses.forEach(sid => {
+      const sp = appData.persons.find(p => p.id === sid);
+      if (sp && !sp.spouses.includes(newId)) sp.spouses.push(newId);
+    });
+
+    selectedParents.forEach(pid => {
+      const pr = appData.persons.find(p => p.id === pid);
+      if (pr && !pr.children.includes(newId)) pr.children.push(newId);
+    });
+
+    appData.persons.push(newPerson);
+  }
+
+  closeModal();
+  saveData();
+  renderTree();
+  updateJsonTextarea();
+  showToast("人物情報を保存しました");
+}
+
+function deletePerson(personId) {
+  appData.persons.forEach(p => {
+    p.spouses = (p.spouses || []).filter(sid => sid !== personId);
+    p.parents = (p.parents || []).filter(pid => pid !== personId);
+    p.children = (p.children || []).filter(cid => cid !== personId);
+  });
+
+  appData.persons = appData.persons.filter(p => p.id !== personId);
+  saveData();
+  renderTree();
+  updateJsonTextarea();
+  showToast("人物を削除しました");
+}
+
+function quickAddRelative(targetId, type) {
+  const target = appData.persons.find(p => p.id === targetId);
+  if (!target) return;
+
+  const newId = "p" + (Date.now() % 1000000);
+
+  if (type === "spouse") {
+    const oppGender = target.gender === 'male' ? 'female' : 'male';
+    const newSpouse = {
+      id: newId,
+      name: "新配偶者",
+      kana: "",
+      gender: oppGender,
+      relation: target.gender === 'male' ? '妻' : '夫',
+      birth: "",
+      death: "",
+      isAlive: true,
+      note: "",
+      spouses: [target.id],
+      parents: [],
+      children: [...(target.children || [])]
+    };
+    target.spouses.push(newId);
+    appData.persons.push(newSpouse);
+    saveData();
+    renderTree();
+    updateJsonTextarea();
+    openPersonModal(newId);
+    showToast("配偶者枠を追加しました");
+  } else if (type === "child") {
+    const parentIds = [target.id];
+    if (target.spouses && target.spouses.length > 0) {
+      parentIds.push(target.spouses[0]);
+    }
+
+    const newChild = {
+      id: newId,
+      name: "新子孫",
+      kana: "",
+      gender: "male",
+      relation: "子",
+      birth: "",
+      death: "",
+      isAlive: true,
+      note: "",
+      spouses: [],
+      parents: parentIds,
+      children: []
+    };
+
+    parentIds.forEach(pid => {
+      const parent = appData.persons.find(p => p.id === pid);
+      if (parent && !parent.children.includes(newId)) {
+        parent.children.push(newId);
+      }
+    });
+
+    appData.persons.push(newChild);
+    saveData();
+    renderTree();
+    updateJsonTextarea();
+    openPersonModal(newId);
+    showToast("子孫枠を追加しました");
+  }
+}
+
+function setupSidebar() {
+  const btnToggle = document.getElementById("btn-toggle-json");
+  const btnClose = document.getElementById("btn-close-sidebar");
+  const sidebar = document.getElementById("sidebar-json");
+  const btnApply = document.getElementById("btn-apply-json");
+  const btnFormat = document.getElementById("btn-format-json");
+  const textarea = document.getElementById("json-textarea");
+  const errBadge = document.getElementById("json-error-badge");
+
+  btnToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+  });
+
+  btnClose.addEventListener("click", () => {
+    sidebar.classList.remove("open");
+  });
+
+  btnFormat.addEventListener("click", () => {
+    try {
+      const parsed = JSON.parse(textarea.value);
+      textarea.value = JSON.stringify(parsed, null, 2);
+      errBadge.style.display = "none";
+    } catch(e) {
+      errBadge.textContent = "JSONフォーマット構文エラー: " + e.message;
+      errBadge.style.display = "block";
+    }
+  });
+
+  btnApply.addEventListener("click", () => {
+    try {
+      const parsed = JSON.parse(textarea.value);
+      if (!parsed.persons || !Array.isArray(parsed.persons)) {
+        throw new Error("persons 配列が存在しません。");
+      }
+      appData = parsed;
+      errBadge.style.display = "none";
+      applyTheme(appData.theme || "japanese");
+      document.getElementById("doc-title-input").value = appData.title || "家系図";
+      document.getElementById("doc-subtitle-input").value = appData.subtitle || "";
+      document.getElementById("layout-mode-select").value = appData.layoutMode || "ancestry";
+      saveData();
+      renderTree();
+      centerTreeInViewport();
+      showToast("構成データを図に反映しました");
+    } catch(e) {
+      errBadge.textContent = "反映エラー: " + e.message;
+      errBadge.style.display = "block";
+    }
+  });
+}
+
+function updateJsonTextarea() {
+  const textarea = document.getElementById("json-textarea");
+  if (textarea) {
+    textarea.value = JSON.stringify(appData, null, 2);
+  }
+}
+
+let saveTimeout = null;
+function saveDataDebounced() {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    saveData();
+  }, 400);
+}
+
+function saveData() {
+  if (!appData) return;
+  localStorage.setItem("familytree_studio_data", JSON.stringify(appData));
+  updateJsonTextarea();
+}
+
+function exportJsonFile() {
+  const jsonStr = JSON.stringify(appData, null, 2);
+  const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const fileName = (appData.title || "family_tree").replace(/[\/\\:*?"<>|]/g, "_") + ".json";
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("JSONファイルをダウンロードしました");
+}
+
+let toastTimeout = null;
+function showToast(msg) {
+  const toast = document.getElementById("status-toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2400);
+}
+
+function escapeHtml(str) {
+  if (typeof str !== 'string') return str == null ? '' : String(str);
+  return str.replace(/[&<>'"]/g, 
+    tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
+}
+
+window.addEventListener("DOMContentLoaded", initApp);
+</script>
+
+</body>
+</html>
