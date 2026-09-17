@@ -3414,6 +3414,7 @@ function createPersonCardElement(person, pos) {
     <div class="card-actions-hover">
       <button class="card-action-btn btn-action-add-parent" title="親を追加（上の世代へ）">⬆️</button>
       <button class="card-action-btn btn-action-edit" title="編集">✏️</button>
+      <button class="card-action-btn btn-action-add-sibling" title="兄弟・姉妹を追加">👥</button>
       <button class="card-action-btn btn-action-add-spouse" title="配偶者を追加">💍</button>
       <button class="card-action-btn btn-action-add-child" title="子を追加">👶</button>
       <button class="card-action-btn btn-action-delete" title="削除">🗑️</button>
@@ -3423,6 +3424,11 @@ function createPersonCardElement(person, pos) {
   card.addEventListener("click", (e) => {
     if (e.target.closest(".card-actions-hover")) return;
     openPersonModal(person.id);
+  });
+
+  card.querySelector(".btn-action-add-sibling")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    quickAddRelative(person.id, "sibling");
   });
 
   card.querySelector(".btn-action-add-parent")?.addEventListener("click", (e) => {
