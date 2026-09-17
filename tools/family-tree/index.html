@@ -958,6 +958,11 @@
         <span>➕ 人物を追加</span>
       </button>
 
+      <!-- Reset to Auto Layout Button -->
+      <button id="btn-reset-layout" class="btn" title="手動ドラッグ配置をリセットして、家系図の自動整列に戻します">
+        <span>🧲 自動整列</span>
+      </button>
+
       <!-- Toggle JSON Editor -->
       <button id="btn-toggle-json" class="btn" title="データ直接編集を開閉">
         <span>📝 構成データ</span>
@@ -2188,6 +2193,21 @@ function setupHeaderControls() {
   btnAddPerson.addEventListener("click", () => {
     openPersonModal(null);
   });
+
+  const btnResetLayout = document.getElementById("btn-reset-layout");
+  if (btnResetLayout) {
+    btnResetLayout.addEventListener("click", () => {
+      if (confirm("手動でドラッグ移動した位置をリセットし、家系図の自動整列に戻しますか？")) {
+        appData.people.forEach(p => {
+          delete p.customX;
+          delete p.customY;
+        });
+        saveData();
+        renderTree();
+        showToast("自動整列レイアウトにリセットしました");
+      }
+    });
+  }
 
   fileMenuSelect.addEventListener("change", (e) => {
     const val = e.target.value;
