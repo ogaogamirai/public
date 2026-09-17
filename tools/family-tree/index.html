@@ -2446,7 +2446,7 @@ function renderTree() {
  * ==========================================================================
  */
 function renderAncestryLayout(personMap, cardsContainer, svg) {
-  // Identify key persons
+  // Key persons
   let koichi = personMap.get("p_koichi");
   let yoko = personMap.get("p_yoko_matsuda");
 
@@ -2467,7 +2467,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   const ichiro = (yoko && yoko.parents && yoko.parents[0]) ? personMap.get(yoko.parents[0]) : personMap.get("p_ichiro_matsuda");
   const satoko = (yoko && yoko.parents && yoko.parents[1]) ? personMap.get(yoko.parents[1]) : personMap.get("p_satoko_matsuda");
 
-  // Grandparents
+  // Grandparents (Level 0)
   const oga_gp_f = (minato && minato.parents && minato.parents[0]) ? personMap.get(minato.parents[0]) : personMap.get("p_oga_gp_f");
   const oga_gp_m = (minato && minato.parents && minato.parents[1]) ? personMap.get(minato.parents[1]) : personMap.get("p_oga_gp_m");
 
@@ -2480,62 +2480,135 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   const sadae_f = (satoko && satoko.parents && satoko.parents[0]) ? personMap.get(satoko.parents[0]) : personMap.get("p_sadae_husband");
   const sadae = (satoko && satoko.parents && satoko.parents[1]) ? personMap.get(satoko.parents[1]) : personMap.get("p_sadae");
 
-  // Children of minato & emiko (更一 and 妹 洋子)
-  const minatoChildren = appData.persons.filter(p => 
+  // Level 1 Children Groups
+  // 1. Ogasawara GP 7 kids: Minato on far right
+  const ogaGpId1 = oga_gp_f ? oga_gp_f.id : 'p_oga_gp_f';
+  const ogaGpId2 = oga_gp_m ? oga_gp_m.id : 'p_oga_gp_m';
+  let ogaChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(ogaGpId1) || p.parents.includes(ogaGpId2))
+  );
+  ogaChildren.sort((a, b) => (a.id === (minato ? minato.id : '') ? 1 : (b.id === (minato ? minato.id : '') ? -1 : a.id.localeCompare(b.id))));
+
+  // 2. Imai GP 3 kids: Emiko on far left
+  const imaiGpId1 = taizo ? taizo.id : 'p_taizo_imai';
+  const imaiGpId2 = tane ? tane.id : 'p_tane_imai';
+  let imaiChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(imaiGpId1) || p.parents.includes(imaiGpId2))
+  );
+  imaiChildren.sort((a, b) => (a.id === (emiko ? emiko.id : '') ? -1 : (b.id === (emiko ? emiko.id : '') ? 1 : a.id.localeCompare(b.id))));
+
+  // 3. Matsuda GP 11 kids: Ichiro on far right
+  const matsudaGpId1 = matsuda_gp_f ? matsuda_gp_f.id : 'p_matsuda_gp_f';
+  const matsudaGpId2 = matsuda_gp_m ? matsuda_gp_m.id : 'p_matsuda_gp_m';
+  let matsudaChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(matsudaGpId1) || p.parents.includes(matsudaGpId2))
+  );
+  matsudaChildren.sort((a, b) => (a.id === (ichiro ? ichiro.id : '') ? 1 : (b.id === (ichiro ? ichiro.id : '') ? -1 : a.id.localeCompare(b.id))));
+
+  // 4. Sadae GP 1 kid: Satoko
+  const sadaeGpId1 = sadae_f ? sadae_f.id : 'p_sadae_husband';
+  const sadaeGpId2 = sadae ? sadae.id : 'p_sadae';
+  let sadaeChildren = appData.persons.filter(p => 
+    p.parents && (p.parents.includes(sadaeGpId1) || p.parents.includes(sadaeGpId2))
+  );
+  if (sadaeChildren.length === 0 && satoko) sadaeChildren = [satoko];
+
+  // Level 2 Children Groups
+  // Minato & Emiko kids: [洋子, 更一] (更一 on right facing wife)
+  let minatoChildren = appData.persons.filter(p => 
     p.parents && (p.parents.includes(minato ? minato.id : '') || p.parents.includes(emiko ? emiko.id : ''))
   );
-  // Sort so koichi is on the right (facing yoko)
   minatoChildren.sort((a, b) => (a.id === (koichi ? koichi.id : '') ? 1 : (b.id === (koichi ? koichi.id : '') ? -1 : 0)));
 
-  // Children of ichiro & satoko (陽子 and 兄 健太郎)
-  const ichiroChildren = appData.persons.filter(p => 
+  // Ichiro & Satoko kids: [陽子, 健太郎] (陽子 on left facing husband)
+  let ichiroChildren = appData.persons.filter(p => 
     p.parents && (p.parents.includes(ichiro ? ichiro.id : '') || p.parents.includes(satoko ? satoko.id : ''))
   );
-  // Sort so yoko is on the left (facing koichi)
   ichiroChildren.sort((a, b) => (a.id === (yoko ? yoko.id : '') ? -1 : (b.id === (yoko ? yoko.id : '') ? 1 : 0)));
 
-  // Children of koichi & yoko (陸 and こころ)
-  const koichiChildren = appData.persons.filter(p => 
+  // Level 3 Children Groups
+  // Koichi & Yoko kids: [陸, こころ]
+  let koichiChildren = appData.persons.filter(p => 
     p.parents && (p.parents.includes(koichi ? koichi.id : '') || p.parents.includes(yoko ? yoko.id : ''))
   );
-
-  // Other siblings of grandparents
-  const ogaGpChildren = appData.persons.filter(p => 
-    p.parents && (p.parents.includes(oga_gp_f ? oga_gp_f.id : '') || p.parents.includes(oga_gp_m ? oga_gp_m.id : ''))
-    && p.id !== (minato ? minato.id : '')
-  );
-
-  const imaiChildren = appData.persons.filter(p => 
-    p.parents && (p.parents.includes(taizo ? taizo.id : '') || p.parents.includes(tane ? tane.id : ''))
-    && p.id !== (emiko ? emiko.id : '')
-  );
-
-  const matsudaGpChildren = appData.persons.filter(p => 
-    p.parents && (p.parents.includes(matsuda_gp_f ? matsuda_gp_f.id : '') || p.parents.includes(matsuda_gp_m ? matsuda_gp_m.id : ''))
-    && p.id !== (ichiro ? ichiro.id : '')
-  );
+  koichiChildren.sort((a, b) => (a.gender === 'male' ? -1 : (b.gender === 'male' ? 1 : 0)));
 
   const nodePositions = new Map();
   const connectorJobs = [];
   const placedIds = new Set();
 
-  const startY = 80;
+  const startY = 70;
   const lvlHeight = CARD_HEIGHT + GENERATION_GAP;
   const yL0 = startY;
   const yL1 = startY + lvlHeight;
   const yL2 = startY + lvlHeight * 2;
   const yL3 = startY + lvlHeight * 3;
 
-  // Centers of the 4 Ancestor Couples at Level 0
-  const c1_center = 420;
-  const c2_center = 960;
-  const c3_center = 1600;
-  const c4_center = 2140;
+  const SIBLING_GAP_L1 = 18;
+  const COUPLE_INTER_GAP = 46;
+  const BRANCH_GAP = 90;
 
-  function placeCouple(f, m, center, y) {
+  // Calculate Level 1 layout from left to right (GUARANTEED NO OVERLAP!)
+  let curX = 60;
+
+  // 1. Ogasawara 7 kids
+  const ogaKidMidXs = [];
+  ogaChildren.forEach(child => {
+    nodePositions.set(child.id, { x: curX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    ogaKidMidXs.push(curX + CARD_WIDTH / 2);
+    curX += CARD_WIDTH + SIBLING_GAP_L1;
+  });
+  if (ogaChildren.length > 0) curX -= SIBLING_GAP_L1;
+  const ogaKidsMid = ogaKidMidXs.length > 0 ? (ogaKidMidXs[0] + ogaKidMidXs[ogaKidMidXs.length - 1]) / 2 : curX;
+
+  // Couple gap between Minato and Emiko
+  curX += COUPLE_INTER_GAP;
+
+  // 2. Imai 3 kids
+  const imaiKidMidXs = [];
+  imaiChildren.forEach(child => {
+    nodePositions.set(child.id, { x: curX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    imaiKidMidXs.push(curX + CARD_WIDTH / 2);
+    curX += CARD_WIDTH + SIBLING_GAP_L1;
+  });
+  if (imaiChildren.length > 0) curX -= SIBLING_GAP_L1;
+  const imaiKidsMid = imaiKidMidXs.length > 0 ? (imaiKidMidXs[0] + imaiKidMidXs[imaiKidMidXs.length - 1]) / 2 : curX;
+
+  // Generous branch gap between Imai (right) and Matsuda (left)
+  curX += BRANCH_GAP;
+
+  // 3. Matsuda 11 kids
+  const matsudaKidMidXs = [];
+  matsudaChildren.forEach(child => {
+    nodePositions.set(child.id, { x: curX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    matsudaKidMidXs.push(curX + CARD_WIDTH / 2);
+    curX += CARD_WIDTH + SIBLING_GAP_L1;
+  });
+  if (matsudaChildren.length > 0) curX -= SIBLING_GAP_L1;
+  const matsudaKidsMid = matsudaKidMidXs.length > 0 ? (matsudaKidMidXs[0] + matsudaKidMidXs[matsudaKidMidXs.length - 1]) / 2 : curX;
+
+  // Couple gap between Ichiro and Satoko
+  curX += COUPLE_INTER_GAP;
+
+  // 4. Sadae 1 kid (Satoko)
+  const sadaeKidMidXs = [];
+  sadaeChildren.forEach(child => {
+    nodePositions.set(child.id, { x: curX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    sadaeKidMidXs.push(curX + CARD_WIDTH / 2);
+    curX += CARD_WIDTH + SIBLING_GAP_L1;
+  });
+  if (sadaeChildren.length > 0) curX -= SIBLING_GAP_L1;
+  const sadaeKidsMid = sadaeKidMidXs[0];
+
+  // Place Level 0 couples centered directly above their respective children groups
+  function placeCoupleAbove(f, m, centerX, y) {
     if (!f && !m) return;
-    const fX = center - CARD_WIDTH - SPOUSE_GAP / 2;
-    const mX = center + SPOUSE_GAP / 2;
+    const fX = centerX - CARD_WIDTH - SPOUSE_GAP / 2;
+    const mX = centerX + SPOUSE_GAP / 2;
     if (f) {
       nodePositions.set(f.id, { x: fX, y, width: CARD_WIDTH, height: CARD_HEIGHT });
       placedIds.add(f.id);
@@ -2554,92 +2627,102 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     }
   }
 
-  placeCouple(oga_gp_f, oga_gp_m, c1_center, yL0);
-  placeCouple(taizo, tane, c2_center, yL0);
-  placeCouple(matsuda_gp_f, matsuda_gp_m, c3_center, yL0);
-  placeCouple(sadae_f, sadae, c4_center, yL0);
+  placeCoupleAbove(oga_gp_f, oga_gp_m, ogaKidsMid, yL0);
+  placeCoupleAbove(taizo, tane, imaiKidsMid, yL0);
+  placeCoupleAbove(matsuda_gp_f, matsuda_gp_m, matsudaKidsMid, yL0);
+  placeCoupleAbove(sadae_f, sadae, sadaeKidsMid, yL0);
 
-  // Level 1: 湊, ゑみ子, 一郎, 仁子
-  const minatoX = c1_center - CARD_WIDTH / 2;
-  const emikoX = c2_center - CARD_WIDTH / 2;
-  const minatoCoupleCenter = (minatoX + CARD_WIDTH + emikoX) / 2;
+  // Connect Level 0 to Level 1 (Forks connected directly to parent marriage lines!)
+  const forkY01 = yL0 + CARD_HEIGHT + GENERATION_GAP / 2;
 
-  if (minato) {
-    nodePositions.set(minato.id, { x: minatoX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(minato.id);
+  // 1. Oga GP -> 7 kids
+  if (ogaKidMidXs.length > 0) {
+    connectorJobs.push({
+      type: "children_fork",
+      parentMidX: ogaKidsMid,
+      parentStartY: yL0 + CARD_HEIGHT / 2,
+      forkY: forkY01,
+      minChildX: ogaKidMidXs[0],
+      maxChildX: ogaKidMidXs[ogaKidMidXs.length - 1],
+      childMidXs: ogaKidMidXs,
+      childTopY: yL1
+    });
+  }
+
+  // 2. Imai GP -> 3 kids
+  if (imaiKidMidXs.length > 0) {
+    connectorJobs.push({
+      type: "children_fork",
+      parentMidX: imaiKidsMid,
+      parentStartY: yL0 + CARD_HEIGHT / 2,
+      forkY: forkY01,
+      minChildX: imaiKidMidXs[0],
+      maxChildX: imaiKidMidXs[imaiKidMidXs.length - 1],
+      childMidXs: imaiKidMidXs,
+      childTopY: yL1
+    });
+  }
+
+  // 3. Matsuda GP -> 11 kids
+  if (matsudaKidMidXs.length > 0) {
+    connectorJobs.push({
+      type: "children_fork",
+      parentMidX: matsudaKidsMid,
+      parentStartY: yL0 + CARD_HEIGHT / 2,
+      forkY: forkY01,
+      minChildX: matsudaKidMidXs[0],
+      maxChildX: matsudaKidMidXs[matsudaKidMidXs.length - 1],
+      childMidXs: matsudaKidMidXs,
+      childTopY: yL1
+    });
+  }
+
+  // 4. Sadae GP -> 1 kid
+  if (sadaeKidMidXs.length > 0) {
     connectorJobs.push({
       type: "drop_to_child",
-      fromX: c1_center,
-      fromY: yL0 + CARD_HEIGHT,
-      toX: minatoX + CARD_WIDTH / 2,
+      fromX: sadaeKidsMid,
+      fromY: yL0 + CARD_HEIGHT / 2,
+      toX: sadaeKidsMid,
       toY: yL1
     });
   }
 
-  if (emiko) {
-    nodePositions.set(emiko.id, { x: emikoX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(emiko.id);
-    connectorJobs.push({
-      type: "drop_to_child",
-      fromX: c2_center,
-      fromY: yL0 + CARD_HEIGHT,
-      toX: emikoX + CARD_WIDTH / 2,
-      toY: yL1
-    });
-  }
-
-  if (minato && emiko) {
+  // Level 1 Marriages
+  // Minato & Emiko:
+  const posMinato = minato ? nodePositions.get(minato.id) : null;
+  const posEmiko = emiko ? nodePositions.get(emiko.id) : null;
+  let minatoEmikoMid = (ogaKidsMid + imaiKidsMid) / 2;
+  if (posMinato && posEmiko) {
     connectorJobs.push({
       type: "couple",
       y: yL1 + CARD_HEIGHT / 2,
-      x1: minatoX + CARD_WIDTH,
-      x2: emikoX
+      x1: posMinato.x + CARD_WIDTH,
+      x2: posEmiko.x
     });
+    minatoEmikoMid = (posMinato.x + CARD_WIDTH + posEmiko.x) / 2;
   }
 
-  const ichiroX = c3_center - CARD_WIDTH / 2;
-  const satokoX = c4_center - CARD_WIDTH / 2;
-  const ichiroCoupleCenter = (ichiroX + CARD_WIDTH + satokoX) / 2;
-
-  if (ichiro) {
-    nodePositions.set(ichiro.id, { x: ichiroX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(ichiro.id);
-    connectorJobs.push({
-      type: "drop_to_child",
-      fromX: c3_center,
-      fromY: yL0 + CARD_HEIGHT,
-      toX: ichiroX + CARD_WIDTH / 2,
-      toY: yL1
-    });
-  }
-
-  if (satoko) {
-    nodePositions.set(satoko.id, { x: satokoX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(satoko.id);
-    connectorJobs.push({
-      type: "drop_to_child",
-      fromX: c4_center,
-      fromY: yL0 + CARD_HEIGHT,
-      toX: satokoX + CARD_WIDTH / 2,
-      toY: yL1
-    });
-  }
-
-  if (ichiro && satoko) {
+  // Ichiro & Satoko:
+  const posIchiro = ichiro ? nodePositions.get(ichiro.id) : null;
+  const posSatoko = satoko ? nodePositions.get(satoko.id) : null;
+  let ichiroSatokoMid = (matsudaKidsMid + sadaeKidsMid) / 2;
+  if (posIchiro && posSatoko) {
     connectorJobs.push({
       type: "couple",
       y: yL1 + CARD_HEIGHT / 2,
-      x1: ichiroX + CARD_WIDTH,
-      x2: satokoX
+      x1: posIchiro.x + CARD_WIDTH,
+      x2: posSatoko.x
     });
+    ichiroSatokoMid = (posIchiro.x + CARD_WIDTH + posSatoko.x) / 2;
   }
 
-  // Level 2: Children of 湊 & ゑみ子 (更一 & 妹 洋子)
-  // Perfectly centered under minatoCoupleCenter!
+  // Level 2:
+  // Minato & Emiko kids [洋子, 更一] centered at minatoEmikoMid
+  const forkY12 = yL1 + CARD_HEIGHT + GENERATION_GAP / 2;
   const minatoKidsW = minatoChildren.length * CARD_WIDTH + (minatoChildren.length - 1) * SIBLING_GAP;
-  let curMinatoKidX = minatoCoupleCenter - minatoKidsW / 2;
+  let curMinatoKidX = minatoEmikoMid - minatoKidsW / 2;
   const minatoKidXs = [];
-
   minatoChildren.forEach(child => {
     nodePositions.set(child.id, { x: curMinatoKidX, y: yL2, width: CARD_WIDTH, height: CARD_HEIGHT });
     placedIds.add(child.id);
@@ -2650,9 +2733,9 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   if (minatoKidXs.length > 0) {
     connectorJobs.push({
       type: "children_fork",
-      parentMidX: minatoCoupleCenter,
-      parentBottomY: yL1 + CARD_HEIGHT,
-      forkY: yL1 + CARD_HEIGHT + GENERATION_GAP / 2,
+      parentMidX: minatoEmikoMid,
+      parentStartY: yL1 + CARD_HEIGHT / 2, // Seamless connection to marriage line!
+      forkY: forkY12,
       minChildX: Math.min(...minatoKidXs),
       maxChildX: Math.max(...minatoKidXs),
       childMidXs: minatoKidXs,
@@ -2660,12 +2743,10 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     });
   }
 
-  // Level 2: Children of 一郎 & 仁子 (陽子 & 兄 健太郎)
-  // Perfectly centered under ichiroCoupleCenter!
+  // Ichiro & Satoko kids [陽子, 健太郎] centered at ichiroSatokoMid
   const ichiroKidsW = ichiroChildren.length * CARD_WIDTH + (ichiroChildren.length - 1) * SIBLING_GAP;
-  let curIchiroKidX = ichiroCoupleCenter - ichiroKidsW / 2;
+  let curIchiroKidX = ichiroSatokoMid - ichiroKidsW / 2;
   const ichiroKidXs = [];
-
   ichiroChildren.forEach(child => {
     nodePositions.set(child.id, { x: curIchiroKidX, y: yL2, width: CARD_WIDTH, height: CARD_HEIGHT });
     placedIds.add(child.id);
@@ -2676,9 +2757,9 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   if (ichiroKidXs.length > 0) {
     connectorJobs.push({
       type: "children_fork",
-      parentMidX: ichiroCoupleCenter,
-      parentBottomY: yL1 + CARD_HEIGHT,
-      forkY: yL1 + CARD_HEIGHT + GENERATION_GAP / 2,
+      parentMidX: ichiroSatokoMid,
+      parentStartY: yL1 + CARD_HEIGHT / 2, // Seamless connection to marriage line!
+      forkY: forkY12,
       minChildX: Math.min(...ichiroKidXs),
       maxChildX: Math.max(...ichiroKidXs),
       childMidXs: ichiroKidXs,
@@ -2686,10 +2767,10 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     });
   }
 
-  // Connect 更一 and 陽子 as a couple at Level 2!
+  // Level 2 Marriage: Koichi & Yoko
   const posKoichi = koichi ? nodePositions.get(koichi.id) : null;
   const posYoko = yoko ? nodePositions.get(yoko.id) : null;
-  let koichiCoupleCenter = (minatoCoupleCenter + ichiroCoupleCenter) / 2;
+  let koichiYokoMid = (minatoEmikoMid + ichiroSatokoMid) / 2;
 
   if (posKoichi && posYoko) {
     connectorJobs.push({
@@ -2698,15 +2779,14 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       x1: posKoichi.x + CARD_WIDTH,
       x2: posYoko.x
     });
-    koichiCoupleCenter = (posKoichi.x + CARD_WIDTH + posYoko.x) / 2;
+    koichiYokoMid = (posKoichi.x + CARD_WIDTH + posYoko.x) / 2;
   }
 
-  // Level 3: Children of 更一 & 陽子 (陸 & こころ)
-  // Perfectly centered under koichiCoupleCenter!
+  // Level 3: Children of Koichi & Yoko (陸 and こころ)
+  const forkY23 = yL2 + CARD_HEIGHT + GENERATION_GAP / 2;
   const koichiKidsW = koichiChildren.length * CARD_WIDTH + (koichiChildren.length - 1) * SIBLING_GAP;
-  let curKoichiKidX = koichiCoupleCenter - koichiKidsW / 2;
+  let curKoichiKidX = koichiYokoMid - koichiKidsW / 2;
   const koichiKidXs = [];
-
   koichiChildren.forEach(child => {
     nodePositions.set(child.id, { x: curKoichiKidX, y: yL3, width: CARD_WIDTH, height: CARD_HEIGHT });
     placedIds.add(child.id);
@@ -2717,9 +2797,9 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   if (koichiKidXs.length > 0) {
     connectorJobs.push({
       type: "children_fork",
-      parentMidX: koichiCoupleCenter,
-      parentBottomY: yL2 + CARD_HEIGHT,
-      forkY: yL2 + CARD_HEIGHT + GENERATION_GAP / 2,
+      parentMidX: koichiYokoMid,
+      parentStartY: yL2 + CARD_HEIGHT / 2, // Seamless connection to marriage line!
+      forkY: forkY23,
       minChildX: Math.min(...koichiKidXs),
       maxChildX: Math.max(...koichiKidXs),
       childMidXs: koichiKidXs,
@@ -2727,68 +2807,56 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     });
   }
 
-  // Relatives at Level 1
-  let extraLeftX = minatoX - SIBLING_GAP - CARD_WIDTH;
-  ogaGpChildren.forEach(c => {
-    nodePositions.set(c.id, { x: extraLeftX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(c.id);
-    extraLeftX -= (CARD_WIDTH + SIBLING_GAP);
-  });
-
-  let extraImaiX = emikoX + CARD_WIDTH + SIBLING_GAP;
-  imaiChildren.forEach(c => {
-    nodePositions.set(c.id, { x: extraImaiX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(c.id);
-    extraImaiX += (CARD_WIDTH + SIBLING_GAP);
-  });
-
-  let extraMatsudaX = ichiroX - SIBLING_GAP - CARD_WIDTH;
-  matsudaGpChildren.forEach(c => {
-    nodePositions.set(c.id, { x: extraMatsudaX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(c.id);
-    extraMatsudaX -= (CARD_WIDTH + SIBLING_GAP);
-  });
-
-  let extraFarRightX = c4_center + CARD_WIDTH + 60;
+  // Any remaining unplaced persons
+  let fallbackY = yL3 + lvlHeight;
+  let fallbackX = 60;
   appData.persons.forEach(p => {
     if (!placedIds.has(p.id)) {
-      nodePositions.set(p.id, { x: extraFarRightX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-      placedIds.add(p.id);
-      extraFarRightX += (CARD_WIDTH + SIBLING_GAP);
+      nodePositions.set(p.id, { x: fallbackX, y: fallbackY, width: CARD_WIDTH, height: CARD_HEIGHT });
+      fallbackX += CARD_WIDTH + SIBLING_GAP;
     }
   });
 
-  appData.persons.forEach(person => {
-    const pos = nodePositions.get(person.id);
-    if (!pos) return;
-    const cardEl = createPersonCardElement(person, pos);
-    cardsContainer.appendChild(cardEl);
+  // Calculate bounding box and set dimensions
+  let maxX = 0;
+  let maxY = 0;
+  nodePositions.forEach(pos => {
+    maxX = Math.max(maxX, pos.x + pos.width);
+    maxY = Math.max(maxY, pos.y + pos.height);
   });
 
+  const canvasW = Math.max(maxX + 100, 2400);
+  const canvasH = Math.max(maxY + 120, 1400);
+  cardsContainer.style.width = `${canvasW}px`;
+  cardsContainer.style.height = `${canvasH}px`;
+  svg.setAttribute("width", canvasW);
+  svg.setAttribute("height", canvasH);
+
+  // Render cards
+  cardsContainer.innerHTML = "";
+  nodePositions.forEach((pos, pid) => {
+    const person = personMap.get(pid);
+    if (person) {
+      const cardEl = createPersonCardElement(person, pos);
+      if (person.id === appData.focusPersonId || (!appData.focusPersonId && person.id === 'p_koichi')) {
+        cardEl.classList.add('focus-person');
+      }
+      cardsContainer.appendChild(cardEl);
+    }
+  });
+
+  // Render connectors
   drawSvgConnectors(connectorJobs, svg);
 
-  const ancestryLabels = [
-    "初代（四代前・曾祖父母 / 諸家初代）",
-    "二代（三代前・ご両親の世代）",
-    "三代（二代前・更一様・陽子様世代）",
-    "四代（現世代・お子様世代）"
-  ];
-  for (let lvl = 0; lvl <= 3; lvl++) {
-    const y = startY + lvl * lvlHeight;
-    const marker = document.createElement("div");
-    marker.className = "generation-marker";
-    marker.style.left = "16px";
-    marker.style.top = `${y - 28}px`;
-    marker.textContent = ancestryLabels[lvl] || `第${lvl + 1}世代`;
-    cardsContainer.appendChild(marker);
-  }
+  // Render generation markers
+  renderGenerationMarkers(cardsContainer, [yL0, yL1, yL2, yL3], [
+    "初代（曾祖父母）",
+    "二代（祖父母 / ご両親・伯叔父母）",
+    "三代（ご本人 / 兄弟姉妹）",
+    "四代（お子様）"
+  ]);
 }
 
-/**
- * ==========================================================================
- * DESCENDANT LAYOUT (TOP-DOWN RECURSIVE SUBTREE)
- * ==========================================================================
- */
 function renderDescendantLayout(personMap, cardsContainer, svg) {
   const levels = new Map();
   function getLevel(id, visited = new Set()) {
@@ -3125,34 +3193,32 @@ function drawSvgConnectors(jobs, svg) {
         <text x="${(job.x1 + job.x2) / 2}" y="${job.y}" class="svg-marriage-icon">⚭</text>
       `;
     } else if (job.type === "drop_to_child") {
-      const midY = (job.fromY + job.toY) / 2;
+      const startY = job.fromY;
+      const midY = (startY + job.toY) / 2;
       svgContent += `
-        <line x1="${job.fromX}" y1="${job.fromY}" x2="${job.fromX}" y2="${midY}" class="svg-child-line" />
+        <line x1="${job.fromX}" y1="${startY}" x2="${job.fromX}" y2="${midY}" class="svg-child-line" />
         <line x1="${job.fromX}" y1="${midY}" x2="${job.toX}" y2="${midY}" class="svg-child-line" />
         <line x1="${job.toX}" y1="${midY}" x2="${job.toX}" y2="${job.toY}" class="svg-child-line" />
-        <circle cx="${job.fromX}" cy="${job.fromY}" r="3" class="svg-junction-dot" />
-        <circle cx="${job.toX}" cy="${job.toY}" r="3" class="svg-junction-dot" />
+        <circle cx="${job.fromX}" cy="${startY}" r="3.5" class="svg-junction-dot" />
+        <circle cx="${job.toX}" cy="${job.toY}" r="3.5" class="svg-junction-dot" />
       `;
     } else if (job.type === "children_fork") {
+      const startY = job.parentStartY != null ? job.parentStartY : (job.parentBottomY || 0);
       svgContent += `
-        <line x1="${job.parentMidX}" y1="${job.parentBottomY}" x2="${job.parentMidX}" y2="${job.forkY}" class="svg-child-line" />
-        <circle cx="${job.parentMidX}" cy="${job.parentBottomY}" r="3" class="svg-junction-dot" />
+        <line x1="${job.parentMidX}" y1="${startY}" x2="${job.parentMidX}" y2="${job.forkY}" class="svg-child-line" />
+        <circle cx="${job.parentMidX}" cy="${startY}" r="3.5" class="svg-junction-dot" />
       `;
 
-      if (job.minChildX < job.maxChildX) {
-        svgContent += `
-          <line x1="${Math.min(job.parentMidX, job.minChildX)}" y1="${job.forkY}" x2="${Math.max(job.parentMidX, job.maxChildX)}" y2="${job.forkY}" class="svg-child-line" />
-        `;
-      } else {
-        svgContent += `
-          <line x1="${job.parentMidX}" y1="${job.forkY}" x2="${job.minChildX}" y2="${job.forkY}" class="svg-child-line" />
-        `;
-      }
+      const minX = Math.min(job.parentMidX, job.minChildX);
+      const maxX = Math.max(job.parentMidX, job.maxChildX);
+      svgContent += `
+        <line x1="${minX}" y1="${job.forkY}" x2="${maxX}" y2="${job.forkY}" class="svg-child-line" />
+      `;
 
       job.childMidXs.forEach(cx => {
         svgContent += `
           <line x1="${cx}" y1="${job.forkY}" x2="${cx}" y2="${job.childTopY}" class="svg-child-line" />
-          <circle cx="${cx}" cy="${job.childTopY}" r="3" class="svg-junction-dot" />
+          <circle cx="${cx}" cy="${job.childTopY}" r="3.5" class="svg-junction-dot" />
         `;
       });
     }
