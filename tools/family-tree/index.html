@@ -2967,14 +2967,16 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     });
   }
 
-  // DYNAMIC PLACEMENT OF DESCENDANTS & SPOUSES
+  // =========================================================================
+  // SMART SIBLING & SPOUSE PROXIMITY PLACEMENT (兄弟・夫婦の近接自動整列)
+  // =========================================================================
   let placedNew = true;
   let iter = 0;
-  while (placedNew && iter < 10) {
+  while (placedNew && iter < 12) {
     placedNew = false;
     iter++;
 
-    // 1. Spouses of placed persons
+    // 1. Spouses: Place adjacent to their spouse on the same generation row
     appData.persons.forEach(p => {
       if (placedIds.has(p.id)) {
         const pPos = nodePositions.get(p.id);
@@ -2982,14 +2984,15 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
           if (!placedIds.has(sid)) {
             const sp = personMap.get(sid);
             if (sp) {
-              let maxRightX = pPos.x + CARD_WIDTH;
-              nodePositions.forEach(pos => {
-                if (Math.abs(pos.y - pPos.y) < 20) {
-                  maxRightX = Math.max(maxRightX, pos.x + CARD_WIDTH);
+              const desiredX = pPos.x + CARD_WIDTH + SPOUSE_GAP;
+              const shiftAmt = CARD_WIDTH + SPOUSE_GAP;
+              nodePositions.forEach((pos, otherId) => {
+                if (otherId !== p.id && Math.abs(pos.y - pPos.y) < 20 && pos.x >= desiredX - 10) {
+                  pos.x += shiftAmt;
                 }
               });
               nodePositions.set(sid, {
-                x: maxRightX + SPOUSE_GAP,
+                x: desiredX,
                 y: pPos.y,
                 width: CARD_WIDTH,
                 height: CARD_HEIGHT
@@ -3002,7 +3005,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       }
     });
 
-    // 2. Children of placed persons
+    // 2. Children & Siblings: Place adjacent to siblings in the same generation row
     appData.persons.forEach(p => {
       if (placedIds.has(p.id)) {
         const pPos = nodePositions.get(p.id);
@@ -3010,19 +3013,55 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
           if (!placedIds.has(cid)) {
             const child = personMap.get(cid);
             if (child) {
-              const targetY = pPos.y + lvlHeight;
-              let maxChildX = pPos.x - CARD_WIDTH / 2;
-              nodePositions.forEach(pos => {
-                if (Math.abs(pos.y - targetY) < 20) {
-                  maxChildX = Math.max(maxChildX, pos.x + CARD_WIDTH);
+              const placedSiblings = (p.children || [])
+                .filter(cId => cId !== cid && placedIds.has(cId))
+                .map(cId => ({ id: cId, pos: nodePositions.get(cId) }));
+
+              if (placedSiblings.length > 0) {
+                placedSiblings.sort((a, b) => a.pos.x - b.pos.x);
+                const rowY = placedSiblings[0].pos.y;
+                const isOlder = (child.relation && (child.relation.includes('兄') || child.relation.includes('姉') || child.relation.includes('長'))) ||
+                                (child.name && (child.name.includes('兄') || child.name.includes('姉') || child.name.includes('長男') || child.name.includes('長女')));
+
+                const leftX = placedSiblings[0].pos.x - CARD_WIDTH - SIBLING_GAP;
+                const isLeftFree = leftX >= 40 && !Array.from(nodePositions.values()).some(pos => Math.abs(pos.y - rowY) < 20 && Math.abs(pos.x - leftX) < (CARD_WIDTH + 10));
+
+                let chosenX;
+                if (isOlder && isLeftFree) {
+                  chosenX = leftX;
+                } else {
+                  chosenX = placedSiblings[placedSiblings.length - 1].pos.x + CARD_WIDTH + SIBLING_GAP;
+                  const shiftAmt = CARD_WIDTH + SIBLING_GAP;
+                  nodePositions.forEach((pos, otherId) => {
+                    if (!placedSiblings.some(s => s.id === otherId) && Math.abs(pos.y - rowY) < 20 && pos.x >= chosenX - 10) {
+                      pos.x += shiftAmt;
+                    }
+                  });
                 }
-              });
-              nodePositions.set(cid, {
-                x: Math.max(maxChildX + SIBLING_GAP, pPos.x),
-                y: targetY,
-                width: CARD_WIDTH,
-                height: CARD_HEIGHT
-              });
+
+                nodePositions.set(cid, {
+                  x: chosenX,
+                  y: rowY,
+                  width: CARD_WIDTH,
+                  height: CARD_HEIGHT
+                });
+              } else {
+                const targetY = pPos.y + lvlHeight;
+                let desiredX = pPos.x;
+                const shiftAmt = CARD_WIDTH + SIBLING_GAP;
+                nodePositions.forEach((pos, otherId) => {
+                  if (Math.abs(pos.y - targetY) < 20 && pos.x >= desiredX - 10) {
+                    pos.x += shiftAmt;
+                  }
+                });
+                nodePositions.set(cid, {
+                  x: desiredX,
+                  y: targetY,
+                  width: CARD_WIDTH,
+                  height: CARD_HEIGHT
+                });
+              }
+
               placedIds.add(cid);
               placedNew = true;
             }
@@ -3179,6 +3218,8 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     }
   });
 
+  window._activeNodePositions = nodePositions;
+  window._activeConnectorJobs = connectorJobs;
   // Render connectors
   drawSvgConnectors(connectorJobs, svg);
 
@@ -3542,6 +3583,74 @@ function createPersonCardElement(person, pos) {
   });
 
   return card;
+}
+
+
+/**
+ * Real-time dynamic SVG connectors updater for dragging
+ */
+function updateConnectorsLive() {
+  const nodePositions = window._activeNodePositions;
+  const connectorJobs = window._activeConnectorJobs;
+  if (!nodePositions || !connectorJobs) return;
+
+  connectorJobs.forEach(job => {
+    if (job.type === 'couple' && job.p1Id && job.p2Id) {
+      const p1 = nodePositions.get(job.p1Id);
+      const p2 = nodePositions.get(job.p2Id);
+      if (p1 && p2) {
+        const left = p1.x < p2.x ? p1 : p2;
+        const right = p1.x < p2.x ? p2 : p1;
+        job.x1 = left.x + CARD_WIDTH;
+        job.x2 = right.x;
+        job.y = (left.y + right.y) / 2 + CARD_HEIGHT / 2;
+      }
+    } else if (job.type === 'drop_to_child') {
+      if (job.childId) {
+        const cPos = nodePositions.get(job.childId);
+        if (cPos) {
+          job.toX = cPos.x + CARD_WIDTH / 2;
+          job.toY = cPos.y;
+        }
+      }
+      if (job.parentIds && job.parentIds.length > 0) {
+        const pPositions = job.parentIds.map(pid => nodePositions.get(pid)).filter(Boolean);
+        if (pPositions.length >= 2) {
+          const left = pPositions[0].x < pPositions[1].x ? pPositions[0] : pPositions[1];
+          const right = pPositions[0].x < pPositions[1].x ? pPositions[1] : pPositions[0];
+          job.fromX = (left.x + CARD_WIDTH + right.x) / 2;
+          job.fromY = (left.y + right.y) / 2 + CARD_HEIGHT / 2;
+        } else if (pPositions.length === 1) {
+          job.fromX = pPositions[0].x + CARD_WIDTH / 2;
+          job.fromY = pPositions[0].y + CARD_HEIGHT;
+        }
+      }
+    } else if (job.type === 'children_fork' && job.childIds && job.childIds.length > 0) {
+      const childPositions = job.childIds.map(cid => nodePositions.get(cid)).filter(Boolean);
+      if (childPositions.length > 0) {
+        job.childMidXs = childPositions.map(cp => cp.x + CARD_WIDTH / 2);
+        job.minChildX = Math.min(...job.childMidXs);
+        job.maxChildX = Math.max(...job.childMidXs);
+        job.childTopY = Math.min(...childPositions.map(cp => cp.y));
+      }
+      if (job.parentIds && job.parentIds.length > 0) {
+        const pPositions = job.parentIds.map(pid => nodePositions.get(pid)).filter(Boolean);
+        if (pPositions.length >= 2) {
+          const left = pPositions[0].x < pPositions[1].x ? pPositions[0] : pPositions[1];
+          const right = pPositions[0].x < pPositions[1].x ? pPositions[1] : pPositions[0];
+          job.parentMidX = (left.x + CARD_WIDTH + right.x) / 2;
+          job.parentStartY = (left.y + right.y) / 2 + CARD_HEIGHT / 2;
+        } else if (pPositions.length === 1) {
+          job.parentMidX = pPositions[0].x + CARD_WIDTH / 2;
+          job.parentStartY = pPositions[0].y + CARD_HEIGHT;
+        }
+        job.forkY = (job.parentStartY + job.childTopY) / 2;
+      }
+    }
+  });
+
+  const svg = document.getElementById("connector-svg");
+  if (svg) drawSvgConnectors(connectorJobs, svg);
 }
 
 function drawSvgConnectors(jobs, svg) {
