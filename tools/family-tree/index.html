@@ -2644,17 +2644,6 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       nodePositions.set(m.id, { x: mX, y, width: CARD_WIDTH, height: CARD_HEIGHT });
       placedIds.add(m.id);
     }
-    if (f && m) {
-      connectorJobs.push({
-        type: "couple",
-        p1Id: f.id,
-        p2Id: m.id,
-        y: y + CARD_HEIGHT / 2,
-        x1: fX + CARD_WIDTH,
-        x2: mX
-      });
-      handledCoupleKeys.add([f.id, m.id].sort().join('_'));
-    }
   }
 
   placeCoupleAbove(oga_gp_f, oga_gp_m, ogaKidsMid, yL0);
@@ -2662,75 +2651,11 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   placeCoupleAbove(matsuda_gp_f, matsuda_gp_m, matsudaKidsMid, yL0);
   placeCoupleAbove(sadae_f, sadae, sadaeKidsMid, yL0);
 
-  // Connect Level 0 -> Level 1
-  const forkY01 = yL0 + CARD_HEIGHT + GENERATION_GAP / 2;
-  if (ogaKidMidXs.length > 0) {
-    connectorJobs.push({
-      type: "children_fork",
-      parentMidX: ogaKidsMid,
-      parentStartY: yL0 + CARD_HEIGHT / 2,
-      forkY: forkY01,
-      minChildX: ogaKidMidXs[0],
-      maxChildX: ogaKidMidXs[ogaKidMidXs.length - 1],
-      childMidXs: ogaKidMidXs,
-      childTopY: yL1
-    });
-    ogaChildren.forEach(c => handledChildIds.add(c.id));
-  }
-
-  if (imaiKidMidXs.length > 0) {
-    connectorJobs.push({
-      type: "children_fork",
-      parentMidX: imaiKidsMid,
-      parentStartY: yL0 + CARD_HEIGHT / 2,
-      forkY: forkY01,
-      minChildX: imaiKidMidXs[0],
-      maxChildX: imaiKidMidXs[imaiKidMidXs.length - 1],
-      childMidXs: imaiKidMidXs,
-      childTopY: yL1
-    });
-    imaiChildren.forEach(c => handledChildIds.add(c.id));
-  }
-
-  if (matsudaKidMidXs.length > 0) {
-    connectorJobs.push({
-      type: "children_fork",
-      parentMidX: matsudaKidsMid,
-      parentStartY: yL0 + CARD_HEIGHT / 2,
-      forkY: forkY01,
-      minChildX: matsudaKidMidXs[0],
-      maxChildX: matsudaKidMidXs[matsudaKidMidXs.length - 1],
-      childMidXs: matsudaKidMidXs,
-      childTopY: yL1
-    });
-    matsudaChildren.forEach(c => handledChildIds.add(c.id));
-  }
-
-  if (sadaeKidMidXs.length > 0) {
-    connectorJobs.push({
-      type: "drop_to_child",
-      fromX: sadaeKidsMid,
-      fromY: yL0 + CARD_HEIGHT / 2,
-      toX: sadaeKidsMid,
-      toY: yL1
-    });
-    sadaeChildren.forEach(c => handledChildIds.add(c.id));
-  }
-
   // Level 1 Marriages
   const posMinato = minato ? nodePositions.get(minato.id) : null;
   const posEmiko = emiko ? nodePositions.get(emiko.id) : null;
   let minatoEmikoMid = (ogaKidsMid + imaiKidsMid) / 2;
   if (posMinato && posEmiko) {
-    connectorJobs.push({
-      type: "couple",
-      p1Id: minato.id,
-      p2Id: emiko.id,
-      y: yL1 + CARD_HEIGHT / 2,
-      x1: posMinato.x + CARD_WIDTH,
-      x2: posEmiko.x
-    });
-    handledCoupleKeys.add([minato.id, emiko.id].sort().join('_'));
     minatoEmikoMid = (posMinato.x + CARD_WIDTH + posEmiko.x) / 2;
   }
 
@@ -2738,20 +2663,10 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   const posSatoko = satoko ? nodePositions.get(satoko.id) : null;
   let ichiroSatokoMid = (matsudaKidsMid + sadaeKidsMid) / 2;
   if (posIchiro && posSatoko) {
-    connectorJobs.push({
-      type: "couple",
-      p1Id: ichiro.id,
-      p2Id: satoko.id,
-      y: yL1 + CARD_HEIGHT / 2,
-      x1: posIchiro.x + CARD_WIDTH,
-      x2: posSatoko.x
-    });
-    handledCoupleKeys.add([ichiro.id, satoko.id].sort().join('_'));
     ichiroSatokoMid = (posIchiro.x + CARD_WIDTH + posSatoko.x) / 2;
   }
 
   // Level 2: Minato & Emiko kids
-  const forkY12 = yL1 + CARD_HEIGHT + GENERATION_GAP / 2;
   const minatoKidsW = minatoChildren.length * CARD_WIDTH + (minatoChildren.length - 1) * SIBLING_GAP;
   let curMinatoKidX = minatoEmikoMid - minatoKidsW / 2;
   const minatoKidXs = [];
@@ -2761,20 +2676,6 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     minatoKidXs.push(curMinatoKidX + CARD_WIDTH / 2);
     curMinatoKidX += CARD_WIDTH + SIBLING_GAP;
   });
-
-  if (minatoKidXs.length > 0) {
-    connectorJobs.push({
-      type: "children_fork",
-      parentMidX: minatoEmikoMid,
-      parentStartY: yL1 + CARD_HEIGHT / 2,
-      forkY: forkY12,
-      minChildX: Math.min(...minatoKidXs),
-      maxChildX: Math.max(...minatoKidXs),
-      childMidXs: minatoKidXs,
-      childTopY: yL2
-    });
-    minatoChildren.forEach(c => handledChildIds.add(c.id));
-  }
 
   // Level 2: Ichiro & Satoko kids
   const ichiroKidsW = ichiroChildren.length * CARD_WIDTH + (ichiroChildren.length - 1) * SIBLING_GAP;
@@ -2787,40 +2688,15 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     curIchiroKidX += CARD_WIDTH + SIBLING_GAP;
   });
 
-  if (ichiroKidXs.length > 0) {
-    connectorJobs.push({
-      type: "children_fork",
-      parentMidX: ichiroSatokoMid,
-      parentStartY: yL1 + CARD_HEIGHT / 2,
-      forkY: forkY12,
-      minChildX: Math.min(...ichiroKidXs),
-      maxChildX: Math.max(...ichiroKidXs),
-      childMidXs: ichiroKidXs,
-      childTopY: yL2
-    });
-    ichiroChildren.forEach(c => handledChildIds.add(c.id));
-  }
-
   // Level 2 Marriage
   const posKoichi = koichi ? nodePositions.get(koichi.id) : null;
   const posYoko = yoko ? nodePositions.get(yoko.id) : null;
   let koichiYokoMid = (minatoEmikoMid + ichiroSatokoMid) / 2;
-
   if (posKoichi && posYoko) {
-    connectorJobs.push({
-      type: "couple",
-      p1Id: koichi.id,
-      p2Id: yoko.id,
-      y: yL2 + CARD_HEIGHT / 2,
-      x1: posKoichi.x + CARD_WIDTH,
-      x2: posYoko.x
-    });
-    handledCoupleKeys.add([koichi.id, yoko.id].sort().join('_'));
     koichiYokoMid = (posKoichi.x + CARD_WIDTH + posYoko.x) / 2;
   }
 
   // Level 3: Children of Koichi & Yoko
-  const forkY23 = yL2 + CARD_HEIGHT + GENERATION_GAP / 2;
   const koichiKidsW = koichiChildren.length * CARD_WIDTH + (koichiChildren.length - 1) * SIBLING_GAP;
   let curKoichiKidX = koichiYokoMid - koichiKidsW / 2;
   const koichiKidXs = [];
@@ -2830,20 +2706,6 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     koichiKidXs.push(curKoichiKidX + CARD_WIDTH / 2);
     curKoichiKidX += CARD_WIDTH + SIBLING_GAP;
   });
-
-  if (koichiKidXs.length > 0) {
-    connectorJobs.push({
-      type: "children_fork",
-      parentMidX: koichiYokoMid,
-      parentStartY: yL2 + CARD_HEIGHT / 2,
-      forkY: forkY23,
-      minChildX: Math.min(...koichiKidXs),
-      maxChildX: Math.max(...koichiKidXs),
-      childMidXs: koichiKidXs,
-      childTopY: yL3
-    });
-    koichiChildren.forEach(c => handledChildIds.add(c.id));
-  }
 
   // =========================================================================
   // RECURSIVE UPPER ANCESTORS PLACEMENT (高祖父母・五代前以上の先祖を自動配置)
@@ -2898,67 +2760,11 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
         nodePositions.set(m.id, { x: mX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
         placedIds.add(f.id);
         placedIds.add(m.id);
-
-        connectorJobs.push({
-          type: 'couple',
-          p1Id: f.id,
-          p2Id: m.id,
-          y: targetY + CARD_HEIGHT / 2,
-          x1: fX + CARD_WIDTH,
-          x2: mX
-        });
-        handledCoupleKeys.add([f.id, m.id].sort().join('_'));
-        children.forEach(c => handledChildIds.add(c.id));
-
-        const forkY = targetY + CARD_HEIGHT + GENERATION_GAP / 2;
-        if (childXs.length === 1) {
-          connectorJobs.push({
-            type: 'drop_to_child',
-            fromX: childCenter,
-            fromY: targetY + CARD_HEIGHT / 2,
-            toX: childXs[0],
-            toY: minChildY
-          });
-        } else {
-          connectorJobs.push({
-            type: 'children_fork',
-            parentMidX: childCenter,
-            parentStartY: targetY + CARD_HEIGHT / 2,
-            forkY: forkY,
-            minChildX: Math.min(...childXs),
-            maxChildX: Math.max(...childXs),
-            childMidXs: childXs,
-            childTopY: minChildY
-          });
-        }
       } else if (parents.length === 1) {
         const p = parents[0];
         const pX = childCenter - CARD_WIDTH / 2;
         nodePositions.set(p.id, { x: pX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
         placedIds.add(p.id);
-        children.forEach(c => handledChildIds.add(c.id));
-
-        const forkY = targetY + CARD_HEIGHT + GENERATION_GAP / 2;
-        if (childXs.length === 1) {
-          connectorJobs.push({
-            type: 'drop_to_child',
-            fromX: childCenter,
-            fromY: targetY + CARD_HEIGHT,
-            toX: childXs[0],
-            toY: minChildY
-          });
-        } else {
-          connectorJobs.push({
-            type: 'children_fork',
-            parentMidX: childCenter,
-            parentStartY: targetY + CARD_HEIGHT,
-            forkY: forkY,
-            minChildX: Math.min(...childXs),
-            maxChildX: Math.max(...childXs),
-            childMidXs: childXs,
-            childTopY: minChildY
-          });
-        }
       }
 
       placedUpper = true;
@@ -2975,15 +2781,6 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     const shiftY = startY - minY;
     nodePositions.forEach(pos => {
       pos.y += shiftY;
-    });
-    connectorJobs.forEach(job => {
-      if (job.y != null) job.y += shiftY;
-      if (job.fromY != null) job.fromY += shiftY;
-      if (job.toY != null) job.toY += shiftY;
-      if (job.parentStartY != null) job.parentStartY += shiftY;
-      if (job.parentBottomY != null) job.parentBottomY += shiftY;
-      if (job.forkY != null) job.forkY += shiftY;
-      if (job.childTopY != null) job.childTopY += shiftY;
     });
   }
 
@@ -3106,30 +2903,57 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     }
   });
 
-  // =========================================================================
-  // UNIVERSAL CONNECTOR PASS (全婚姻線・全親子結線の漏れなき描画保証)
-  // =========================================================================
-  const drawnCoupleKeys = new Set();
-  connectorJobs.forEach(job => {
-    if (job.type === 'couple' && job.p1Id && job.p2Id) {
-      drawnCoupleKeys.add([job.p1Id, job.p2Id].sort().join('_'));
+  // Re-center parent couples above their children group if multiple children are placed
+  appData.persons.forEach(p => {
+    if (p.spouses && p.spouses.length > 0 && p.children && p.children.length > 1) {
+      const spId = p.spouses[0];
+      if (p.id < spId && nodePositions.has(p.id) && nodePositions.has(spId)) {
+        const placedKids = p.children.filter(cid => nodePositions.has(cid));
+        if (placedKids.length > 1) {
+          const kidXs = placedKids.map(cid => nodePositions.get(cid).x);
+          const minK = Math.min(...kidXs);
+          const maxK = Math.max(...kidXs) + CARD_WIDTH;
+          const kCenter = (minK + maxK) / 2;
+          const pPos = nodePositions.get(p.id);
+          const sPos = nodePositions.get(spId);
+          if (Math.abs(pPos.y - sPos.y) < 10) {
+            const leftId = pPos.x < sPos.x ? p.id : spId;
+            const rightId = pPos.x < sPos.x ? spId : p.id;
+            const newLeftX = kCenter - CARD_WIDTH - SPOUSE_GAP / 2;
+            const newRightX = kCenter + SPOUSE_GAP / 2;
+            const otherOnRow = Array.from(nodePositions.entries()).filter(([id, pos]) => id !== leftId && id !== rightId && Math.abs(pos.y - pPos.y) < 20);
+            const collides = otherOnRow.some(([id, pos]) => 
+              (pos.x + CARD_WIDTH > newLeftX - 10 && pos.x < newRightX + CARD_WIDTH + 10)
+            );
+            if (!collides) {
+              nodePositions.get(leftId).x = newLeftX;
+              nodePositions.get(rightId).x = newRightX;
+            }
+          }
+        }
+      }
     }
   });
 
-  // Ensure all spouses have couple lines
-  appData.persons.forEach(p => {
-    const pPos = nodePositions.get(p.id);
-    if (!pPos) return;
-    (p.spouses || []).forEach(sid => {
-      const sPos = nodePositions.get(sid);
-      if (!sPos) return;
-      const key = [p.id, sid].sort().join('_');
-      if (handledCoupleKeys.has(key) || drawnCoupleKeys.has(key)) return;
-      handledCoupleKeys.add(key);
-      drawnCoupleKeys.add(key);
+  // =========================================================================
+  // UNIVERSAL MARRIAGE LINE & PARENT-CHILD CONNECTOR GENERATION
+  // (全婚姻線と兄弟・親子の完全統一描画)
+  // =========================================================================
+  handledCoupleKeys.clear();
 
-      const left = pPos.x < sPos.x ? pPos : sPos;
-      const right = pPos.x < sPos.x ? sPos : pPos;
+  // 1. Marriage Lines (Couples)
+  appData.persons.forEach(p => {
+    const pos1 = nodePositions.get(p.id);
+    if (!pos1) return;
+    (p.spouses || []).forEach(sid => {
+      const pos2 = nodePositions.get(sid);
+      if (!pos2) return;
+      const key = [p.id, sid].sort().join('_');
+      if (handledCoupleKeys.has(key)) return;
+      handledCoupleKeys.add(key);
+
+      const left = pos1.x < pos2.x ? pos1 : pos2;
+      const right = pos1.x < pos2.x ? pos2 : pos1;
       if (Math.abs(left.y - right.y) < CARD_HEIGHT / 2) {
         connectorJobs.push({
           type: 'couple',
@@ -3143,70 +2967,94 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     });
   });
 
-  // Ensure all parent-child connections are drawn
-  const parentGroups = new Map();
-  appData.persons.forEach(child => {
-    if (!child.parents || child.parents.length === 0) return;
-    const cPos = nodePositions.get(child.id);
-    if (!cPos) return;
-
+  // Helper to find canonical parent unit
+  function getParentUnit(child) {
+    if (!child.parents || child.parents.length === 0) return null;
     const placedParents = child.parents.filter(pid => nodePositions.has(pid));
-    if (placedParents.length === 0) return;
+    if (placedParents.length === 0) return null;
 
-    const groupKey = [...placedParents].sort().join(',');
-    if (!parentGroups.has(groupKey)) parentGroups.set(groupKey, []);
-    parentGroups.get(groupKey).push(child);
-  });
-
-  parentGroups.forEach((children, pKey) => {
-    const unhandled = children.filter(c => !handledChildIds.has(c.id));
-    if (unhandled.length === 0) return;
-    unhandled.forEach(c => handledChildIds.add(c.id));
-
-    const pIds = pKey.split(',');
-    const parentPositions = pIds.map(pid => nodePositions.get(pid)).filter(Boolean);
-    if (parentPositions.length === 0) return;
-
-    let parentMidX = 0;
-    let parentBottomY = 0;
-
-    if (parentPositions.length >= 2) {
-      const p1 = parentPositions[0];
-      const p2 = parentPositions[1];
-      const left = p1.x < p2.x ? p1 : p2;
-      const right = p1.x < p2.x ? p2 : p1;
-      parentMidX = (left.x + CARD_WIDTH + right.x) / 2;
-      parentBottomY = Math.max(left.y, right.y) + CARD_HEIGHT / 2;
-    } else {
-      parentMidX = parentPositions[0].x + CARD_WIDTH / 2;
-      parentBottomY = parentPositions[0].y + CARD_HEIGHT;
+    if (placedParents.length >= 2) {
+      const pIds = placedParents.slice(0, 2).sort();
+      return { key: pIds.join('_'), parentIds: pIds, isCouple: true };
     }
 
-    const childXs = children.map(c => nodePositions.get(c.id).x + CARD_WIDTH / 2);
-    const childYs = children.map(c => nodePositions.get(c.id).y);
-    const minChildY = Math.min(...childYs);
-    const forkY = (parentBottomY + minChildY) / 2;
+    const p1 = personMap.get(placedParents[0]);
+    if (p1 && p1.spouses) {
+      const placedSpouse = p1.spouses.find(sid => nodePositions.has(sid));
+      if (placedSpouse) {
+        const pIds = [p1.id, placedSpouse].sort();
+        return { key: pIds.join('_'), parentIds: pIds, isCouple: true };
+      }
+    }
+    return { key: placedParents[0], parentIds: [placedParents[0]], isCouple: false };
+  }
 
-    if (children.length === 1) {
+  // 2. Group all children by Parent Unit
+  const unitMap = new Map();
+  appData.persons.forEach(child => {
+    const pos = nodePositions.get(child.id);
+    if (!pos) return;
+    const unit = getParentUnit(child);
+    if (!unit) return;
+
+    if (!unitMap.has(unit.key)) {
+      unitMap.set(unit.key, { unit, children: [] });
+    }
+    unitMap.get(unit.key).children.push(child);
+  });
+
+  // 3. Build parent-child connector jobs
+  unitMap.forEach(({ unit, children }) => {
+    if (children.length === 0) return;
+
+    let parentMidX, parentStartY;
+    const pPositions = unit.parentIds.map(pid => nodePositions.get(pid)).filter(Boolean);
+    if (pPositions.length === 0) return;
+
+    if (unit.isCouple && pPositions.length >= 2) {
+      const left = pPositions[0].x < pPositions[1].x ? pPositions[0] : pPositions[1];
+      const right = pPositions[0].x < pPositions[1].x ? pPositions[1] : pPositions[0];
+      parentMidX = (left.x + CARD_WIDTH + right.x) / 2;
+      parentStartY = (left.y + right.y) / 2 + CARD_HEIGHT / 2; // EXACT MARRIAGE LINE!
+    } else {
+      parentMidX = pPositions[0].x + CARD_WIDTH / 2;
+      parentStartY = pPositions[0].y + CARD_HEIGHT; // Bottom of card
+    }
+
+    // Sort children left-to-right by X
+    children.sort((a, b) => (nodePositions.get(a.id).x - nodePositions.get(b.id).x));
+    const childItems = children.map(c => {
+      const cPos = nodePositions.get(c.id);
+      return { id: c.id, x: cPos.x + CARD_WIDTH / 2, y: cPos.y };
+    });
+
+    const minChildY = Math.min(...childItems.map(c => c.y));
+    const forkY = (parentStartY + minChildY) / 2;
+
+    if (childItems.length === 1) {
       connectorJobs.push({
         type: 'drop_to_child',
-        childId: children[0].id,
+        parentIds: unit.parentIds,
+        childId: childItems[0].id,
         fromX: parentMidX,
-        fromY: parentBottomY,
-        toX: childXs[0],
-        toY: minChildY
+        fromY: parentStartY,
+        toX: childItems[0].x,
+        toY: childItems[0].y
       });
     } else {
+      const childXs = childItems.map(c => c.x);
       connectorJobs.push({
         type: 'children_fork',
-        childIds: children.map(c => c.id),
+        parentIds: unit.parentIds,
+        childIds: childItems.map(c => c.id),
         parentMidX: parentMidX,
-        parentStartY: parentBottomY,
+        parentStartY: parentStartY,
         forkY: forkY,
-        minChildX: Math.min(...childXs),
-        maxChildX: Math.max(...childXs),
+        minChildX: Math.min(parentMidX, ...childXs),
+        maxChildX: Math.max(parentMidX, ...childXs),
         childMidXs: childXs,
-        childTopY: minChildY
+        childTopY: minChildY,
+        children: childItems
       });
     }
   });
@@ -3645,13 +3493,23 @@ function updateConnectorsLive() {
           job.fromY = pPositions[0].y + CARD_HEIGHT;
         }
       }
-    } else if (job.type === 'children_fork' && job.childIds && job.childIds.length > 0) {
-      const childPositions = job.childIds.map(cid => nodePositions.get(cid)).filter(Boolean);
-      if (childPositions.length > 0) {
-        job.childMidXs = childPositions.map(cp => cp.x + CARD_WIDTH / 2);
-        job.minChildX = Math.min(...job.childMidXs);
-        job.maxChildX = Math.max(...job.childMidXs);
-        job.childTopY = Math.min(...childPositions.map(cp => cp.y));
+    } else if (job.type === 'children_fork') {
+      const childIds = job.childIds || (job.children ? job.children.map(c => c.id) : []);
+      if (childIds.length > 0) {
+        const childItems = [];
+        childIds.forEach(cid => {
+          const cPos = nodePositions.get(cid);
+          if (cPos) {
+            childItems.push({ id: cid, x: cPos.x + CARD_WIDTH / 2, y: cPos.y });
+          }
+        });
+        if (childItems.length > 0) {
+          job.children = childItems;
+          job.childMidXs = childItems.map(c => c.x);
+          job.minChildX = Math.min(...job.childMidXs);
+          job.maxChildX = Math.max(...job.childMidXs);
+          job.childTopY = Math.min(...childItems.map(c => c.y));
+        }
       }
       if (job.parentIds && job.parentIds.length > 0) {
         const pPositions = job.parentIds.map(pid => nodePositions.get(pid)).filter(Boolean);
@@ -3664,7 +3522,9 @@ function updateConnectorsLive() {
           job.parentMidX = pPositions[0].x + CARD_WIDTH / 2;
           job.parentStartY = pPositions[0].y + CARD_HEIGHT;
         }
-        job.forkY = (job.parentStartY + job.childTopY) / 2;
+        if (job.childTopY != null) {
+          job.forkY = (job.parentStartY + job.childTopY) / 2;
+        }
       }
     }
   });
@@ -3706,10 +3566,11 @@ function drawSvgConnectors(jobs, svg) {
         <line x1="${minX}" y1="${job.forkY}" x2="${maxX}" y2="${job.forkY}" class="svg-child-line" />
       `;
 
-      job.childMidXs.forEach(cx => {
+      const childList = job.children || (job.childMidXs || []).map(cx => ({ x: cx, y: job.childTopY }));
+      childList.forEach(ch => {
         svgContent += `
-          <line x1="${cx}" y1="${job.forkY}" x2="${cx}" y2="${job.childTopY}" class="svg-child-line" />
-          <circle cx="${cx}" cy="${job.childTopY}" r="3.5" class="svg-junction-dot" />
+          <line x1="${ch.x}" y1="${job.forkY}" x2="${ch.x}" y2="${ch.y}" class="svg-child-line" />
+          <circle cx="${ch.x}" cy="${ch.y}" r="3.5" class="svg-junction-dot" />
         `;
       });
     }
@@ -4001,6 +3862,73 @@ function quickAddRelative(targetId, type) {
     updateJsonTextarea();
     openPersonModal(newId);
     showToast(`上の世代（${rel}）を追加しました`);
+  } else if (type === "sibling") {
+    let parentIds = [...(target.parents || [])];
+    if (parentIds.length === 0) {
+      const familyName = target.name.split(' ')[0] || target.name.slice(0, 2);
+      const fId = "p" + (Date.now() % 1000000);
+      const mId = "p" + ((Date.now() + 1) % 1000000);
+      const f = {
+        id: fId,
+        name: `${familyName}家 父`,
+        kana: "",
+        gender: "male",
+        relation: "父",
+        birth: "",
+        death: "",
+        isAlive: false,
+        note: "",
+        spouses: [mId],
+        parents: [],
+        children: [target.id]
+      };
+      const m = {
+        id: mId,
+        name: `${familyName}家 母`,
+        kana: "",
+        gender: "female",
+        relation: "母",
+        birth: "",
+        death: "",
+        isAlive: false,
+        note: "",
+        spouses: [fId],
+        parents: [],
+        children: [target.id]
+      };
+      appData.persons.push(f, m);
+      target.parents = [fId, mId];
+      parentIds = [fId, mId];
+    }
+
+    const newSibling = {
+      id: newId,
+      name: "新兄弟姉妹",
+      kana: "",
+      gender: "male",
+      relation: "兄弟",
+      birth: "",
+      death: "",
+      isAlive: true,
+      note: "",
+      spouses: [],
+      parents: [...parentIds],
+      children: []
+    };
+
+    parentIds.forEach(pid => {
+      const parent = appData.persons.find(p => p.id === pid);
+      if (parent && !parent.children.includes(newId)) {
+        parent.children.push(newId);
+      }
+    });
+
+    appData.persons.push(newSibling);
+    saveData();
+    renderTree();
+    updateJsonTextarea();
+    openPersonModal(newId);
+    showToast("兄弟・姉妹枠を追加しました");
   } else if (type === "spouse") {
     const oppGender = target.gender === 'male' ? 'female' : 'male';
     const newSpouse = {
