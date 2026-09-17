@@ -2544,6 +2544,8 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   const nodePositions = new Map();
   const connectorJobs = [];
   const placedIds = new Set();
+  const handledCoupleKeys = new Set();
+  const handledChildIds = new Set();
 
   const startY = 70;
   const lvlHeight = CARD_HEIGHT + GENERATION_GAP;
@@ -2625,10 +2627,13 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     if (f && m) {
       connectorJobs.push({
         type: "couple",
+        p1Id: f.id,
+        p2Id: m.id,
         y: y + CARD_HEIGHT / 2,
         x1: fX + CARD_WIDTH,
         x2: mX
       });
+      handledCoupleKeys.add([f.id, m.id].sort().join('_'));
     }
   }
 
@@ -2650,6 +2655,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       childMidXs: ogaKidMidXs,
       childTopY: yL1
     });
+    ogaChildren.forEach(c => handledChildIds.add(c.id));
   }
 
   if (imaiKidMidXs.length > 0) {
@@ -2663,6 +2669,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       childMidXs: imaiKidMidXs,
       childTopY: yL1
     });
+    imaiChildren.forEach(c => handledChildIds.add(c.id));
   }
 
   if (matsudaKidMidXs.length > 0) {
@@ -2676,6 +2683,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       childMidXs: matsudaKidMidXs,
       childTopY: yL1
     });
+    matsudaChildren.forEach(c => handledChildIds.add(c.id));
   }
 
   if (sadaeKidMidXs.length > 0) {
@@ -2686,6 +2694,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       toX: sadaeKidsMid,
       toY: yL1
     });
+    sadaeChildren.forEach(c => handledChildIds.add(c.id));
   }
 
   // Level 1 Marriages
@@ -2695,10 +2704,13 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   if (posMinato && posEmiko) {
     connectorJobs.push({
       type: "couple",
+      p1Id: minato.id,
+      p2Id: emiko.id,
       y: yL1 + CARD_HEIGHT / 2,
       x1: posMinato.x + CARD_WIDTH,
       x2: posEmiko.x
     });
+    handledCoupleKeys.add([minato.id, emiko.id].sort().join('_'));
     minatoEmikoMid = (posMinato.x + CARD_WIDTH + posEmiko.x) / 2;
   }
 
@@ -2708,10 +2720,13 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   if (posIchiro && posSatoko) {
     connectorJobs.push({
       type: "couple",
+      p1Id: ichiro.id,
+      p2Id: satoko.id,
       y: yL1 + CARD_HEIGHT / 2,
       x1: posIchiro.x + CARD_WIDTH,
       x2: posSatoko.x
     });
+    handledCoupleKeys.add([ichiro.id, satoko.id].sort().join('_'));
     ichiroSatokoMid = (posIchiro.x + CARD_WIDTH + posSatoko.x) / 2;
   }
 
@@ -2738,6 +2753,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       childMidXs: minatoKidXs,
       childTopY: yL2
     });
+    minatoChildren.forEach(c => handledChildIds.add(c.id));
   }
 
   // Level 2: Ichiro & Satoko kids
@@ -2762,6 +2778,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       childMidXs: ichiroKidXs,
       childTopY: yL2
     });
+    ichiroChildren.forEach(c => handledChildIds.add(c.id));
   }
 
   // Level 2 Marriage
@@ -2772,10 +2789,13 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   if (posKoichi && posYoko) {
     connectorJobs.push({
       type: "couple",
+      p1Id: koichi.id,
+      p2Id: yoko.id,
       y: yL2 + CARD_HEIGHT / 2,
       x1: posKoichi.x + CARD_WIDTH,
       x2: posYoko.x
     });
+    handledCoupleKeys.add([koichi.id, yoko.id].sort().join('_'));
     koichiYokoMid = (posKoichi.x + CARD_WIDTH + posYoko.x) / 2;
   }
 
@@ -2802,6 +2822,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       childMidXs: koichiKidXs,
       childTopY: yL3
     });
+    koichiChildren.forEach(c => handledChildIds.add(c.id));
   }
 
   // =========================================================================
@@ -2860,10 +2881,14 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
 
         connectorJobs.push({
           type: 'couple',
+          p1Id: f.id,
+          p2Id: m.id,
           y: targetY + CARD_HEIGHT / 2,
           x1: fX + CARD_WIDTH,
           x2: mX
         });
+        handledCoupleKeys.add([f.id, m.id].sort().join('_'));
+        children.forEach(c => handledChildIds.add(c.id));
 
         const forkY = targetY + CARD_HEIGHT + GENERATION_GAP / 2;
         if (childXs.length === 1) {
@@ -2891,6 +2916,7 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
         const pX = childCenter - CARD_WIDTH / 2;
         nodePositions.set(p.id, { x: pX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
         placedIds.add(p.id);
+        children.forEach(c => handledChildIds.add(c.id));
 
         const forkY = targetY + CARD_HEIGHT + GENERATION_GAP / 2;
         if (childXs.length === 1) {
@@ -3039,7 +3065,8 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       const sPos = nodePositions.get(sid);
       if (!sPos) return;
       const key = [p.id, sid].sort().join('_');
-      if (drawnCoupleKeys.has(key)) return;
+      if (handledCoupleKeys.has(key) || drawnCoupleKeys.has(key)) return;
+      handledCoupleKeys.add(key);
       drawnCoupleKeys.add(key);
 
       const left = pPos.x < sPos.x ? pPos : sPos;
@@ -3073,23 +3100,13 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   });
 
   parentGroups.forEach((children, pKey) => {
+    const unhandled = children.filter(c => !handledChildIds.has(c.id));
+    if (unhandled.length === 0) return;
+    unhandled.forEach(c => handledChildIds.add(c.id));
+
     const pIds = pKey.split(',');
     const parentPositions = pIds.map(pid => nodePositions.get(pid)).filter(Boolean);
     if (parentPositions.length === 0) return;
-
-    const childIds = children.map(c => c.id);
-    let alreadyConnected = false;
-    for (const job of connectorJobs) {
-      if (job.childIds && childIds.some(cid => job.childIds.includes(cid))) {
-        alreadyConnected = true;
-        break;
-      }
-      if (job.type === 'drop_to_child' && childIds.includes(job.childId)) {
-        alreadyConnected = true;
-        break;
-      }
-    }
-    if (alreadyConnected) return;
 
     let parentMidX = 0;
     let parentBottomY = 0;
