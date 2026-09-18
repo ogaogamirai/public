@@ -32,7 +32,9 @@ const OGASAWARA_ACTUAL_DATA = {
         "p_oga_sib_6",
         "p_oga_sib_7",
         "p_minato"
-      ]
+      ],
+      "customX": 171,
+      "customY": 368
     },
     {
       "id": "p_oga_gp_m",
@@ -56,7 +58,9 @@ const OGASAWARA_ACTUAL_DATA = {
         "p_oga_sib_6",
         "p_oga_sib_7",
         "p_minato"
-      ]
+      ],
+      "customX": 307,
+      "customY": 371
     },
     {
       "id": "p_taizo_imai",
@@ -71,12 +75,17 @@ const OGASAWARA_ACTUAL_DATA = {
       "spouses": [
         "p_tane_imai"
       ],
-      "parents": [],
+      "parents": [
+        "p553798",
+        "p27110"
+      ],
       "children": [
         "p_emiko",
         "p_imai_chihei",
         "p_imai_yoko"
-      ]
+      ],
+      "customX": 833,
+      "customY": 373
     },
     {
       "id": "p_tane_imai",
@@ -96,7 +105,9 @@ const OGASAWARA_ACTUAL_DATA = {
         "p_emiko",
         "p_imai_chihei",
         "p_imai_yoko"
-      ]
+      ],
+      "customX": 1000,
+      "customY": 376
     },
     {
       "id": "p_matsuda_gp_f",
@@ -695,6 +706,143 @@ const OGASAWARA_ACTUAL_DATA = {
         "p_yoko_matsuda"
       ],
       "children": []
+    },
+    {
+      "id": "p553798",
+      "name": "今井家",
+      "kana": "",
+      "gender": "male",
+      "relation": "",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "note": "",
+      "spouses": [
+        "p27110"
+      ],
+      "parents": [],
+      "children": [
+        "p_taizo_imai",
+        "p325114",
+        "p138813"
+      ],
+      "customX": 625,
+      "customY": 69
+    },
+    {
+      "id": "p325114",
+      "name": "今井家兄",
+      "kana": "今井家兄",
+      "gender": "male",
+      "relation": "",
+      "birth": "",
+      "death": "",
+      "isAlive": true,
+      "note": "",
+      "spouses": [],
+      "parents": [
+        "p553798"
+      ],
+      "children": [],
+      "customX": 675,
+      "customY": 369
+    },
+    {
+      "id": "p27110",
+      "name": "今井家母",
+      "kana": "",
+      "gender": "female",
+      "relation": "",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "note": "",
+      "spouses": [
+        "p553798"
+      ],
+      "parents": [],
+      "children": [
+        "p_taizo_imai"
+      ],
+      "customX": 776,
+      "customY": 74
+    },
+    {
+      "id": "p138813",
+      "name": "今井家妹",
+      "kana": "",
+      "gender": "female",
+      "relation": "兄弟",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "note": "",
+      "spouses": [
+        "p860543"
+      ],
+      "parents": [
+        "p553798"
+      ],
+      "children": [],
+      "customX": 565,
+      "customY": 369
+    },
+    {
+      "id": "p860543",
+      "name": "前田陽一",
+      "kana": "",
+      "gender": "male",
+      "relation": "夫",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "note": "",
+      "spouses": [
+        "p138813"
+      ],
+      "parents": [
+        "p620845"
+      ],
+      "children": [],
+      "customX": 471,
+      "customY": 371
+    },
+    {
+      "id": "p465905",
+      "name": "神谷美恵子",
+      "kana": "",
+      "gender": "female",
+      "relation": "兄弟",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "note": "",
+      "spouses": [],
+      "parents": [
+        "p620845"
+      ],
+      "children": [],
+      "customX": 392,
+      "customY": 368
+    },
+    {
+      "id": "p620845",
+      "name": "前田多門",
+      "kana": "",
+      "gender": "male",
+      "relation": "父",
+      "birth": "",
+      "death": "",
+      "isAlive": false,
+      "note": "前田陽一 の実父。",
+      "spouses": [],
+      "parents": [],
+      "children": [
+        "p860543",
+        "p465905"
+      ],
+      "customX": 433,
+      "customY": 52
     }
   ]
 };
