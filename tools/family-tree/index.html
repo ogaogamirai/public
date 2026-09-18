@@ -2336,7 +2336,7 @@ function setupPanZoom() {
   }
 
   viewport.addEventListener("mousedown", (e) => {
-    if (e.target.closest(".person-card") || e.target.closest("button") || e.target.closest("input")) {
+    if (window._isDraggingCard || e.target.closest(".person-card") || e.target.closest("button") || e.target.closest("input")) {
       return;
     }
     isPanning = true;
@@ -2346,7 +2346,7 @@ function setupPanZoom() {
   });
 
   window.addEventListener("mousemove", (e) => {
-    if (!isPanning) return;
+    if (!isPanning || window._isDraggingCard) return;
     panX = e.clientX - startPanX;
     panY = e.clientY - startPanY;
     updateTransform();
@@ -3486,8 +3486,11 @@ function createPersonCardElement(person, pos) {
 
   card.addEventListener("mousedown", (e) => {
     if (e.target.closest(".card-actions-hover") || e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
 
     isDraggingCard = true;
+    window._isDraggingCard = true;
     hasMoved = false;
     startMouseX = e.clientX;
     startMouseY = e.clientY;
@@ -3528,6 +3531,7 @@ function createPersonCardElement(person, pos) {
     const onMouseUp = () => {
       if (!isDraggingCard) return;
       isDraggingCard = false;
+      window._isDraggingCard = false;
       card.classList.remove("card-dragging");
 
       window.removeEventListener("mousemove", onMouseMove);
@@ -3546,7 +3550,6 @@ function createPersonCardElement(person, pos) {
 
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
-    e.stopPropagation();
   });
 
   card.addEventListener("click", (e) => {
