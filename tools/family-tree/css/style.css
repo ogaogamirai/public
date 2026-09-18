@@ -1,0 +1,918 @@
+/* ==========================================================================
+       RESET & BASE CSS
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-color: #f7f5f0;
+      --card-bg: #ffffff;
+      --text-main: #2b2b2b;
+      --text-sub: #666666;
+      --line-color: #5c554e;
+      --accent-vermilion: #b93a26;
+      --accent-indigo: #2c4f7c;
+      --accent-sakura: #c75c7a;
+      --accent-gold: #b38838;
+      --border-color: #dcd6cd;
+      --card-radius: 6px;
+      --card-width: 70px;
+      --card-height: 220px;
+      --font-family: 'Shippori Mincho', 'Noto Serif JP', 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+      --font-sans: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Shippori Mincho', 'Noto Serif JP', serif;
+    }
+
+    /* THEME: 和モダン (Japanese Traditional) */
+    body.theme-japanese {
+      --bg-color: #fbf8f3;
+      --card-bg: #ffffff;
+      --text-main: #262422;
+      --text-sub: #6e675f;
+      --line-color: #4a443c;
+      --border-color: #ded6cb;
+      --card-radius: 4px;
+      --font-family: 'Shippori Mincho', 'Noto Serif JP', 'Yu Mincho', serif;
+      background-color: var(--bg-color);
+      background-image: radial-gradient(#ebe3d5 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* THEME: 西洋クラシック (Western Heritage) */
+    body.theme-heritage {
+      --bg-color: #f6f3eb;
+      --card-bg: #fffdfa;
+      --text-main: #332d27;
+      --text-sub: #7a7065;
+      --line-color: #8c734b;
+      --border-color: #cbba99;
+      --card-radius: 8px;
+      --font-family: 'Cormorant Garamond', 'Noto Serif JP', Georgia, serif;
+      background-color: var(--bg-color);
+      background-image: linear-gradient(135deg, #f4f0e6 25%, transparent 25%), linear-gradient(225deg, #f4f0e6 25%, transparent 25%), linear-gradient(45deg, #f4f0e6 25%, transparent 25%), linear-gradient(315deg, #f4f0e6 25%, #f6f3eb 25%);
+      background-position: 10px 0, 10px 0, 0 0, 0 0;
+      background-size: 20px 20px;
+    }
+
+    /* THEME: 洗練モダン (Modern Clean) */
+    body.theme-modern {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --line-color: #94a3b8;
+      --border-color: #e2e8f0;
+      --card-radius: 12px;
+      --font-family: var(--font-sans);
+      background-color: var(--bg-color);
+      background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      color: var(--text-main);
+      font-family: var(--font-family);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    header.app-header {
+      height: 60px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      font-family: var(--font-sans);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .brand-title-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-tag {
+      font-size: 10px;
+      font-weight: 600;
+      background: #eee7dc;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+      color: #635747;
+    }
+
+    .doc-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 16px;
+      padding-left: 16px;
+      border-left: 1px solid var(--border-color);
+    }
+
+    .doc-title-input {
+      font-family: var(--font-family);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 3px 8px;
+      transition: all 0.2s;
+    }
+
+    .doc-title-input:hover, .doc-title-input:focus {
+      background: #ffffff;
+      border-color: #c7beaf;
+      outline: none;
+    }
+
+    .doc-subtitle-input {
+      font-family: var(--font-family);
+      font-size: 12px;
+      color: var(--text-sub);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 3px 6px;
+      width: 250px;
+    }
+
+    .doc-subtitle-input:hover, .doc-subtitle-input:focus {
+      background: #ffffff;
+      border-color: #c7beaf;
+      outline: none;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+
+    .btn:hover {
+      background: #f7f5f0;
+      border-color: #bcaba0;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: #2b4b6f;
+      border-color: #243f5e;
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #203957;
+      border-color: #172a40;
+    }
+
+    .btn-vermilion {
+      background: #b93a26;
+      border-color: #a02f1d;
+      color: #ffffff;
+    }
+
+    .btn-vermilion:hover {
+      background: #9f2f1e;
+      border-color: #832517;
+    }
+
+    .select-input {
+      padding: 6px 10px;
+      font-size: 13px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ==========================================================================
+       MAIN WORKSPACE & PAN / ZOOM CANVAS
+       ========================================================================== */
+    .workspace-container {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+      width: 100%;
+      height: 100%;
+    }
+
+    #viewport.dragging {
+      cursor: grabbing;
+    }
+
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      transition: transform 0.05s ease-out;
+      will-change: transform;
+    }
+
+    #connector-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 10;
+    }
+
+    #cards-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 20;
+    }
+
+    .generation-marker {
+      position: absolute;
+      font-family: var(--font-family);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sub);
+      background: rgba(255,255,255,0.94);
+      border: 1px dashed var(--border-color);
+      padding: 4px 14px;
+      border-radius: 14px;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       PERSON CARD DESIGN (和風・縦書き短冊型)
+       ========================================================================== */
+    .person-card {
+      position: absolute;
+      width: var(--card-width);
+      height: var(--card-height);
+      box-sizing: border-box;
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--card-radius);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      padding: 6px 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      cursor: grab;
+      transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, transform 0.2s;
+      user-select: none;
+      overflow: visible;
+    }
+
+    .person-card:active {
+      cursor: grabbing;
+    }
+
+    .person-card.card-dragging {
+      cursor: grabbing !important;
+      z-index: 100 !important;
+      transition: none !important;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+      opacity: 0.95;
+    }
+
+    .person-card:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      border-color: #ab9c8a;
+      transform: translateY(-2px);
+      z-index: 25;
+    }
+
+    .person-card.active, .person-card.focus-person {
+      border: 2px solid var(--accent-vermilion);
+      box-shadow: 0 0 0 3px rgba(185, 58, 38, 0.22);
+      background: #fffdf9;
+    }
+
+    .person-card.gender-male {
+      border-top: 3.5px solid var(--accent-indigo);
+    }
+    .person-card.gender-female {
+      border-top: 3.5px solid var(--accent-sakura);
+    }
+    .person-card.gender-other {
+      border-top: 3.5px solid #7c5c8e;
+    }
+
+    .card-top {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+
+    .card-relation-tag {
+      font-size: 9.5px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      color: #6d6254;
+      background: #f1ebd7;
+      padding: 1px 3px;
+      border-radius: 3px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 62px;
+      text-align: center;
+      display: block;
+    }
+
+    .card-body-vertical {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 2px 0;
+      overflow: hidden;
+    }
+
+    .card-name-vertical {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-family: var(--font-family);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      line-height: 1.35;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      max-height: 155px;
+    }
+
+    .card-name-vertical ruby {
+      ruby-align: center;
+    }
+
+    .card-name-vertical rt {
+      font-size: 8px;
+      font-weight: 500;
+      color: #7a7065;
+      letter-spacing: 0;
+      font-family: var(--font-sans);
+    }
+
+    .card-name-vertical .name-sub {
+      font-size: 9px;
+      color: #8c8275;
+      font-weight: 400;
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    .card-bottom {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2px;
+      margin-top: 2px;
+    }
+
+    .card-gender-badge {
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .gender-male .card-gender-badge { color: var(--accent-indigo); }
+    .gender-female .card-gender-badge { color: var(--accent-sakura); }
+    .gender-other .card-gender-badge { color: #7c5c8e; }
+
+    .lifespan-pill {
+      font-size: 8.5px;
+      font-family: var(--font-sans);
+      color: var(--text-sub);
+      background: rgba(0,0,0,0.04);
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 46px;
+    }
+
+    .card-actions-hover {
+      position: absolute;
+      top: -34px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      background: rgba(40, 36, 32, 0.94);
+      backdrop-filter: blur(4px);
+      padding: 3px 6px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .person-card:hover .card-actions-hover {
+      display: flex;
+    }
+
+    .card-action-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .card-action-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: scale(1.1);
+    }
+
+    /* ==========================================================================
+       SVG CONNECTORS
+       ========================================================================== */
+    .svg-couple-line {
+      stroke: var(--line-color);
+      stroke-width: 2.2px;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    .svg-child-line {
+      stroke: var(--line-color);
+      stroke-width: 1.8px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .svg-junction-dot {
+      fill: var(--line-color);
+    }
+
+    .svg-marriage-icon {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      fill: var(--accent-vermilion);
+      text-anchor: middle;
+      dominant-baseline: central;
+      user-select: none;
+    }
+
+    /* ==========================================================================
+       SIDEBARS & FLOATING PANELS
+       ========================================================================== */
+    .sidebar-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 380px;
+      background: #ffffff;
+      border-right: 1px solid var(--border-color);
+      box-shadow: 4px 0 16px rgba(0,0,0,0.06);
+      z-index: 80;
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      font-family: var(--font-sans);
+    }
+
+    .sidebar-panel.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      height: 50px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: #faf8f5;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .json-editor-textarea {
+      flex: 1;
+      width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      background: #faf9f6;
+      color: #2b2b2b;
+      resize: none;
+      outline: none;
+    }
+
+    .json-editor-textarea:focus {
+      border-color: #2c4f7c;
+      background: #ffffff;
+    }
+
+    .json-error-badge {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      display: none;
+    }
+
+    .floating-controls {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      z-index: 60;
+    }
+
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text-main);
+      transition: background 0.1s;
+    }
+
+    .zoom-btn:hover {
+      background: #efe9de;
+    }
+
+    .zoom-level-text {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 0 6px;
+      font-family: var(--font-sans);
+      min-width: 44px;
+      text-align: center;
+      color: var(--text-sub);
+    }
+
+    .status-toast {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: rgba(43, 40, 38, 0.92);
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 70;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .status-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       MODAL DIALOG
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 10px;
+      width: 480px;
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+      border: 1px solid var(--border-color);
+      transform: scale(0.95);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: var(--font-sans);
+      overflow: hidden;
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #faf8f5;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      cursor: pointer;
+      color: #888888;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .modal-close-btn:hover {
+      background: #e9e3d8;
+      color: #111111;
+    }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row > .form-group {
+      flex: 1;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .form-input, .form-textarea, .form-select {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: #2c4f7c;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 56px;
+    }
+
+    .modal-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border-color);
+      background: #faf8f5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .print-document-header {
+      display: none;
+    }
+
+    /* ==========================================================================
+       PRINT SPECIFIC STYLES (@media print)
+       ========================================================================== */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 10mm 12mm;
+      }
+
+      html, body {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      header.app-header,
+      .sidebar-panel,
+      .floating-controls,
+      .status-toast,
+      .modal-backdrop,
+      .card-actions-hover {
+        display: none !important;
+      }
+
+      #app, .workspace-container, #viewport {
+        position: static !important;
+        overflow: visible !important;
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+      }
+
+      #canvas-container {
+        position: relative !important;
+        transform: none !important;
+        margin: 0 auto !important;
+      }
+
+      .print-document-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #5c554e;
+      }
+
+      .print-doc-title {
+        font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+      }
+
+      .print-doc-subtitle {
+        font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+        font-size: 13px;
+        color: #555555;
+        letter-spacing: 0.08em;
+      }
+
+      .person-card {
+        box-shadow: none !important;
+        border: 1px solid #777777 !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      .person-card.gender-male {
+        border-top: 4px solid #2c4f7c !important;
+      }
+      .person-card.gender-female {
+        border-top: 4px solid #c75c7a !important;
+      }
+
+      .svg-couple-line, .svg-child-line {
+        stroke: #222222 !important;
+      }
+      .svg-marriage-icon {
+        fill: #b93a26 !important;
+      }
+    }
