@@ -344,10 +344,22 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: grab;
+      transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, transform 0.2s;
       user-select: none;
       overflow: visible;
+    }
+
+    .person-card:active {
+      cursor: grabbing;
+    }
+
+    .person-card.card-dragging {
+      cursor: grabbing !important;
+      z-index: 100 !important;
+      transition: none !important;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+      opacity: 0.95;
     }
 
     .person-card:hover {
@@ -2199,7 +2211,7 @@ function setupHeaderControls() {
   if (btnResetLayout) {
     btnResetLayout.addEventListener("click", () => {
       if (confirm("手動でドラッグ移動した位置をリセットし、家系図の自動整列に戻しますか？")) {
-        appData.people.forEach(p => {
+        (appData.persons || appData.people || []).forEach(p => {
           delete p.customX;
           delete p.customY;
         });
@@ -2971,6 +2983,17 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   });
 
   // =========================================================================
+  // APPLY USER CUSTOM DRAG POSITIONS (手動ドラッグ微調整位置の反映)
+  // =========================================================================
+  appData.persons.forEach(p => {
+    if (p.customX != null && p.customY != null && nodePositions.has(p.id)) {
+      const pos = nodePositions.get(p.id);
+      pos.x = p.customX;
+      pos.y = p.customY;
+    }
+  });
+
+  // =========================================================================
   // UNIVERSAL MARRIAGE LINE & PARENT-CHILD CONNECTOR GENERATION
   // (全婚姻線と兄弟・親子の完全統一描画)
   // =========================================================================
@@ -3456,8 +3479,82 @@ function createPersonCardElement(person, pos) {
     </div>
   `;
 
+  let isDraggingCard = false;
+  let hasMoved = false;
+  let startMouseX = 0, startMouseY = 0;
+  let startCardX = pos.x, startCardY = pos.y;
+
+  card.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".card-actions-hover") || e.button !== 0) return;
+
+    isDraggingCard = true;
+    hasMoved = false;
+    startMouseX = e.clientX;
+    startMouseY = e.clientY;
+
+    const curPos = (window._activeNodePositions && window._activeNodePositions.get(person.id)) || pos;
+    startCardX = curPos.x;
+    startCardY = curPos.y;
+
+    card.classList.add("card-dragging");
+
+    const onMouseMove = (moveEvt) => {
+      if (!isDraggingCard) return;
+      const zoom = (typeof currentZoom !== 'undefined' && currentZoom) ? currentZoom : 1.0;
+      const dx = (moveEvt.clientX - startMouseX) / zoom;
+      const dy = (moveEvt.clientY - startMouseY) / zoom;
+
+      if (Math.hypot(dx, dy) > 3) {
+        hasMoved = true;
+      }
+
+      const newX = Math.round(startCardX + dx);
+      const newY = Math.round(startCardY + dy);
+
+      card.style.left = `${newX}px`;
+      card.style.top = `${newY}px`;
+
+      if (window._activeNodePositions) {
+        const pPos = window._activeNodePositions.get(person.id);
+        if (pPos) {
+          pPos.x = newX;
+          pPos.y = newY;
+        }
+      }
+
+      updateConnectorsLive();
+    };
+
+    const onMouseUp = () => {
+      if (!isDraggingCard) return;
+      isDraggingCard = false;
+      card.classList.remove("card-dragging");
+
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+
+      if (hasMoved) {
+        person.customX = parseInt(card.style.left, 10);
+        person.customY = parseInt(card.style.top, 10);
+        if (typeof saveDataDebounced === 'function') {
+          saveDataDebounced();
+        } else if (typeof saveData === 'function') {
+          saveData();
+        }
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    e.stopPropagation();
+  });
+
   card.addEventListener("click", (e) => {
     if (e.target.closest(".card-actions-hover")) return;
+    if (hasMoved) {
+      hasMoved = false;
+      return;
+    }
     openPersonModal(person.id);
   });
 
