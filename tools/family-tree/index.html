@@ -2708,14 +2708,20 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   });
 
   // =========================================================================
-  // RECURSIVE UPPER ANCESTORS PLACEMENT (高祖父母・五代前以上の先祖を自動配置)
+  // UNIFIED MULTI-PASS OMNIDIRECTIONAL PROPAGATION LOOP
+  // (上・下・横の全方向親族伝播配置エンジン)
+  // 配偶者・その親（上の世代）・その兄弟など、どんな外戚や多世代親族が
+  // 追加されても、正しい世代段（Level）と美しい幾何に完全配置する。
   // =========================================================================
-  let placedUpper = true;
-  let upperIters = 0;
-  while (placedUpper && upperIters < 15) {
-    placedUpper = false;
-    upperIters++;
+  let placedNew = true;
+  let propIter = 0;
+  while (placedNew && propIter < 25) {
+    placedNew = false;
+    propIter++;
 
+    // -----------------------------------------------------------------------
+    // PASS 1: UPPER ANCESTORS (上の世代：親の配置)
+    // -----------------------------------------------------------------------
     const personsWithUnplacedParents = [];
     appData.persons.forEach(p => {
       if (placedIds.has(p.id) && p.parents && p.parents.length > 0) {
@@ -2726,74 +2732,53 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       }
     });
 
-    if (personsWithUnplacedParents.length === 0) break;
-
-    const parentGroupMap = new Map();
-    personsWithUnplacedParents.forEach(child => {
-      const key = [...child.parents].sort().join(',');
-      if (!parentGroupMap.has(key)) parentGroupMap.set(key, []);
-      parentGroupMap.get(key).push(child);
-    });
-
-    parentGroupMap.forEach((children, pKey) => {
-      const parentIds = pKey.split(',');
-      const parents = parentIds.map(pid => personMap.get(pid)).filter(Boolean);
-      if (parents.length === 0) return;
-
-      const childXs = children.map(c => {
-        const pos = nodePositions.get(c.id);
-        return pos ? pos.x + CARD_WIDTH / 2 : 0;
+    if (personsWithUnplacedParents.length > 0) {
+      const parentGroupMap = new Map();
+      personsWithUnplacedParents.forEach(child => {
+        const key = [...child.parents].sort().join(',');
+        if (!parentGroupMap.has(key)) parentGroupMap.set(key, []);
+        parentGroupMap.get(key).push(child);
       });
-      const childCenter = (Math.min(...childXs) + Math.max(...childXs)) / 2;
-      const childYs = children.map(c => nodePositions.get(c.id).y);
-      const minChildY = Math.min(...childYs);
-      const targetY = minChildY - lvlHeight;
 
-      if (parents.length >= 2) {
-        const f = parents.find(p => p.gender === 'male') || parents[0];
-        const m = parents.find(p => p.id !== f.id) || parents[1];
+      parentGroupMap.forEach((children, pKey) => {
+        const parentIds = pKey.split(',');
+        const parents = parentIds.map(pid => personMap.get(pid)).filter(Boolean);
+        if (parents.length === 0) return;
 
-        const fX = childCenter - CARD_WIDTH - SPOUSE_GAP / 2;
-        const mX = childCenter + SPOUSE_GAP / 2;
+        const childXs = children.map(c => {
+          const pos = nodePositions.get(c.id);
+          return pos ? pos.x + CARD_WIDTH / 2 : 0;
+        });
+        const childCenter = (Math.min(...childXs) + Math.max(...childXs)) / 2;
+        const childYs = children.map(c => nodePositions.get(c.id).y);
+        const minChildY = Math.min(...childYs);
+        const targetY = minChildY - lvlHeight;
 
-        nodePositions.set(f.id, { x: fX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
-        nodePositions.set(m.id, { x: mX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
-        placedIds.add(f.id);
-        placedIds.add(m.id);
-      } else if (parents.length === 1) {
-        const p = parents[0];
-        const pX = childCenter - CARD_WIDTH / 2;
-        nodePositions.set(p.id, { x: pX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
-        placedIds.add(p.id);
-      }
+        if (parents.length >= 2) {
+          const f = parents.find(p => p.gender === 'male') || parents[0];
+          const m = parents.find(p => p.id !== f.id) || parents[1];
 
-      placedUpper = true;
-    });
-  }
+          let fX = childCenter - CARD_WIDTH - SPOUSE_GAP / 2;
+          let mX = childCenter + SPOUSE_GAP / 2;
 
-  // AUTO-SHIFT DOWNWARDS IF HIGHER ANCESTORS EXIST ABOVE Y=70
-  let minY = Infinity;
-  nodePositions.forEach(pos => {
-    if (pos.y < minY) minY = pos.y;
-  });
+          nodePositions.set(f.id, { x: fX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
+          nodePositions.set(m.id, { x: mX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
+          placedIds.add(f.id);
+          placedIds.add(m.id);
+        } else if (parents.length === 1) {
+          const p = parents[0];
+          let pX = childCenter - CARD_WIDTH / 2;
+          nodePositions.set(p.id, { x: pX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
+          placedIds.add(p.id);
+        }
 
-  if (minY < startY) {
-    const shiftY = startY - minY;
-    nodePositions.forEach(pos => {
-      pos.y += shiftY;
-    });
-  }
+        placedNew = true;
+      });
+    }
 
-  // =========================================================================
-  // SMART SIBLING & SPOUSE PROXIMITY PLACEMENT (兄弟・夫婦の近接自動整列)
-  // =========================================================================
-  let placedNew = true;
-  let iter = 0;
-  while (placedNew && iter < 12) {
-    placedNew = false;
-    iter++;
-
-    // 1. Spouses: Place adjacent to their spouse on the same generation row
+    // -----------------------------------------------------------------------
+    // PASS 2: SPOUSES (同世代：配偶者の横配置)
+    // -----------------------------------------------------------------------
     appData.persons.forEach(p => {
       if (placedIds.has(p.id)) {
         const pPos = nodePositions.get(p.id);
@@ -2802,12 +2787,6 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
             const sp = personMap.get(sid);
             if (sp) {
               const desiredX = pPos.x + CARD_WIDTH + SPOUSE_GAP;
-              const shiftAmt = CARD_WIDTH + SPOUSE_GAP;
-              nodePositions.forEach((pos, otherId) => {
-                if (otherId !== p.id && Math.abs(pos.y - pPos.y) < 20 && pos.x >= desiredX - 10) {
-                  pos.x += shiftAmt;
-                }
-              });
               nodePositions.set(sid, {
                 x: desiredX,
                 y: pPos.y,
@@ -2822,7 +2801,9 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
       }
     });
 
-    // 2. Children & Siblings: Place adjacent to siblings in the same generation row
+    // -----------------------------------------------------------------------
+    // PASS 3: CHILDREN & SIBLINGS (下の世代・同世代兄弟の配置)
+    // -----------------------------------------------------------------------
     appData.persons.forEach(p => {
       if (placedIds.has(p.id)) {
         const pPos = nodePositions.get(p.id);
@@ -2840,20 +2821,11 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
                 const isOlder = (child.relation && (child.relation.includes('兄') || child.relation.includes('姉') || child.relation.includes('長'))) ||
                                 (child.name && (child.name.includes('兄') || child.name.includes('姉') || child.name.includes('長男') || child.name.includes('長女')));
 
-                const leftX = placedSiblings[0].pos.x - CARD_WIDTH - SIBLING_GAP;
-                const isLeftFree = leftX >= 40 && !Array.from(nodePositions.values()).some(pos => Math.abs(pos.y - rowY) < 20 && Math.abs(pos.x - leftX) < (CARD_WIDTH + 10));
-
                 let chosenX;
-                if (isOlder && isLeftFree) {
-                  chosenX = leftX;
+                if (isOlder) {
+                  chosenX = placedSiblings[0].pos.x - CARD_WIDTH - SIBLING_GAP;
                 } else {
                   chosenX = placedSiblings[placedSiblings.length - 1].pos.x + CARD_WIDTH + SIBLING_GAP;
-                  const shiftAmt = CARD_WIDTH + SIBLING_GAP;
-                  nodePositions.forEach((pos, otherId) => {
-                    if (!placedSiblings.some(s => s.id === otherId) && Math.abs(pos.y - rowY) < 20 && pos.x >= chosenX - 10) {
-                      pos.x += shiftAmt;
-                    }
-                  });
                 }
 
                 nodePositions.set(cid, {
@@ -2865,12 +2837,6 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
               } else {
                 const targetY = pPos.y + lvlHeight;
                 let desiredX = pPos.x;
-                const shiftAmt = CARD_WIDTH + SIBLING_GAP;
-                nodePositions.forEach((pos, otherId) => {
-                  if (Math.abs(pos.y - targetY) < 20 && pos.x >= desiredX - 10) {
-                    pos.x += shiftAmt;
-                  }
-                });
                 nodePositions.set(cid, {
                   x: desiredX,
                   y: targetY,
@@ -2888,18 +2854,86 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     });
   }
 
-  // 3. Any genuinely unplaced persons
-  let maxY = 0;
-  nodePositions.forEach(pos => {
-    maxY = Math.max(maxY, pos.y + pos.height);
-  });
-  let fallbackY = maxY + GENERATION_GAP;
-  let fallbackX = 60;
+  // -------------------------------------------------------------------------
+  // PASS 4: FALLBACK FOR ANY ISOLATED NODES (孤立ノードの世代推定配置)
+  // -------------------------------------------------------------------------
   appData.persons.forEach(p => {
     if (!placedIds.has(p.id)) {
-      nodePositions.set(p.id, { x: fallbackX, y: fallbackY, width: CARD_WIDTH, height: CARD_HEIGHT });
-      fallbackX += CARD_WIDTH + SIBLING_GAP;
+      let estimatedY = null;
+      if (p.parents && p.parents.some(pid => nodePositions.has(pid))) {
+        const pid = p.parents.find(pid => nodePositions.has(pid));
+        estimatedY = nodePositions.get(pid).y + lvlHeight;
+      } else if (p.spouses && p.spouses.some(sid => nodePositions.has(sid))) {
+        const sid = p.spouses.find(sid => nodePositions.has(sid));
+        estimatedY = nodePositions.get(sid).y;
+      } else if (p.children && p.children.some(cid => nodePositions.has(cid))) {
+        const cid = p.children.find(cid => nodePositions.has(cid));
+        estimatedY = nodePositions.get(cid).y - lvlHeight;
+      }
+
+      if (estimatedY == null) {
+        let maxY = 0;
+        nodePositions.forEach(pos => { maxY = Math.max(maxY, pos.y + pos.height); });
+        estimatedY = maxY + GENERATION_GAP;
+      }
+
+      const sameRow = Array.from(nodePositions.values()).filter(pos => Math.abs(pos.y - estimatedY) < 20);
+      let maxXOnRow = 60;
+      sameRow.forEach(pos => { maxXOnRow = Math.max(maxXOnRow, pos.x + pos.width); });
+      nodePositions.set(p.id, {
+        x: maxXOnRow + SIBLING_GAP,
+        y: estimatedY,
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT
+      });
       placedIds.add(p.id);
+    }
+  });
+
+  // AUTO-SHIFT DOWNWARDS IF HIGHER ANCESTORS EXIST ABOVE Y=70
+  let minY = Infinity;
+  nodePositions.forEach(pos => {
+    if (pos.y < minY) minY = pos.y;
+  });
+
+  if (minY < startY) {
+    const shiftY = startY - minY;
+    nodePositions.forEach(pos => {
+      pos.y += shiftY;
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // PASS 5: RESOLVE HORIZONTAL OVERLAPS (各行の水平重なり自動解消)
+  // -------------------------------------------------------------------------
+  const rowGroups = new Map();
+  nodePositions.forEach((pos, id) => {
+    let foundRowKey = null;
+    rowGroups.forEach((nodes, rowY) => {
+      if (Math.abs(rowY - pos.y) < 15) foundRowKey = rowY;
+    });
+    if (foundRowKey == null) {
+      foundRowKey = pos.y;
+      rowGroups.set(foundRowKey, []);
+    }
+    rowGroups.get(foundRowKey).push({ id, pos });
+  });
+
+  rowGroups.forEach((nodes, rowY) => {
+    nodes.sort((a, b) => a.pos.x - b.pos.x);
+    for (let i = 0; i < nodes.length - 1; i++) {
+      const cur = nodes[i].pos;
+      const next = nodes[i + 1].pos;
+      const curPerson = personMap.get(nodes[i].id);
+      const isCouple = curPerson && curPerson.spouses && curPerson.spouses.includes(nodes[i + 1].id);
+      const minGap = isCouple ? SPOUSE_GAP : SIBLING_GAP;
+      const minReqX = cur.x + CARD_WIDTH + minGap;
+      if (next.x < minReqX) {
+        const diff = minReqX - next.x;
+        for (let j = i + 1; j < nodes.length; j++) {
+          nodes[j].pos.x += diff;
+        }
+      }
     }
   });
 
