@@ -131,6 +131,10 @@ function setupHeaderControls() {
       }
     } else if (val === "export-json") {
       exportJsonFile();
+    } else if (val === "export-html-full") {
+      exportStandaloneHtml("full");
+    } else if (val === "export-html-presentation") {
+      exportStandaloneHtml("presentation");
     } else if (val === "import-json") {
       fileInputHidden.click();
     } else if (val === "clear-data") {
@@ -520,10 +524,67 @@ function setupModals() {
   document.getElementById("btn-print-modal-close").addEventListener("click", () => printModal.classList.remove("open"));
   document.getElementById("btn-print-cancel").addEventListener("click", () => printModal.classList.remove("open"));
   document.getElementById("btn-execute-print").addEventListener("click", () => {
+    const paper = document.getElementById("print-orientation-select")?.value || "a4-landscape";
+    const autoFit = document.getElementById("print-auto-fit")?.checked ?? true;
+    const includeHeader = document.getElementById("print-include-header")?.checked ?? true;
+
     printModal.classList.remove("open");
+
+    let dynamicPrintStyle = document.getElementById("dynamic-print-style");
+    if (dynamicPrintStyle) dynamicPrintStyle.remove();
+
+    dynamicPrintStyle = document.createElement("style");
+    dynamicPrintStyle.id = "dynamic-print-style";
+
+    let pageSizeCss = "A4 landscape";
+    let targetWidthPx = 1122; // A4 landscape @ 96DPI (297mm ≈ 1122px)
+    if (paper === "a3-landscape") {
+      pageSizeCss = "A3 landscape";
+      targetWidthPx = 1587; // A3 landscape: 420mm ≈ 1587px
+    } else if (paper === "b4-landscape") {
+      pageSizeCss = "B4 landscape";
+      targetWidthPx = 1375;
+    } else if (paper === "a4-portrait") {
+      pageSizeCss = "A4 portrait";
+      targetWidthPx = 793;
+    }
+
+    const bounds = typeof calculateTreeBounds === 'function' ? calculateTreeBounds() : { width: 2400, height: 1400, maxX: 2400 };
+    const treeW = Math.max(bounds.maxX + 80, 1400);
+
+    let scaleCss = "";
+    if (autoFit && treeW > targetWidthPx) {
+      const fitScale = Math.min((targetWidthPx - 40) / treeW, 1.0);
+      scaleCss = `
+        #canvas-container {
+          transform: scale(${fitScale}) !important;
+          transform-origin: top center !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
+      `;
+    }
+
+    let headerCss = "";
+    if (!includeHeader) {
+      headerCss = ".print-document-header { display: none !important; }";
+    }
+
+    dynamicPrintStyle.innerHTML = `
+      @media print {
+        @page {
+          size: ${pageSizeCss};
+          margin: 8mm 10mm;
+        }
+        ${headerCss}
+        ${scaleCss}
+      }
+    `;
+    document.head.appendChild(dynamicPrintStyle);
+
     setTimeout(() => {
       window.print();
-    }, 150);
+    }, 180);
   });
 }
 

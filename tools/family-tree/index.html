@@ -67,7 +67,9 @@
         <option value="" disabled selected>💾 保存 / 読込</option>
         <option value="load-ogasawara-actual">🏯 小笠原更一 家系図（本家）を読込</option>
         <option value="load-sample">✨ 山田家 三代系図を読込</option>
-        <option value="export-json">📥 JSON保存（ダウンロード）</option>
+        <option value="export-json">📥 JSON保存（構成データ）</option>
+        <option value="export-html-full">🌐 HTML保存（フル機能版）</option>
+        <option value="export-html-presentation">🖥️ HTML保存（発表・閲覧専用）</option>
         <option value="import-json">📤 JSON読込（ファイルを開く）</option>
         <option value="clear-data">🗑️ すべてリセット（新規作成）</option>
       </select>
@@ -213,7 +215,7 @@
 
 <!-- MODAL: PRINT PREVIEW & OPTIONS -->
 <div id="print-modal" class="modal-backdrop">
-  <div class="modal-card" style="width: 420px;">
+  <div class="modal-card" style="width: 440px;">
     <div class="modal-header">
       <div class="modal-title">
         <span>🖨️</span> 印刷 / PDF出力設定
@@ -222,22 +224,40 @@
     </div>
 
     <div class="modal-body">
-      <div style="font-size: 13px; color: var(--text-sub); line-height: 1.5;">
-        ブラウザの印刷ダイアログを呼び出します。「送信先」を「PDFに保存」にすることで、美麗なPDFファイルとして保存できます。
+      <div style="font-size: 13px; color: var(--text-sub); line-height: 1.5; margin-bottom: 12px;">
+        ブラウザの印刷画面を呼び出します。「送信先」を「PDFに保存」にすることで、美麗なPDFとして保存できます。
       </div>
 
       <div class="form-group">
-        <label class="form-label">用紙の向き・サイズ目安</label>
+        <label class="form-label" for="print-orientation-select">用紙サイズ・向き</label>
         <select id="print-orientation-select" class="form-select">
-          <option value="landscape">A4 横（推奨・家系図に最適）</option>
-          <option value="portrait">A4 縦</option>
-          <option value="a3-landscape">A3 横（大家族・多世代向け）</option>
+          <option value="a4-landscape" selected>A4 横（一般的・標準用紙）</option>
+          <option value="a3-landscape">A3 横（大家族・多世代系図に最適）</option>
+          <option value="b4-landscape">B4 横</option>
+          <option value="a4-portrait">A4 縦</option>
         </select>
       </div>
 
-      <div style="background: #fdfaf3; border: 1px solid #ece4d4; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.5; color: #6a5e4d;">
+      <div class="form-group" style="margin-top: 10px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+          <input type="checkbox" id="print-auto-fit" checked style="width: 16px; height: 16px;">
+          <span><strong>用紙1枚にすっぽり収める（自動縮小フィット）</strong></span>
+        </label>
+        <div style="font-size: 11px; color: var(--text-sub); margin-left: 24px; margin-top: 2px;">
+          系図の横幅を用紙に合わせて自動縮小し、右側がはみ出ないようにします。
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 10px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+          <input type="checkbox" id="print-include-header" checked style="width: 16px; height: 16px;">
+          <span>表題（小笠原家 系譜図）を用紙上部に印字する</span>
+        </label>
+      </div>
+
+      <div style="background: #fdfaf3; border: 1px solid #ece4d4; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.5; color: #6a5e4d; margin-top: 12px;">
         💡 <strong>綺麗に印刷するコツ:</strong><br>
-        印刷ダイアログの「詳細設定」で<strong>「背景のグラフィック」にチェック</strong>を入れてください。カードの色や美しい背景がそのまま印刷されます。
+        印刷プレビュー画面の「詳細設定」で<strong>「背景のグラフィック」に必ずチェック</strong>を入れてください。和紙テクスチャや藍（男性）・桜（女性）の差し色が鮮明に出力されます。
       </div>
     </div>
 
@@ -253,6 +273,7 @@
   <script src="js/data.js"></script>
   <script src="js/connectors.js"></script>
   <script src="js/layout.js"></script>
+  <script src="js/exporter.js"></script>
   <script src="js/app.js"></script>
 
 </body>
