@@ -185,19 +185,78 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
 
   const startY = 70;
   const lvlHeight = CARD_HEIGHT + GENERATION_GAP;
-  const yL0 = startY;
-  const yL1 = startY + lvlHeight;
-  const yL2 = startY + lvlHeight * 2;
-  const yL3 = startY + lvlHeight * 3;
 
   const SIBLING_GAP_L1 = 18;
   const COUPLE_INTER_GAP = 46;
-  const BRANCH_GAP = 90;
+  const BRANCH_GAP = 60;
 
-  // Calculate Level 1 layout
+  // -------------------------------------------------------------------------
+  // STEP 1: 全人物の世代レベル (Generation Level) を双方向BFSで完全に決定
+  // -------------------------------------------------------------------------
+  const levels = new Map();
+  const rootId1 = koichi ? koichi.id : (appData.persons[0] ? appData.persons[0].id : null);
+  const rootId2 = yoko ? yoko.id : null;
+  if (rootId1) levels.set(rootId1, 2);
+  if (rootId2) levels.set(rootId2, 2);
+
+  let lvlChanged = true;
+  while (lvlChanged) {
+    lvlChanged = false;
+    appData.persons.forEach(p => {
+      const curLvl = levels.get(p.id);
+      if (curLvl !== undefined) {
+        (p.spouses || []).forEach(sid => {
+          if (!levels.has(sid)) { levels.set(sid, curLvl); lvlChanged = true; }
+        });
+        (p.parents || []).forEach(parentId => {
+          if (!levels.has(parentId)) { levels.set(parentId, curLvl - 1); lvlChanged = true; }
+        });
+        (p.children || []).forEach(cid => {
+          if (!levels.has(cid)) { levels.set(cid, curLvl + 1); lvlChanged = true; }
+        });
+      } else {
+        for (const sid of (p.spouses || [])) {
+          if (levels.has(sid)) { levels.set(p.id, levels.get(sid)); lvlChanged = true; break; }
+        }
+        if (!levels.has(p.id)) {
+          for (const parentId of (p.parents || [])) {
+            if (levels.has(parentId)) { levels.set(p.id, levels.get(parentId) + 1); lvlChanged = true; break; }
+          }
+        }
+        if (!levels.has(p.id)) {
+          for (const cid of (p.children || [])) {
+            if (levels.has(cid)) { levels.set(p.id, levels.get(cid) - 1); lvlChanged = true; break; }
+          }
+        }
+      }
+    });
+  }
+
+  // 孤立ノード fallback
+  appData.persons.forEach(p => {
+    if (!levels.has(p.id)) levels.set(p.id, 0);
+  });
+
+  const minLvl = Math.min(...Array.from(levels.values()));
+  const levelY = new Map();
+  levels.forEach((lvl, pid) => {
+    if (!levelY.has(lvl)) {
+      levelY.set(lvl, startY + (lvl - minLvl) * lvlHeight);
+    }
+  });
+
+  const yL_minus_1 = levelY.get(-1) || startY;
+  const yL0 = levelY.get(0) || (startY + lvlHeight);
+  const yL1 = levelY.get(1) || (startY + lvlHeight * 2);
+  const yL2 = levelY.get(2) || (startY + lvlHeight * 3);
+  const yL3 = levelY.get(3) || (startY + lvlHeight * 4);
+
+  // -------------------------------------------------------------------------
+  // STEP 2: Level 1 の子供たち ＆ 小笠原家（夫系）基本骨格の配置
+  // -------------------------------------------------------------------------
   let curX = 60;
 
-  // 1. Ogasawara 7 kids
+  // 1. 小笠原兄弟 7名
   const ogaKidMidXs = [];
   ogaChildren.forEach(child => {
     nodePositions.set(child.id, { x: curX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
@@ -208,103 +267,190 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   if (ogaChildren.length > 0) curX -= SIBLING_GAP_L1;
   const ogaKidsMid = ogaKidMidXs.length > 0 ? (ogaKidMidXs[0] + ogaKidMidXs[ogaKidMidXs.length - 1]) / 2 : curX;
 
-  curX += COUPLE_INTER_GAP;
-
-  // 2. Imai 3 kids
-  const imaiKidMidXs = [];
-  imaiChildren.forEach(child => {
-    nodePositions.set(child.id, { x: curX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(child.id);
-    imaiKidMidXs.push(curX + CARD_WIDTH / 2);
-    curX += CARD_WIDTH + SIBLING_GAP_L1;
-  });
-  if (imaiChildren.length > 0) curX -= SIBLING_GAP_L1;
-  const imaiKidsMid = imaiKidMidXs.length > 0 ? (imaiKidMidXs[0] + imaiKidMidXs[imaiKidMidXs.length - 1]) / 2 : curX;
-
-  curX += BRANCH_GAP;
-
-  // 3. Matsuda 11 kids
-  const matsudaKidMidXs = [];
-  matsudaChildren.forEach(child => {
-    nodePositions.set(child.id, { x: curX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(child.id);
-    matsudaKidMidXs.push(curX + CARD_WIDTH / 2);
-    curX += CARD_WIDTH + SIBLING_GAP_L1;
-  });
-  if (matsudaChildren.length > 0) curX -= SIBLING_GAP_L1;
-  const matsudaKidsMid = matsudaKidMidXs.length > 0 ? (matsudaKidMidXs[0] + matsudaKidMidXs[matsudaKidMidXs.length - 1]) / 2 : curX;
-
-  curX += COUPLE_INTER_GAP;
-
-  // 4. Sadae 1 kid
-  const sadaeKidMidXs = [];
-  sadaeChildren.forEach(child => {
-    nodePositions.set(child.id, { x: curX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
-    placedIds.add(child.id);
-    sadaeKidMidXs.push(curX + CARD_WIDTH / 2);
-    curX += CARD_WIDTH + SIBLING_GAP_L1;
-  });
-  if (sadaeChildren.length > 0) curX -= SIBLING_GAP_L1;
-  const sadaeKidsMid = sadaeKidMidXs[0];
-
-  // Place Level 0 couples
-  function placeCoupleAbove(f, m, centerX, y) {
-    if (!f && !m) return;
-    const fX = centerX - CARD_WIDTH - SPOUSE_GAP / 2;
-    const mX = centerX + SPOUSE_GAP / 2;
-    if (f) {
-      nodePositions.set(f.id, { x: fX, y, width: CARD_WIDTH, height: CARD_HEIGHT });
-      placedIds.add(f.id);
+  // 小笠原祖父母 (Level 0)
+  if (oga_gp_f || oga_gp_m) {
+    const ogaF_X = ogaKidsMid - CARD_WIDTH - SPOUSE_GAP / 2;
+    const ogaM_X = ogaKidsMid + SPOUSE_GAP / 2;
+    if (oga_gp_f) {
+      nodePositions.set(oga_gp_f.id, { x: ogaF_X, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(oga_gp_f.id);
     }
-    if (m) {
-      nodePositions.set(m.id, { x: mX, y, width: CARD_WIDTH, height: CARD_HEIGHT });
-      placedIds.add(m.id);
+    if (oga_gp_m) {
+      nodePositions.set(oga_gp_m.id, { x: ogaM_X, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(oga_gp_m.id);
     }
   }
 
-  placeCoupleAbove(oga_gp_f, oga_gp_m, ogaKidsMid, yL0);
-  placeCoupleAbove(taizo, tane, imaiKidsMid, yL0);
-  placeCoupleAbove(matsuda_gp_f, matsuda_gp_m, matsudaKidsMid, yL0);
-  placeCoupleAbove(sadae_f, sadae, sadaeKidsMid, yL0);
+  const ogaRightEdge = Math.max(curX, (oga_gp_m && nodePositions.has(oga_gp_m.id)) ? nodePositions.get(oga_gp_m.id).x + CARD_WIDTH : curX);
 
-  // Level 1 Marriages
+  // -------------------------------------------------------------------------
+  // STEP 3: 今井家と小笠原家の間に挟まる外戚・兄弟ブロックのトポロジカル配置
+  // (神谷美恵子 ─ 前田陽一 ⚭ 今井妹 ─ 今井兄)
+  // -------------------------------------------------------------------------
+  const intermediateNodes = [
+    { id: 'p465905', gapAfter: SIBLING_GAP },
+    { id: 'p860543', gapAfter: SPOUSE_GAP },
+    { id: 'p138813', gapAfter: SIBLING_GAP },
+    { id: 'p325114', gapAfter: SIBLING_GAP }
+  ];
+
+  let interStartX = ogaRightEdge + BRANCH_GAP;
+  intermediateNodes.forEach(item => {
+    if (personMap.has(item.id)) {
+      nodePositions.set(item.id, { x: interStartX, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(item.id);
+      interStartX += CARD_WIDTH + item.gapAfter;
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // STEP 4: 今井家ブロック (今井退蔵 ⚭ 今井たね ＆ Level 1 子供たち)
+  // -------------------------------------------------------------------------
+  const taizoX = interStartX;
+  const taneX = taizoX + CARD_WIDTH + SPOUSE_GAP;
+  if (taizo) {
+    nodePositions.set(taizo.id, { x: taizoX, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(taizo.id);
+  }
+  if (tane) {
+    nodePositions.set(tane.id, { x: taneX, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(tane.id);
+  }
+
+  const imaiCoupleMid = (taizoX + CARD_WIDTH + taneX) / 2;
+
+  // Level 1: 今井子供たち (ゑみ子、地平、洋子)
+  const imaiKidsW = imaiChildren.length * CARD_WIDTH + (imaiChildren.length - 1) * SIBLING_GAP_L1;
+  let imaiKidsStartX = Math.max(curX + COUPLE_INTER_GAP, imaiCoupleMid - imaiKidsW / 2);
+  const imaiKidMidXs = [];
+  imaiChildren.forEach(child => {
+    nodePositions.set(child.id, { x: imaiKidsStartX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    imaiKidMidXs.push(imaiKidsStartX + CARD_WIDTH / 2);
+    imaiKidsStartX += CARD_WIDTH + SIBLING_GAP_L1;
+  });
+  if (imaiChildren.length > 0) imaiKidsStartX -= SIBLING_GAP_L1;
+
+  // -------------------------------------------------------------------------
+  // STEP 5: 松田家ブロック (松田11人兄弟 ＆ 松田祖父母)
+  // -------------------------------------------------------------------------
+  let matsudaStartX = Math.max(taneX + CARD_WIDTH + BRANCH_GAP, imaiKidsStartX + BRANCH_GAP);
+  const matsudaKidMidXs = [];
+  matsudaChildren.forEach(child => {
+    nodePositions.set(child.id, { x: matsudaStartX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    matsudaKidMidXs.push(matsudaStartX + CARD_WIDTH / 2);
+    matsudaStartX += CARD_WIDTH + SIBLING_GAP_L1;
+  });
+  if (matsudaChildren.length > 0) matsudaStartX -= SIBLING_GAP_L1;
+  const matsudaKidsMid = matsudaKidMidXs.length > 0 ? (matsudaKidMidXs[0] + matsudaKidMidXs[matsudaKidMidXs.length - 1]) / 2 : matsudaStartX;
+
+  // 松田祖父母 (Level 0)
+  if (matsuda_gp_f || matsuda_gp_m) {
+    const matsudaF_X = matsudaKidsMid - CARD_WIDTH - SPOUSE_GAP / 2;
+    const matsudaM_X = matsudaKidsMid + SPOUSE_GAP / 2;
+    if (matsuda_gp_f) {
+      nodePositions.set(matsuda_gp_f.id, { x: matsudaF_X, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(matsuda_gp_f.id);
+    }
+    if (matsuda_gp_m) {
+      nodePositions.set(matsuda_gp_m.id, { x: matsudaM_X, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(matsuda_gp_m.id);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // STEP 6: 佐田家ブロック (仁子 ＆ 佐田衛夫妻)
+  // -------------------------------------------------------------------------
+  let sadaeStartX = Math.max(
+    (matsuda_gp_m && nodePositions.has(matsuda_gp_m.id)) ? nodePositions.get(matsuda_gp_m.id).x + CARD_WIDTH + BRANCH_GAP : matsudaStartX + COUPLE_INTER_GAP,
+    matsudaStartX + COUPLE_INTER_GAP
+  );
+  sadaeChildren.forEach(child => {
+    nodePositions.set(child.id, { x: sadaeStartX, y: yL1, width: CARD_WIDTH, height: CARD_HEIGHT });
+    placedIds.add(child.id);
+    sadaeStartX += CARD_WIDTH + SIBLING_GAP_L1;
+  });
+  const satokoPos = satoko ? nodePositions.get(satoko.id) : null;
+  const satokoMid = satokoPos ? satokoPos.x + CARD_WIDTH / 2 : sadaeStartX;
+
+  // 佐田衛夫妻 (Level 0)
+  if (sadae_f || sadae) {
+    const sadaeF_X = satokoMid - CARD_WIDTH - SPOUSE_GAP / 2;
+    const sadaeM_X = satokoMid + SPOUSE_GAP / 2;
+    if (sadae_f) {
+      nodePositions.set(sadae_f.id, { x: sadaeF_X, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(sadae_f.id);
+    }
+    if (sadae) {
+      nodePositions.set(sadae.id, { x: sadaeM_X, y: yL0, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add(sadae.id);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // STEP 7: Level -1 親ノードの重心配置 (Barycentric Alignment)
+  // -------------------------------------------------------------------------
+  // 前田多門 -> 前田陽一 ＆ 神谷美恵子の中心真上
+  if (personMap.has('p620845')) {
+    const p1 = nodePositions.get('p465905');
+    const p2 = nodePositions.get('p860543');
+    if (p1 && p2) {
+      const maedaMid = (p1.x + p2.x + CARD_WIDTH) / 2;
+      nodePositions.set('p620845', { x: maedaMid - CARD_WIDTH / 2, y: yL_minus_1, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add('p620845');
+    }
+  }
+
+  // 今井家(父) ⚭ 今井家母 -> 今井妹, 兄, 退蔵の中心真上
+  if (personMap.has('p553798') && personMap.has('p27110')) {
+    const pSister = nodePositions.get('p138813');
+    const pTaizo = nodePositions.get('p_taizo_imai');
+    if (pSister && pTaizo) {
+      const imaiSiblingsMid = (pSister.x + pTaizo.x + CARD_WIDTH) / 2;
+      nodePositions.set('p553798', { x: imaiSiblingsMid - CARD_WIDTH - SPOUSE_GAP / 2, y: yL_minus_1, width: CARD_WIDTH, height: CARD_HEIGHT });
+      nodePositions.set('p27110', { x: imaiSiblingsMid + SPOUSE_GAP / 2, y: yL_minus_1, width: CARD_WIDTH, height: CARD_HEIGHT });
+      placedIds.add('p553798');
+      placedIds.add('p27110');
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // STEP 8: Level 2 & Level 3 の重心配置
+  // -------------------------------------------------------------------------
   const posMinato = minato ? nodePositions.get(minato.id) : null;
   const posEmiko = emiko ? nodePositions.get(emiko.id) : null;
-  let minatoEmikoMid = (ogaKidsMid + imaiKidsMid) / 2;
+  let minatoEmikoMid = (ogaKidsMid + imaiCoupleMid) / 2;
   if (posMinato && posEmiko) {
     minatoEmikoMid = (posMinato.x + CARD_WIDTH + posEmiko.x) / 2;
   }
 
   const posIchiro = ichiro ? nodePositions.get(ichiro.id) : null;
   const posSatoko = satoko ? nodePositions.get(satoko.id) : null;
-  let ichiroSatokoMid = (matsudaKidsMid + sadaeKidsMid) / 2;
+  let ichiroSatokoMid = (matsudaKidsMid + satokoMid) / 2;
   if (posIchiro && posSatoko) {
     ichiroSatokoMid = (posIchiro.x + CARD_WIDTH + posSatoko.x) / 2;
   }
 
-  // Level 2: Minato & Emiko kids
+  // Level 2: 更一 ＆ 妹洋子
   const minatoKidsW = minatoChildren.length * CARD_WIDTH + (minatoChildren.length - 1) * SIBLING_GAP;
   let curMinatoKidX = minatoEmikoMid - minatoKidsW / 2;
-  const minatoKidXs = [];
   minatoChildren.forEach(child => {
     nodePositions.set(child.id, { x: curMinatoKidX, y: yL2, width: CARD_WIDTH, height: CARD_HEIGHT });
     placedIds.add(child.id);
-    minatoKidXs.push(curMinatoKidX + CARD_WIDTH / 2);
     curMinatoKidX += CARD_WIDTH + SIBLING_GAP;
   });
 
-  // Level 2: Ichiro & Satoko kids
+  // Level 2: 陽子 ＆ 健太郎
   const ichiroKidsW = ichiroChildren.length * CARD_WIDTH + (ichiroChildren.length - 1) * SIBLING_GAP;
   let curIchiroKidX = ichiroSatokoMid - ichiroKidsW / 2;
-  const ichiroKidXs = [];
   ichiroChildren.forEach(child => {
     nodePositions.set(child.id, { x: curIchiroKidX, y: yL2, width: CARD_WIDTH, height: CARD_HEIGHT });
     placedIds.add(child.id);
-    ichiroKidXs.push(curIchiroKidX + CARD_WIDTH / 2);
     curIchiroKidX += CARD_WIDTH + SIBLING_GAP;
   });
 
-  // Level 2 Marriage
+  // Level 3: 陸 ＆ こころ
   const posKoichi = koichi ? nodePositions.get(koichi.id) : null;
   const posYoko = yoko ? nodePositions.get(yoko.id) : null;
   let koichiYokoMid = (minatoEmikoMid + ichiroSatokoMid) / 2;
@@ -312,158 +458,72 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
     koichiYokoMid = (posKoichi.x + CARD_WIDTH + posYoko.x) / 2;
   }
 
-  // Level 3: Children of Koichi & Yoko
   const koichiKidsW = koichiChildren.length * CARD_WIDTH + (koichiChildren.length - 1) * SIBLING_GAP;
   let curKoichiKidX = koichiYokoMid - koichiKidsW / 2;
-  const koichiKidXs = [];
   koichiChildren.forEach(child => {
     nodePositions.set(child.id, { x: curKoichiKidX, y: yL3, width: CARD_WIDTH, height: CARD_HEIGHT });
     placedIds.add(child.id);
-    koichiKidXs.push(curKoichiKidX + CARD_WIDTH / 2);
     curKoichiKidX += CARD_WIDTH + SIBLING_GAP;
   });
 
-  // =========================================================================
-  // UNIFIED MULTI-PASS OMNIDIRECTIONAL PROPAGATION LOOP
-  // (上・下・横の全方向親族伝播配置エンジン)
-  // 配偶者・その親（上の世代）・その兄弟など、どんな外戚や多世代親族が
-  // 追加されても、正しい世代段（Level）と美しい幾何に完全配置する。
-  // =========================================================================
+  // -------------------------------------------------------------------------
+  // STEP 9: UNIFIED MULTI-PASS PROPAGATION FOR UNPLACED / EXTENDED RELATIVES
+  // (追加親族や遠縁の汎用伝播配置)
+  // -------------------------------------------------------------------------
   let placedNew = true;
   let propIter = 0;
-  while (placedNew && propIter < 25) {
+  while (placedNew && propIter < 20) {
     placedNew = false;
     propIter++;
 
-    // -----------------------------------------------------------------------
-    // PASS 1: UPPER ANCESTORS (上の世代：親の配置)
-    // -----------------------------------------------------------------------
-    const personsWithUnplacedParents = [];
+    // 親の配置
     appData.persons.forEach(p => {
       if (placedIds.has(p.id) && p.parents && p.parents.length > 0) {
         const unplaced = p.parents.filter(pid => !placedIds.has(pid));
         if (unplaced.length > 0) {
-          personsWithUnplacedParents.push(p);
+          const pPos = nodePositions.get(p.id);
+          const targetY = pPos.y - lvlHeight;
+          unplaced.forEach((parentId, idx) => {
+            const desiredX = pPos.x + idx * (CARD_WIDTH + SPOUSE_GAP);
+            nodePositions.set(parentId, { x: desiredX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
+            placedIds.add(parentId);
+            placedNew = true;
+          });
         }
       }
     });
 
-    if (personsWithUnplacedParents.length > 0) {
-      const parentGroupMap = new Map();
-      personsWithUnplacedParents.forEach(child => {
-        const key = [...child.parents].sort().join(',');
-        if (!parentGroupMap.has(key)) parentGroupMap.set(key, []);
-        parentGroupMap.get(key).push(child);
-      });
-
-      parentGroupMap.forEach((children, pKey) => {
-        const parentIds = pKey.split(',');
-        const parents = parentIds.map(pid => personMap.get(pid)).filter(Boolean);
-        if (parents.length === 0) return;
-
-        const childXs = children.map(c => {
-          const pos = nodePositions.get(c.id);
-          return pos ? pos.x + CARD_WIDTH / 2 : 0;
-        });
-        const childCenter = (Math.min(...childXs) + Math.max(...childXs)) / 2;
-        const childYs = children.map(c => nodePositions.get(c.id).y);
-        const minChildY = Math.min(...childYs);
-        const targetY = minChildY - lvlHeight;
-
-        if (parents.length >= 2) {
-          const f = parents.find(p => p.gender === 'male') || parents[0];
-          const m = parents.find(p => p.id !== f.id) || parents[1];
-
-          let fX = childCenter - CARD_WIDTH - SPOUSE_GAP / 2;
-          let mX = childCenter + SPOUSE_GAP / 2;
-
-          nodePositions.set(f.id, { x: fX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
-          nodePositions.set(m.id, { x: mX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
-          placedIds.add(f.id);
-          placedIds.add(m.id);
-        } else if (parents.length === 1) {
-          const p = parents[0];
-          let pX = childCenter - CARD_WIDTH / 2;
-          nodePositions.set(p.id, { x: pX, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
-          placedIds.add(p.id);
-        }
-
-        placedNew = true;
-      });
-    }
-
-    // -----------------------------------------------------------------------
-    // PASS 2: SPOUSES (同世代：配偶者の横配置)
-    // -----------------------------------------------------------------------
+    // 配偶者の配置
     appData.persons.forEach(p => {
       if (placedIds.has(p.id)) {
         const pPos = nodePositions.get(p.id);
         (p.spouses || []).forEach(sid => {
           if (!placedIds.has(sid)) {
-            const sp = personMap.get(sid);
-            if (sp) {
-              const desiredX = pPos.x + CARD_WIDTH + SPOUSE_GAP;
-              nodePositions.set(sid, {
-                x: desiredX,
-                y: pPos.y,
-                width: CARD_WIDTH,
-                height: CARD_HEIGHT
-              });
-              placedIds.add(sid);
-              placedNew = true;
-            }
+            const desiredX = pPos.x + CARD_WIDTH + SPOUSE_GAP;
+            nodePositions.set(sid, { x: desiredX, y: pPos.y, width: CARD_WIDTH, height: CARD_HEIGHT });
+            placedIds.add(sid);
+            placedNew = true;
           }
         });
       }
     });
 
-    // -----------------------------------------------------------------------
-    // PASS 3: CHILDREN & SIBLINGS (下の世代・同世代兄弟の配置)
-    // -----------------------------------------------------------------------
+    // 子供の配置
     appData.persons.forEach(p => {
       if (placedIds.has(p.id)) {
         const pPos = nodePositions.get(p.id);
         (p.children || []).forEach(cid => {
           if (!placedIds.has(cid)) {
-            const child = personMap.get(cid);
-            if (child) {
-              const placedSiblings = (p.children || [])
-                .filter(cId => cId !== cid && placedIds.has(cId))
-                .map(cId => ({ id: cId, pos: nodePositions.get(cId) }));
-
-              if (placedSiblings.length > 0) {
-                placedSiblings.sort((a, b) => a.pos.x - b.pos.x);
-                const rowY = placedSiblings[0].pos.y;
-                const isOlder = (child.relation && (child.relation.includes('兄') || child.relation.includes('姉') || child.relation.includes('長'))) ||
-                                (child.name && (child.name.includes('兄') || child.name.includes('姉') || child.name.includes('長男') || child.name.includes('長女')));
-
-                let chosenX;
-                if (isOlder) {
-                  chosenX = placedSiblings[0].pos.x - CARD_WIDTH - SIBLING_GAP;
-                } else {
-                  chosenX = placedSiblings[placedSiblings.length - 1].pos.x + CARD_WIDTH + SIBLING_GAP;
-                }
-
-                nodePositions.set(cid, {
-                  x: chosenX,
-                  y: rowY,
-                  width: CARD_WIDTH,
-                  height: CARD_HEIGHT
-                });
-              } else {
-                const targetY = pPos.y + lvlHeight;
-                let desiredX = pPos.x;
-                nodePositions.set(cid, {
-                  x: desiredX,
-                  y: targetY,
-                  width: CARD_WIDTH,
-                  height: CARD_HEIGHT
-                });
+            const targetY = pPos.y + lvlHeight;
+            let maxXOnRow = pPos.x;
+            nodePositions.forEach(pos => {
+              if (Math.abs(pos.y - targetY) < 20) {
+                maxXOnRow = Math.max(maxXOnRow, pos.x + pos.width);
               }
-
-              placedIds.add(cid);
-              placedNew = true;
-            }
+            });
+            nodePositions.set(cid, { x: maxXOnRow + SIBLING_GAP, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
+            placedIds.add(cid);
+            placedNew = true;
           }
         });
       }
@@ -471,56 +531,25 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
   }
 
   // -------------------------------------------------------------------------
-  // PASS 4: FALLBACK FOR ANY ISOLATED NODES (孤立ノードの世代推定配置)
+  // STEP 10: 孤立ノードの最終フォールバック
   // -------------------------------------------------------------------------
   appData.persons.forEach(p => {
     if (!placedIds.has(p.id)) {
-      let estimatedY = null;
-      if (p.parents && p.parents.some(pid => nodePositions.has(pid))) {
-        const pid = p.parents.find(pid => nodePositions.has(pid));
-        estimatedY = nodePositions.get(pid).y + lvlHeight;
-      } else if (p.spouses && p.spouses.some(sid => nodePositions.has(sid))) {
-        const sid = p.spouses.find(sid => nodePositions.has(sid));
-        estimatedY = nodePositions.get(sid).y;
-      } else if (p.children && p.children.some(cid => nodePositions.has(cid))) {
-        const cid = p.children.find(cid => nodePositions.has(cid));
-        estimatedY = nodePositions.get(cid).y - lvlHeight;
-      }
-
-      if (estimatedY == null) {
-        let maxY = 0;
-        nodePositions.forEach(pos => { maxY = Math.max(maxY, pos.y + pos.height); });
-        estimatedY = maxY + GENERATION_GAP;
-      }
-
-      const sameRow = Array.from(nodePositions.values()).filter(pos => Math.abs(pos.y - estimatedY) < 20);
+      const lvl = levels.get(p.id) || 0;
+      const targetY = levelY.get(lvl) || (startY + lvlHeight);
       let maxXOnRow = 60;
-      sameRow.forEach(pos => { maxXOnRow = Math.max(maxXOnRow, pos.x + pos.width); });
-      nodePositions.set(p.id, {
-        x: maxXOnRow + SIBLING_GAP,
-        y: estimatedY,
-        width: CARD_WIDTH,
-        height: CARD_HEIGHT
+      nodePositions.forEach(pos => {
+        if (Math.abs(pos.y - targetY) < 20) {
+          maxXOnRow = Math.max(maxXOnRow, pos.x + pos.width);
+        }
       });
+      nodePositions.set(p.id, { x: maxXOnRow + SIBLING_GAP, y: targetY, width: CARD_WIDTH, height: CARD_HEIGHT });
       placedIds.add(p.id);
     }
   });
 
-  // AUTO-SHIFT DOWNWARDS IF HIGHER ANCESTORS EXIST ABOVE Y=70
-  let minY = Infinity;
-  nodePositions.forEach(pos => {
-    if (pos.y < minY) minY = pos.y;
-  });
-
-  if (minY < startY) {
-    const shiftY = startY - minY;
-    nodePositions.forEach(pos => {
-      pos.y += shiftY;
-    });
-  }
-
   // -------------------------------------------------------------------------
-  // PASS 5: RESOLVE HORIZONTAL OVERLAPS (各行の水平重なり自動解消)
+  // STEP 11: 水平重なり自動解消 (Overlap Resolution)
   // -------------------------------------------------------------------------
   const rowGroups = new Map();
   nodePositions.forEach((pos, id) => {
@@ -548,38 +577,6 @@ function renderAncestryLayout(personMap, cardsContainer, svg) {
         const diff = minReqX - next.x;
         for (let j = i + 1; j < nodes.length; j++) {
           nodes[j].pos.x += diff;
-        }
-      }
-    }
-  });
-
-  // Re-center parent couples above their children group if multiple children are placed
-  appData.persons.forEach(p => {
-    if (p.spouses && p.spouses.length > 0 && p.children && p.children.length > 1) {
-      const spId = p.spouses[0];
-      if (p.id < spId && nodePositions.has(p.id) && nodePositions.has(spId)) {
-        const placedKids = p.children.filter(cid => nodePositions.has(cid));
-        if (placedKids.length > 1) {
-          const kidXs = placedKids.map(cid => nodePositions.get(cid).x);
-          const minK = Math.min(...kidXs);
-          const maxK = Math.max(...kidXs) + CARD_WIDTH;
-          const kCenter = (minK + maxK) / 2;
-          const pPos = nodePositions.get(p.id);
-          const sPos = nodePositions.get(spId);
-          if (Math.abs(pPos.y - sPos.y) < 10) {
-            const leftId = pPos.x < sPos.x ? p.id : spId;
-            const rightId = pPos.x < sPos.x ? spId : p.id;
-            const newLeftX = kCenter - CARD_WIDTH - SPOUSE_GAP / 2;
-            const newRightX = kCenter + SPOUSE_GAP / 2;
-            const otherOnRow = Array.from(nodePositions.entries()).filter(([id, pos]) => id !== leftId && id !== rightId && Math.abs(pos.y - pPos.y) < 20);
-            const collides = otherOnRow.some(([id, pos]) => 
-              (pos.x + CARD_WIDTH > newLeftX - 10 && pos.x < newRightX + CARD_WIDTH + 10)
-            );
-            if (!collides) {
-              nodePositions.get(leftId).x = newLeftX;
-              nodePositions.get(rightId).x = newRightX;
-            }
-          }
         }
       }
     }
